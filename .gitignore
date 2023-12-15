@@ -1,0 +1,10 @@
+node_modules
+artifacts
+cache
+deprecated
+merged
+scripts
+test
+typechain-types
+.DS_Store
+.env
