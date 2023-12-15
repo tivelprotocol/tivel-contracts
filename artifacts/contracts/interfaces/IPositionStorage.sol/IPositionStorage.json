@@ -1,0 +1,1380 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IPositionStorage",
+  "sourceName": "contracts/interfaces/IPositionStorage.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "canLiquidate",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "closeManuallyStep1",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "closeManuallyStep2",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "factory",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "baseToken",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "quoteToken",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "collateral",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "baseAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quoteAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "collateralAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stoplossPrice",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IPositionStorage.OpenTradePositionParams",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "getMinCollateralAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "baseToken",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "quoteToken",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "collateral",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "baseAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quoteAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "collateralAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stoplossPrice",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IPositionStorage.OpenTradePositionParams",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "getQuoteAmountRange",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "minQuoteAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxQuoteAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "positionKey",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "pool",
+              "type": "address"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "entryPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "liqPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "closePrice",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.BaseToken",
+              "name": "baseToken",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.QuoteToken",
+              "name": "quoteToken",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "entryPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "liqPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "closePrice",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.Collateral",
+              "name": "collateral",
+              "type": "tuple"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stoplossPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "protocolFee",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "isClosed",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isExpired",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isStoploss",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isBaseLiquidated",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isCollateralLiquidated",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isRollbacked",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isClosedManuallyStep1",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isClosedManuallyStep2",
+                  "type": "bool"
+                }
+              ],
+              "internalType": "struct IPositionStorage.Status",
+              "name": "status",
+              "type": "tuple"
+            },
+            {
+              "internalType": "address",
+              "name": "closer",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IPositionStorage.TradePosition",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "openTradePosition",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "positionKey",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "openingPositionKey",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "openingPositionLength",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "position",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "positionKey",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "pool",
+              "type": "address"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "entryPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "liqPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "closePrice",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.BaseToken",
+              "name": "baseToken",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.QuoteToken",
+              "name": "quoteToken",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "entryPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "liqPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "closePrice",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.Collateral",
+              "name": "collateral",
+              "type": "tuple"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stoplossPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "protocolFee",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "isClosed",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isExpired",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isStoploss",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isBaseLiquidated",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isCollateralLiquidated",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isRollbacked",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isClosedManuallyStep1",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isClosedManuallyStep2",
+                  "type": "bool"
+                }
+              ],
+              "internalType": "struct IPositionStorage.Status",
+              "name": "status",
+              "type": "tuple"
+            },
+            {
+              "internalType": "address",
+              "name": "closer",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IPositionStorage.TradePosition",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "positionByKey",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "positionKey",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "pool",
+              "type": "address"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "entryPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "liqPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "closePrice",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.BaseToken",
+              "name": "baseToken",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.QuoteToken",
+              "name": "quoteToken",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "entryPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "liqPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "closePrice",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.Collateral",
+              "name": "collateral",
+              "type": "tuple"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stoplossPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "protocolFee",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "isClosed",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isExpired",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isStoploss",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isBaseLiquidated",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isCollateralLiquidated",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isRollbacked",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isClosedManuallyStep1",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isClosedManuallyStep2",
+                  "type": "bool"
+                }
+              ],
+              "internalType": "struct IPositionStorage.Status",
+              "name": "status",
+              "type": "tuple"
+            },
+            {
+              "internalType": "address",
+              "name": "closer",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IPositionStorage.TradePosition",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "positionIndex",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "positionKeyByUser",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "positionLength",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "baseToken",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "quoteToken",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "collateral",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "baseAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quoteAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "collateralAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stoplossPrice",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IPositionStorage.OpenTradePositionParams",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "previewTradePosition",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "positionKey",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "pool",
+              "type": "address"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "entryPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "liqPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "closePrice",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.BaseToken",
+              "name": "baseToken",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.QuoteToken",
+              "name": "quoteToken",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "id",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "entryPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "liqPrice",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "closePrice",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IPositionStorage.Collateral",
+              "name": "collateral",
+              "type": "tuple"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stoplossPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "protocolFee",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "bool",
+                  "name": "isClosed",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isExpired",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isStoploss",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isBaseLiquidated",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isCollateralLiquidated",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isRollbacked",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isClosedManuallyStep1",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isClosedManuallyStep2",
+                  "type": "bool"
+                }
+              ],
+              "internalType": "struct IPositionStorage.Status",
+              "name": "status",
+              "type": "tuple"
+            },
+            {
+              "internalType": "address",
+              "name": "closer",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IPositionStorage.TradePosition",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "positionKey",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "updater",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IPositionStorage.UpdateCollateralAmountParams",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "previewUpdateCollateralAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "collateralLiqPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "baseLiqPrice",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "positionKey",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "updater",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IPositionStorage.UpdateDeadlineParams",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "previewUpdateDeadline",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "protocolFee",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_positionKey",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "_updater",
+          "type": "address"
+        }
+      ],
+      "name": "rollback",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_positionKey",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_baseValue",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_loss",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_remainingCollateralAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateCloseValues",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "positionKey",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "updater",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IPositionStorage.UpdateCollateralAmountParams",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "updateCollateralAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "collateralLiqPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "baseLiqPrice",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "positionKey",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "updater",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IPositionStorage.UpdateDeadlineParams",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "updateDeadline",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "protocolFee",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_positionKey",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "_updater",
+          "type": "address"
+        }
+      ],
+      "name": "updateStatus",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "needLiquidate",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "positionKey",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stoplossPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "updater",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IPositionStorage.UpdateStoplossPriceParams",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "updateStoplossPrice",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "userPositionLength",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

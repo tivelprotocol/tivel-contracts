@@ -1,0 +1,16 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Lockable",
+  "sourceName": "contracts/base/Lockable.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "Locked",
+      "type": "error"
+    }
+  ],
+  "bytecode": "0x60806040526001600055348015601457600080fd5b50603f8060226000396000f3fe6080604052600080fdfea26469706673582212208bf86e24747a50e1d955aad6e724b27816fcc8804b2a64b0fec4877093aff8f864736f6c63430008070033",
+  "deployedBytecode": "0x6080604052600080fdfea26469706673582212208bf86e24747a50e1d955aad6e724b27816fcc8804b2a64b0fec4877093aff8f864736f6c63430008070033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
