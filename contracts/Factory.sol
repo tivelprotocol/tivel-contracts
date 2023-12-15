@@ -33,10 +33,11 @@ contract Factory is IFactory {
     mapping(address => uint256) public override collateralMUT; // max utilization threshold of collaterals // 10000 = 100%
     mapping(address => uint256) public override baseTokenLT; // liquidation threshold of base tokens // 10000 = 100%
     mapping(address => uint256) public override collateralLT; // liquidation threshold of collaterals // 10000 = 100%
-    uint256 constant MIN_MANUAL_EXPIRATION = 30 * 24 * 60 * 60; // 30 days
+    uint256 constant MIN_MANUAL_EXPIRATION = 24 * 60 * 60; // 24 hours
 
     error Forbidden(address sender);
     error ZeroAddress();
+    error BadLengths(uint256 length0, uint256 length1);
     error TooHighValue(uint256 value, uint256 max);
     error TooLowValue(uint256 value, uint256 min);
     error PoolNotExists(address quoteToken);
@@ -232,43 +233,59 @@ contract Factory is IFactory {
     }
 
     function setBaseTokenMUT(
-        address _baseToken,
-        uint256 _mut
+        address[] memory _baseTokens,
+        uint256[] memory _muts
     ) external onlyManager {
-        if (_mut > 10000) revert TooHighValue(_mut, 10000);
-        baseTokenMUT[_baseToken] = _mut;
+        if (_baseTokens.length != _muts.length)
+            revert BadLengths(_baseTokens.length, _muts.length);
+        for (uint256 i = 0; i < _baseTokens.length; i++) {
+            if (_muts[i] > 10000) revert TooHighValue(_muts[i], 10000);
+            baseTokenMUT[_baseTokens[i]] = _muts[i];
 
-        emit SetBaseTokenMUT(_baseToken, _mut);
+            emit SetBaseTokenMUT(_baseTokens[i], _muts[i]);
+        }
     }
 
     function setCollateralMUT(
-        address _collateral,
-        uint256 _mut
+        address[] memory _collaterals,
+        uint256[] memory _muts
     ) external onlyManager {
-        if (_mut > 10000) revert TooHighValue(_mut, 10000);
-        collateralMUT[_collateral] = _mut;
+        if (_collaterals.length != _muts.length)
+            revert BadLengths(_collaterals.length, _muts.length);
+        for (uint256 i = 0; i < _collaterals.length; i++) {
+            if (_muts[i] > 10000) revert TooHighValue(_muts[i], 10000);
+            collateralMUT[_collaterals[i]] = _muts[i];
 
-        emit SetCollateralMUT(_collateral, _mut);
+            emit SetCollateralMUT(_collaterals[i], _muts[i]);
+        }
     }
 
     function setBaseTokenLT(
-        address _baseToken,
-        uint256 _lt
+        address[] memory _baseTokens,
+        uint256[] memory _lts
     ) external onlyManager {
-        if (_lt > 10000) revert TooHighValue(_lt, 10000);
-        baseTokenLT[_baseToken] = _lt;
+        if (_baseTokens.length != _lts.length)
+            revert BadLengths(_baseTokens.length, _lts.length);
+        for (uint256 i = 0; i < _baseTokens.length; i++) {
+            if (_lts[i] > 10000) revert TooHighValue(_lts[i], 10000);
+            baseTokenLT[_baseTokens[i]] = _lts[i];
 
-        emit SetBaseTokenLT(_baseToken, _lt);
+            emit SetBaseTokenLT(_baseTokens[i], _lts[i]);
+        }
     }
 
     function setCollateralLT(
-        address _collateral,
-        uint256 _lt
+        address[] memory _collaterals,
+        uint256[] memory _lts
     ) external onlyManager {
-        if (_lt > 10000) revert TooHighValue(_lt, 10000);
-        collateralLT[_collateral] = _lt;
+        if (_collaterals.length != _lts.length)
+            revert BadLengths(_collaterals.length, _lts.length);
+        for (uint256 i = 0; i < _collaterals.length; i++) {
+            if (_lts[i] > 10000) revert TooHighValue(_lts[i], 10000);
+            collateralLT[_collaterals[i]] = _lts[i];
 
-        emit SetCollateralLT(_collateral, _lt);
+            emit SetCollateralLT(_collaterals[i], _lts[i]);
+        }
     }
 
     function setPoolInterest(

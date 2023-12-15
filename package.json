@@ -21,17 +21,14 @@
     "build": "hardhat compile",
     "arbitrum:deploy": "hardhat run --network arbitrum scripts/arbitrum/deploy.ts",
     "arbitrum:manage-pricefeed": "hardhat run --network arbitrum scripts/arbitrum/manage-pricefeed.ts",
-    "arbitrum:manage-dex": "hardhat run --network arbitrum scripts/arbitrum/manage-dex.ts",
-    "arbitrum:manage-pool-deployer": "hardhat run --network arbitrum scripts/arbitrum/manage-pool-deployer.ts",
+    "arbitrum:manage-aggregator": "hardhat run --network arbitrum scripts/arbitrum/manage-aggregator.ts",
+    "arbitrum:manage-user-storage": "hardhat run --network arbitrum scripts/arbitrum/manage-user-storage.ts",
+    "arbitrum:manage-withdrawal-monitor": "hardhat run --network arbitrum scripts/arbitrum/manage-withdrawal-monitor.ts",
     "arbitrum:manage-factory": "hardhat run --network arbitrum scripts/arbitrum/manage-factory.ts",
     "arbitrum:manage-monitor": "hardhat run --network arbitrum scripts/arbitrum/manage-monitor.ts",
     "arbitrum:verify": "hardhat --network arbitrum etherscan-verify --solc-input",
     "test": "hardhat test",
-    "build-contracts:common": "sol-merger \"./contracts/common/*.sol\" ./merged",
-    "build-contracts:core_shortsale": "sol-merger \"./contracts/core/shortsale/*.sol\" ./merged",
-    "build-contracts:core_swap": "sol-merger \"./contracts/core/swap/*.sol\" ./merged",
-    "build-contracts:periphery_shortsale": "sol-merger \"./contracts/periphery/shortsale/*.sol\" ./merged",
-    "build-contracts:periphery_swap": "sol-merger \"./contracts/periphery/swap/*.sol\" ./merged"
+    "build-contracts": "sol-merger \"./contracts/*.sol\" ./merged"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.6.1",
