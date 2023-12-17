@@ -48,6 +48,7 @@ interface INonfungiblePositionManager is
             address operator,
             address token,
             uint256 liquidity,
+            uint256 withdrawingLiquidity,
             uint256 claimableFee
         );
 

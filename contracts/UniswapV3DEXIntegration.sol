@@ -10,7 +10,7 @@ import "./interfaces/IDEXIntegration.sol";
 import "./interfaces/IUniswapV3StaticQuoter.sol";
 import "./base/Lockable.sol";
 
-contract UniswapV3Integration is IDEXIntegration, Lockable {
+contract UniswapV3DEXIntegration is IDEXIntegration, Lockable {
     address public immutable factory;
     address public immutable quoter; // https://github.com/ultimexfi/uniswap-v3-static-quoter
     address public immutable router;

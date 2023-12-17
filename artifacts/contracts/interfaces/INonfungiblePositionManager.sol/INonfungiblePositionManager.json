@@ -617,6 +617,11 @@
         },
         {
           "internalType": "uint256",
+          "name": "withdrawingLiquidity",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
           "name": "claimableFee",
           "type": "uint256"
         }

@@ -87,6 +87,7 @@ contract NonfungiblePositionManager is
             address operator,
             address token,
             uint256 liquidity,
+            uint256 withdrawingLiquidity,
             uint256 claimableFee
         )
     {
@@ -106,6 +107,7 @@ contract NonfungiblePositionManager is
             position.operator,
             position.token,
             position.liquidity,
+            position.withdrawingLiquidity,
             fee
         );
     }

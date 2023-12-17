@@ -46,10 +46,10 @@ contract ChainlinkPriceFeedIntegration is IPriceFeedIntegration {
         address _baseToken,
         address _quoteToken
     ) external view override returns (uint256 price) {
-        uint256 basePrice = _price(_baseToken);
-        if (basePrice > 0) {
-            uint256 quotePrice = _price(_quoteToken);
-            price = (quotePrice * PRECISION) / basePrice;
+        uint256 quotePrice = _price(_quoteToken);
+        if (quotePrice > 0) {
+            uint256 basePrice = _price(_baseToken);
+            price = (basePrice * PRECISION) / quotePrice;
         }
     }
 }
