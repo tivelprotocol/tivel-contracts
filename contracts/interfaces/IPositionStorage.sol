@@ -43,6 +43,7 @@ interface IPositionStorage {
         uint256 protocolFee;
         Status status;
         address closer;
+        uint256 liquidationMarkTime;
     }
     struct OpenTradePositionParams {
         address owner;
@@ -126,6 +127,8 @@ interface IPositionStorage {
 
     function canLiquidate(bytes32) external view returns (bool);
 
+    function canLiquidationMark(bytes32) external view returns (bool);
+
     function openTradePosition(
         TradePosition memory
     ) external returns (bytes32 positionKey);
@@ -134,6 +137,8 @@ interface IPositionStorage {
         bytes32 _positionKey,
         address _updater
     ) external returns (bool needLiquidate);
+
+    function liquidationMark(bytes32) external;
 
     function rollback(bytes32 _positionKey, address _updater) external;
 

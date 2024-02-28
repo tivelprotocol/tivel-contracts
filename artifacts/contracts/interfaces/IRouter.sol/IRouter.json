@@ -549,6 +549,11 @@
               "internalType": "address",
               "name": "closer",
               "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "liquidationMarkTime",
+              "type": "uint256"
             }
           ],
           "internalType": "struct IPositionStorage.TradePosition",

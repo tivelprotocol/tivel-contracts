@@ -30,6 +30,25 @@
           "type": "bytes32"
         }
       ],
+      "name": "canLiquidationMark",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
       "name": "closeManuallyStep1",
       "outputs": [],
       "stateMutability": "nonpayable",
@@ -196,6 +215,19 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "liquidationMark",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -369,6 +401,11 @@
               "internalType": "address",
               "name": "closer",
               "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "liquidationMarkTime",
+              "type": "uint256"
             }
           ],
           "internalType": "struct IPositionStorage.TradePosition",
@@ -598,6 +635,11 @@
               "internalType": "address",
               "name": "closer",
               "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "liquidationMarkTime",
+              "type": "uint256"
             }
           ],
           "internalType": "struct IPositionStorage.TradePosition",
@@ -787,6 +829,11 @@
               "internalType": "address",
               "name": "closer",
               "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "liquidationMarkTime",
+              "type": "uint256"
             }
           ],
           "internalType": "struct IPositionStorage.TradePosition",
@@ -1079,6 +1126,11 @@
               "internalType": "address",
               "name": "closer",
               "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "liquidationMarkTime",
+              "type": "uint256"
             }
           ],
           "internalType": "struct IPositionStorage.TradePosition",

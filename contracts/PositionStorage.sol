@@ -19,6 +19,8 @@ contract PositionStorage is IPositionStorage {
     error Forbidden(address sender);
     error TradePositionNotExists(bytes32 positionKey);
     error TradePositionClosedAlready(bytes32 positionKey);
+    error LiquidationMarkedAlready(bytes32 positionKey);
+    error NotManualExpired(bytes32 positionKey);
     error TradePositionNotClosed(bytes32 positionKey);
     error NotOwner(address owner, address updater);
     error Step1NotDone(bytes32 positionKey);
@@ -27,6 +29,7 @@ contract PositionStorage is IPositionStorage {
 
     event OpenTradePosition(bytes32 indexed positionKey);
     event CloseTradePosition(bytes32 indexed positionKey, address updater);
+    event LiquidationMark(bytes32 indexed positionKey, uint256 time);
     event CloseManuallyStep1TradePosition(bytes32 indexed positionKey);
     event UpdateStoplossPrice(
         bytes32 indexed positionKey,
@@ -62,7 +65,7 @@ contract PositionStorage is IPositionStorage {
     ) external view override returns (TradePosition memory pos) {
         uint256 idx = positionIndex[_positionKey];
         if (idx > 0) {
-            pos = positions[idx];
+            pos = positions[idx - 1];
         }
     }
 
@@ -208,7 +211,8 @@ contract PositionStorage is IPositionStorage {
                     isClosedManuallyStep1: false,
                     isClosedManuallyStep2: false
                 }),
-                closer: address(0)
+                closer: address(0),
+                liquidationMarkTime: 0
             });
     }
 
@@ -300,7 +304,7 @@ contract PositionStorage is IPositionStorage {
                 uint256 fee = (_params.quoteAmount *
                     interest *
                     (_params.deadline - block.timestamp)) /
-                    (365 * 24 * 60 * 60);
+                    (365 * 24 * 60 * 60 * 10000);
                 IUserStorage userStorage = IUserStorage(_factory.userStorage());
                 fee = userStorage.discountedFee(_params.owner, fee);
                 uint256 protocolFeeRate = _factory.protocolFeeRate();
@@ -328,7 +332,7 @@ contract PositionStorage is IPositionStorage {
     {
         uint256 idx = positionIndex[_params.positionKey];
         if (idx > 0) {
-            TradePosition memory pos = positions[idx];
+            TradePosition memory pos = positions[idx - 1];
 
             IFactory _factory = IFactory(factory);
             IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
@@ -379,7 +383,7 @@ contract PositionStorage is IPositionStorage {
     ) external view override returns (uint256 fee, uint256 protocolFee) {
         uint256 idx = positionIndex[_params.positionKey];
         if (idx > 0) {
-            TradePosition memory pos = positions[idx];
+            TradePosition memory pos = positions[idx - 1];
 
             IFactory _factory = IFactory(factory);
             IUserStorage userStorage = IUserStorage(_factory.userStorage());
@@ -397,12 +401,10 @@ contract PositionStorage is IPositionStorage {
         }
     }
 
-    function canLiquidate(
-        bytes32 _positionKey
-    ) external view override returns (bool) {
+    function _canLiquidate(bytes32 _positionKey) internal view returns (bool) {
         uint256 idx = positionIndex[_positionKey];
         if (idx == 0) return false;
-        TradePosition memory pos = positions[idx];
+        TradePosition memory pos = positions[idx - 1];
         if (pos.status.isClosed) return false;
         if (pos.deadline <= block.timestamp) return true;
         IFactory _factory = IFactory(factory);
@@ -422,6 +424,22 @@ contract PositionStorage is IPositionStorage {
         ) return true;
 
         return false;
+    }
+
+    function canLiquidate(
+        bytes32 _positionKey
+    ) external view override returns (bool) {
+        return _canLiquidate(_positionKey);
+    }
+
+    function canLiquidationMark(
+        bytes32 _positionKey
+    ) external view override returns (bool) {
+        uint256 idx = positionIndex[_positionKey];
+        if (idx == 0) return false;
+        return
+            _canLiquidate(_positionKey) &&
+            positions[idx - 1].liquidationMarkTime == 0;
     }
 
     function openTradePosition(
@@ -450,7 +468,7 @@ contract PositionStorage is IPositionStorage {
         uint256 idx = positionIndex[_positionKey];
         if (idx == 0) revert TradePositionNotExists(_positionKey);
 
-        TradePosition storage pos = positions[idx];
+        TradePosition storage pos = positions[idx - 1];
 
         IFactory _factory = IFactory(factory);
         if (msg.sender != _factory.poolByQuoteToken(pos.quoteToken.id))
@@ -493,6 +511,24 @@ contract PositionStorage is IPositionStorage {
         emit CloseTradePosition(_positionKey, _updater);
     }
 
+    function liquidationMark(bytes32 _positionKey) external override {
+        uint256 idx = positionIndex[_positionKey];
+        if (idx == 0) revert TradePositionNotExists(_positionKey);
+
+        TradePosition storage pos = positions[idx - 1];
+
+        if (pos.status.isClosed)
+            revert TradePositionClosedAlready(_positionKey);
+        if (pos.liquidationMarkTime > 0)
+            revert LiquidationMarkedAlready(_positionKey);
+
+        uint256 time = block.timestamp;
+        if (_canLiquidate(_positionKey)) {
+            pos.liquidationMarkTime = time;
+            emit LiquidationMark(_positionKey, time);
+        }
+    }
+
     function rollback(
         bytes32 _positionKey,
         address _updater
@@ -500,7 +536,7 @@ contract PositionStorage is IPositionStorage {
         uint256 idx = positionIndex[_positionKey];
         if (idx == 0) revert TradePositionNotExists(_positionKey);
 
-        TradePosition storage pos = positions[idx];
+        TradePosition storage pos = positions[idx - 1];
 
         IFactory _factory = IFactory(factory);
         if (msg.sender != _factory.poolByQuoteToken(pos.quoteToken.id))
@@ -521,7 +557,7 @@ contract PositionStorage is IPositionStorage {
         uint256 idx = positionIndex[_positionKey];
         if (idx == 0) revert TradePositionNotExists(_positionKey);
 
-        TradePosition storage pos = positions[idx];
+        TradePosition storage pos = positions[idx - 1];
 
         IFactory _factory = IFactory(factory);
         if (msg.sender != _factory.poolByQuoteToken(pos.quoteToken.id))
@@ -529,6 +565,10 @@ contract PositionStorage is IPositionStorage {
 
         if (pos.status.isClosed)
             revert TradePositionClosedAlready(_positionKey);
+        if (
+            block.timestamp <
+            pos.liquidationMarkTime + _factory.manualExpiration()
+        ) revert NotManualExpired(_positionKey);
 
         pos.status.isClosedManuallyStep1 = true;
 
@@ -539,7 +579,7 @@ contract PositionStorage is IPositionStorage {
         uint256 idx = positionIndex[_positionKey];
         if (idx == 0) revert TradePositionNotExists(_positionKey);
 
-        TradePosition storage pos = positions[idx];
+        TradePosition storage pos = positions[idx - 1];
 
         IFactory _factory = IFactory(factory);
         if (msg.sender != _factory.poolByQuoteToken(pos.quoteToken.id))
@@ -566,7 +606,7 @@ contract PositionStorage is IPositionStorage {
         uint256 idx = positionIndex[_positionKey];
         if (idx == 0) revert TradePositionNotExists(_positionKey);
 
-        TradePosition storage pos = positions[idx];
+        TradePosition storage pos = positions[idx - 1];
 
         IFactory _factory = IFactory(factory);
         if (msg.sender != _factory.poolByQuoteToken(pos.quoteToken.id))
@@ -595,7 +635,7 @@ contract PositionStorage is IPositionStorage {
         uint256 idx = positionIndex[_params.positionKey];
         if (idx == 0) revert TradePositionNotExists(_params.positionKey);
 
-        TradePosition storage pos = positions[idx];
+        TradePosition storage pos = positions[idx - 1];
 
         IFactory _factory = IFactory(factory);
         if (msg.sender != _factory.poolByQuoteToken(pos.quoteToken.id))
@@ -625,7 +665,7 @@ contract PositionStorage is IPositionStorage {
         uint256 idx = positionIndex[_params.positionKey];
         if (idx == 0) revert TradePositionNotExists(_params.positionKey);
 
-        TradePosition storage pos = positions[idx];
+        TradePosition storage pos = positions[idx - 1];
 
         IFactory _factory = IFactory(factory);
         if (msg.sender != _factory.poolByQuoteToken(pos.quoteToken.id))
@@ -694,7 +734,7 @@ contract PositionStorage is IPositionStorage {
         uint256 idx = positionIndex[_params.positionKey];
         if (idx == 0) revert TradePositionNotExists(_params.positionKey);
 
-        TradePosition storage pos = positions[idx];
+        TradePosition storage pos = positions[idx - 1];
 
         IFactory _factory = IFactory(factory);
         if (msg.sender != _factory.poolByQuoteToken(pos.quoteToken.id))

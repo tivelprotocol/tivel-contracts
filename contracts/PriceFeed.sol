@@ -38,6 +38,20 @@ contract PriceFeed is IPriceFeed {
         emit SetIntegrations(_integrations);
     }
 
+    function _tryGetIntegrationPrice(
+        IPriceFeedIntegration _integration,
+        address _baseToken,
+        address _quoteToken
+    ) internal view returns (uint256) {
+        try _integration.getPrice(_baseToken, _quoteToken) returns (
+            uint256 result
+        ) {
+            return result;
+        } catch {
+            return 0;
+        }
+    }
+
     function getPrice(
         address _baseToken,
         address _quoteToken
@@ -50,15 +64,22 @@ contract PriceFeed is IPriceFeed {
             IPriceFeedIntegration integration = IPriceFeedIntegration(
                 integrations[i]
             );
-            uint256 price = integration.getPrice(_baseToken, _quoteToken);
-            uint256 prec = integration.PRECISION();
-            price = (price * PRECISION) / prec;
+            uint256 price = _tryGetIntegrationPrice(
+                integration,
+                _baseToken,
+                _quoteToken
+            );
 
-            if (price > highest) {
-                highest = price;
-            }
-            if (price > 0 && price < lowest) {
-                lowest = price;
+            if (price > 0) {
+                uint256 prec = integration.PRECISION();
+                price = (price * PRECISION) / prec;
+
+                if (price > highest) {
+                    highest = price;
+                }
+                if (price < lowest || lowest == 0) {
+                    lowest = price;
+                }
             }
         }
 
@@ -82,12 +103,19 @@ contract PriceFeed is IPriceFeed {
             IPriceFeedIntegration integration = IPriceFeedIntegration(
                 integrations[i]
             );
-            uint256 price = integration.getPrice(_baseToken, _quoteToken);
-            uint256 prec = integration.PRECISION();
-            price = (price * PRECISION) / prec;
+            uint256 price = _tryGetIntegrationPrice(
+                integration,
+                _baseToken,
+                _quoteToken
+            );
 
-            if (price > highest) {
-                highest = price;
+            if (price > 0) {
+                uint256 prec = integration.PRECISION();
+                price = (price * PRECISION) / prec;
+
+                if (price > highest) {
+                    highest = price;
+                }
             }
         }
 
@@ -110,12 +138,19 @@ contract PriceFeed is IPriceFeed {
             IPriceFeedIntegration integration = IPriceFeedIntegration(
                 integrations[i]
             );
-            uint256 price = integration.getPrice(_baseToken, _quoteToken);
-            uint256 prec = integration.PRECISION();
-            price = (price * PRECISION) / prec;
+            uint256 price = _tryGetIntegrationPrice(
+                integration,
+                _baseToken,
+                _quoteToken
+            );
 
-            if (price > 0 && price < lowest) {
-                lowest = price;
+            if (price > 0) {
+                uint256 prec = integration.PRECISION();
+                price = (price * PRECISION) / prec;
+
+                if (price < lowest || lowest == 0) {
+                    lowest = price;
+                }
             }
         }
 

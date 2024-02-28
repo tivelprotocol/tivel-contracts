@@ -216,4 +216,48 @@ contract WithdrawalMonitor is
             tx.gasprice
         );
     }
+
+    // Gelato compatible function
+    function checker()
+        external
+        view
+        returns (bool canExec, bytes memory execPayload)
+    {
+        IFactory _factory = IFactory(factory);
+        uint256 poolLength = _factory.poolLength();
+        address[] memory poolsToFulfill = new address[](poolLength);
+        uint256 count;
+
+        for (uint256 i = 0; i < poolLength; i++) {
+            address pool = _factory.pools(i);
+            uint256 withdrawingLiquidity = IPool(pool).withdrawingLiquidity();
+            uint256 _currentIndex = currentIndex[pool];
+            if (_currentIndex == request[pool].length) {
+                if (withdrawingLiquidity > 0) {
+                    poolsToFulfill[count] = pool;
+                    count++;
+                }
+            } else {
+                WithdrawalRequest memory _request = request[pool][
+                    _currentIndex
+                ];
+                uint256 availableLiquidity = IPool(pool).availableLiquidity();
+                if (
+                    availableLiquidity + withdrawingLiquidity >=
+                    _request.liquidity
+                ) {
+                    poolsToFulfill[count] = pool;
+                    count++;
+                }
+            }
+        }
+
+        canExec = count > 0;
+        if (canExec) {
+            execPayload = abi.encodeWithSignature(
+                "performUpkeep(bytes)",
+                abi.encode(poolsToFulfill, count)
+            );
+        }
+    }
 }

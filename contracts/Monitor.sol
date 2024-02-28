@@ -202,4 +202,42 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
             tx.gasprice
         );
     }
+
+    // Gelato compatible function
+    function checker()
+        external
+        view
+        returns (bool canExec, bytes memory execPayload)
+    {
+        IPositionStorage positionStorage = IPositionStorage(
+            IFactory(factory).positionStorage()
+        );
+        bytes32[] memory batchPositionKeys = new bytes32[](batchSize);
+        uint256 count;
+        uint256 i;
+
+        uint256 openingPositionLength = positionStorage.openingPositionLength();
+        for (uint256 j = startIndex; j < openingPositionLength; j++) {
+            bytes32 positionKey = positionStorage.openingPositionKey(j);
+            if (positionStorage.canLiquidate(positionKey)) {
+                batchPositionKeys[count] = positionKey;
+                count++;
+            }
+            i++;
+            if (i == monitorSize) {
+                break;
+            }
+            if (count == batchSize) {
+                break;
+            }
+        }
+
+        canExec = count > 0;
+        if (canExec) {
+            execPayload = abi.encodeWithSignature(
+                "performUpkeep(bytes)",
+                abi.encode(batchPositionKeys, count)
+            );
+        }
+    }
 }
