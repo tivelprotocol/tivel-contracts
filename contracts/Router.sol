@@ -274,7 +274,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         external
         override
         checkDeadline(_params.txDeadline)
-        returns (uint256 collateralLiqPrice, uint256 baseLiqPrice)
+        returns (uint256 collateralLiqPrice)
     {
         IFactory _factory = IFactory(factory);
         uint256 index = _factory.poolIndex(_params.pool);
@@ -291,7 +291,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
             );
         }
 
-        (collateralLiqPrice, baseLiqPrice) = IPool(_params.pool)
+        collateralLiqPrice = IPool(_params.pool)
             .updateCollateralAmount(
                 IPositionStorage.UpdateCollateralAmountParams({
                     positionKey: _params.positionKey,

@@ -1172,11 +1172,6 @@
           "internalType": "uint256",
           "name": "collateralLiqPrice",
           "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "baseLiqPrice",
-          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -1299,11 +1294,6 @@
         {
           "internalType": "uint256",
           "name": "collateralLiqPrice",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "baseLiqPrice",
           "type": "uint256"
         }
       ],

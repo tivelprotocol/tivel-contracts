@@ -74,7 +74,7 @@ interface IRouter {
 
     function updateCollateralAmount(
         UpdateCollateralAmountParams memory
-    ) external returns (uint256 collateralLiqPrice, uint256 baseLiqPrice);
+    ) external returns (uint256 collateralLiqPrice);
 
     function updateDeadline(UpdateDeadlineParams memory) external;
 }

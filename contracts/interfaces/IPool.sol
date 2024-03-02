@@ -95,7 +95,7 @@ interface IPool {
 
     function updateCollateralAmount(
         IPositionStorage.UpdateCollateralAmountParams memory
-    ) external returns (uint256 collateralLiqPrice, uint256 baseLiqPrice);
+    ) external returns (uint256 collateralLiqPrice);
 
     function updateDeadline(
         IPositionStorage.UpdateDeadlineParams memory

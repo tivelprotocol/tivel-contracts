@@ -40,7 +40,6 @@ contract PositionStorage is IPositionStorage {
         bytes32 indexed positionKey,
         uint256 amount,
         uint256 collateralLiqPrice,
-        uint256 baseLiqPrice,
         address updater
     );
     event UpdateDeadline(
@@ -139,40 +138,40 @@ contract PositionStorage is IPositionStorage {
         uint256 pricePrecision = priceFeed.PRECISION();
 
         uint256 baseValue;
+        uint256 collateralValue;
         {
             uint256 basePrice = priceFeed.getLowestPrice(
                 _params.baseToken,
                 _params.quoteToken
             );
             baseValue = (_params.baseAmount * basePrice) / pricePrecision;
+            uint256 collateralPrice = priceFeed.getLowestPrice(
+                _params.collateral,
+                _params.quoteToken
+            );
+            collateralValue =
+                (_params.collateralAmount * collateralPrice) /
+                pricePrecision;
         }
 
         uint256 minQuoteRate = _factory.minQuoteRate();
         uint256 baseTokenMUT = _factory.baseTokenMUT(_params.baseToken);
         uint256 collateralMUT = _factory.collateralMUT(_params.collateral);
-        uint256 collateralPrice = priceFeed.getLowestPrice(
-            _params.collateral,
-            _params.quoteToken
-        );
 
         {
             uint256 minCollateralValue = (baseValue *
                 (minQuoteRate - baseTokenMUT)) / collateralMUT;
-            uint256 minCollateralAmount = (minCollateralValue *
-                pricePrecision) / collateralPrice;
-            if (_params.collateralAmount < minCollateralAmount) return (0, 0);
+            if (collateralValue < minCollateralValue) return (0, 0);
         }
 
-        uint256 mutc = (_params.collateralAmount *
-            collateralPrice *
-            collateralMUT) / (pricePrecision * 10000);
+        uint256 mutb = (baseValue * baseTokenMUT) / 10000;
+        uint256 mutc = (collateralValue * collateralMUT) / 10000;
         minQuoteAmount = (baseValue * minQuoteRate) / 10000;
-        maxQuoteAmount = mutc + (baseValue * baseTokenMUT) / 10000;
+        maxQuoteAmount = mutb + mutc;
     }
 
     function _initTradePosition(
-        OpenTradePositionParams memory _params,
-        uint256 _basePrice
+        OpenTradePositionParams memory _params
     ) internal pure returns (TradePosition memory) {
         return
             TradePosition({
@@ -182,7 +181,7 @@ contract PositionStorage is IPositionStorage {
                 baseToken: BaseToken({
                     id: _params.baseToken,
                     amount: _params.baseAmount,
-                    entryPrice: _basePrice,
+                    entryPrice: 0,
                     liqPrice: 0,
                     closePrice: 0
                 }),
@@ -228,73 +227,72 @@ contract PositionStorage is IPositionStorage {
             uint256 pricePrecision = priceFeed.PRECISION();
 
             uint256 baseValue;
+            uint256 collateralValue;
             {
                 uint256 basePrice = priceFeed.getLowestPrice(
                     _params.baseToken,
                     _params.quoteToken
                 );
-                pos = _initTradePosition(_params, basePrice);
                 baseValue = (_params.baseAmount * basePrice) / pricePrecision;
+                uint256 collateralPrice = priceFeed.getLowestPrice(
+                    _params.collateral,
+                    _params.quoteToken
+                );
+                collateralValue =
+                    (_params.collateralAmount * collateralPrice) /
+                    pricePrecision;
+
+                pos = _initTradePosition(_params);
+                pos.baseToken.entryPrice = basePrice;
+                pos.collateral.entryPrice = collateralPrice;
             }
 
             uint256 minQuoteRate = _factory.minQuoteRate();
             uint256 baseTokenMUT = _factory.baseTokenMUT(_params.baseToken);
             uint256 collateralMUT = _factory.collateralMUT(_params.collateral);
-            uint256 collateralPrice = priceFeed.getLowestPrice(
-                _params.collateral,
-                _params.quoteToken
-            );
 
             {
                 // avoid too deep stack
-                // check min collateral amount
+                // check min collateral value
                 uint256 minCollateralValue = (baseValue *
                     (minQuoteRate - baseTokenMUT)) / collateralMUT;
-                uint256 minCollateralAmount = (minCollateralValue *
-                    pricePrecision) / collateralPrice;
-                if (_params.collateralAmount < minCollateralAmount) return pos;
+                if (collateralValue < minCollateralValue) return pos;
             }
 
-            uint256 mutc = (_params.collateralAmount *
-                collateralPrice *
-                collateralMUT) / (pricePrecision * 10000);
+            uint256 mutb = (baseValue * baseTokenMUT) / 10000;
             {
                 // avoid too deep stack
                 // check quote amount range
                 uint256 minQuoteAmount = (baseValue * minQuoteRate) / 10000;
-                uint256 maxQuoteAmount = mutc +
-                    (baseValue * baseTokenMUT) /
-                    10000;
+                uint256 mutc = (collateralValue * collateralMUT) / 10000;
+                uint256 maxQuoteAmount = mutb + mutc;
                 if (
                     _params.quoteAmount > maxQuoteAmount ||
                     _params.quoteAmount < minQuoteAmount
                 ) return pos;
             }
 
-            pos.collateral.entryPrice = collateralPrice;
+            {
+                // avoid too deep stack
+                // calculate base token liquidation price
+                uint256 baseTokenLT = _factory.baseTokenLT(_params.baseToken);
+                pos.baseToken.liqPrice =
+                    (mutb * baseTokenLT * pricePrecision) /
+                    (_params.baseAmount * baseTokenMUT);
+            }
+
             {
                 // avoid too deep stack
                 // calculate collateral liquidation price
                 uint256 collateralLT = _factory.collateralLT(
                     _params.collateral
                 );
+                uint256 collateralLiqValue = ((_params.quoteAmount - mutb) *
+                    collateralLT) / collateralMUT;
+                if (collateralValue < collateralLiqValue) return pos;
                 pos.collateral.liqPrice =
-                    (mutc * collateralLT * pricePrecision) /
-                    (_params.collateralAmount * collateralMUT);
-            }
-
-            {
-                // avoid too deep stack
-                // calculate base token liquidation price
-                uint256 baseTokenLT = _factory.baseTokenLT(_params.baseToken);
-                if (_params.quoteAmount > mutc) {
-                    uint256 baseLiqValue = ((_params.quoteAmount - mutc) *
-                        baseTokenLT) / baseTokenMUT;
-                    if (baseValue < baseLiqValue) return pos;
-                    pos.baseToken.liqPrice =
-                        (baseLiqValue * pricePrecision) /
-                        _params.baseAmount;
-                }
+                    (collateralLiqValue * pricePrecision) /
+                    _params.collateralAmount;
             }
 
             {
@@ -324,12 +322,7 @@ contract PositionStorage is IPositionStorage {
 
     function previewUpdateCollateralAmount(
         UpdateCollateralAmountParams memory _params
-    )
-        external
-        view
-        override
-        returns (uint256 collateralLiqPrice, uint256 baseLiqPrice)
-    {
+    ) external view override returns (uint256 collateralLiqPrice) {
         uint256 idx = positionIndex[_params.positionKey];
         if (idx > 0) {
             TradePosition memory pos = positions[idx - 1];
@@ -337,43 +330,24 @@ contract PositionStorage is IPositionStorage {
             IFactory _factory = IFactory(factory);
             IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
             uint256 pricePrecision = priceFeed.PRECISION();
+            uint256 baseTokenMUT = _factory.baseTokenMUT(pos.baseToken.id);
             uint256 collateralMUT = _factory.collateralMUT(pos.collateral.id);
             uint256 newCollateralAmount = pos.collateral.amount +
                 _params.amount;
 
-            uint256 mutc;
-            {
-                // avoid too deep stack
-                uint256 collateralPrice = priceFeed.getLowestPrice(
-                    pos.collateral.id,
-                    pos.quoteToken.id
-                );
-                mutc =
-                    (newCollateralAmount * collateralPrice * collateralMUT) /
-                    (pricePrecision * 10000);
-            }
+            uint256 mutb = (pos.baseToken.amount *
+                pos.baseToken.entryPrice *
+                baseTokenMUT) / (pricePrecision * 10000);
 
             {
                 // avoid too deep stack
                 // calculate collateral liquidation price
                 uint256 collateralLT = _factory.collateralLT(pos.collateral.id);
+                uint256 collateralLiqValue = ((pos.quoteToken.amount - mutb) *
+                    collateralLT) / collateralMUT;
                 collateralLiqPrice =
-                    (mutc * collateralLT * pricePrecision) /
-                    (newCollateralAmount * collateralMUT);
-            }
-
-            {
-                // avoid too deep stack
-                // calculate base token liquidation price
-                uint256 baseTokenMUT = _factory.baseTokenMUT(pos.baseToken.id);
-                uint256 baseTokenLT = _factory.baseTokenLT(pos.baseToken.id);
-                if (pos.quoteToken.amount > mutc) {
-                    uint256 baseLiqValue = ((pos.quoteToken.amount - mutc) *
-                        baseTokenLT) / baseTokenMUT;
-                    baseLiqPrice =
-                        (baseLiqValue * pricePrecision) /
-                        pos.baseToken.amount;
-                }
+                    (collateralLiqValue * pricePrecision) /
+                    newCollateralAmount;
             }
         }
     }
@@ -657,11 +631,7 @@ contract PositionStorage is IPositionStorage {
 
     function updateCollateralAmount(
         UpdateCollateralAmountParams memory _params
-    )
-        external
-        override
-        returns (uint256 collateralLiqPrice, uint256 baseLiqPrice)
-    {
+    ) external override returns (uint256 collateralLiqPrice) {
         uint256 idx = positionIndex[_params.positionKey];
         if (idx == 0) revert TradePositionNotExists(_params.positionKey);
 
@@ -678,52 +648,29 @@ contract PositionStorage is IPositionStorage {
             revert NotOwner(pos.owner, _params.updater);
         IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
         uint256 pricePrecision = priceFeed.PRECISION();
+        uint256 baseTokenMUT = _factory.baseTokenMUT(pos.baseToken.id);
         uint256 collateralMUT = _factory.collateralMUT(pos.collateral.id);
         uint256 newCollateralAmount = pos.collateral.amount + _params.amount;
 
-        uint256 mutc;
-        {
-            // avoid too deep stack
-            uint256 collateralPrice = priceFeed.getLowestPrice(
-                pos.collateral.id,
-                pos.quoteToken.id
-            );
-            mutc =
-                (newCollateralAmount * collateralPrice * collateralMUT) /
-                (pricePrecision * 10000);
-        }
+        uint256 mutb = (pos.baseToken.amount *
+            pos.baseToken.entryPrice *
+            baseTokenMUT) / (pricePrecision * 10000);
 
         {
             // avoid too deep stack
             // calculate collateral liquidation price
             uint256 collateralLT = _factory.collateralLT(pos.collateral.id);
-            collateralLiqPrice =
-                (mutc * collateralLT * pricePrecision) /
-                (newCollateralAmount * collateralMUT);
+            uint256 collateralLiqValue = ((pos.quoteToken.amount - mutb) *
+                collateralLT) / collateralMUT;
+            pos.collateral.liqPrice =
+                (collateralLiqValue * pricePrecision) /
+                newCollateralAmount;
         }
-
-        {
-            // avoid too deep stack
-            // calculate base token liquidation price
-            uint256 baseTokenMUT = _factory.baseTokenMUT(pos.baseToken.id);
-            uint256 baseTokenLT = _factory.baseTokenLT(pos.baseToken.id);
-            if (pos.quoteToken.amount > mutc) {
-                uint256 baseLiqValue = ((pos.quoteToken.amount - mutc) *
-                    baseTokenLT) / baseTokenMUT;
-                baseLiqPrice =
-                    (baseLiqValue * pricePrecision) /
-                    pos.baseToken.amount;
-            }
-        }
-
-        pos.collateral.liqPrice = collateralLiqPrice;
-        pos.baseToken.liqPrice = baseLiqPrice;
 
         emit UpdateCollateralAmount(
             _params.positionKey,
             _params.amount,
             collateralLiqPrice,
-            baseLiqPrice,
             _params.updater
         );
     }

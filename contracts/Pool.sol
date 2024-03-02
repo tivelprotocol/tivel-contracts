@@ -100,7 +100,6 @@ contract Pool is Lockable, IPool {
         bytes32 indexed positionKey,
         uint256 amount,
         uint256 newCollateralLiqPrice,
-        uint256 newBaseLiqPrice,
         address updater,
         address serviceToken,
         uint256 serviceFee
@@ -895,7 +894,7 @@ contract Pool is Lockable, IPool {
         override
         lock
         onlyOperator
-        returns (uint256 collateralLiqPrice, uint256 baseLiqPrice)
+        returns (uint256 collateralLiqPrice)
     {
         IFactory _factory = IFactory(factory);
         address serviceToken = _factory.serviceToken();
@@ -905,7 +904,7 @@ contract Pool is Lockable, IPool {
         IPositionStorage positionStorage = IPositionStorage(
             _factory.positionStorage()
         );
-        (collateralLiqPrice, baseLiqPrice) = positionStorage
+        collateralLiqPrice = positionStorage
             .updateCollateralAmount(_params);
 
         emit UpdateCollateralAmount(
@@ -913,7 +912,6 @@ contract Pool is Lockable, IPool {
             _params.positionKey,
             _params.amount,
             collateralLiqPrice,
-            baseLiqPrice,
             _params.updater,
             serviceToken,
             serviceFee
