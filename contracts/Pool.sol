@@ -18,6 +18,8 @@ contract Pool is Lockable, IPool {
     address public override quoteToken;
     uint256 public override precision;
     uint256 public override interest; // annual // 10000 = 100%
+    uint256 public override maxOpenInterest;
+    uint256 public override openInterest;
 
     uint256 public override quoteReserve;
     uint256 public override quoteInDebt;
@@ -40,9 +42,11 @@ contract Pool is Lockable, IPool {
     error ZeroValue();
     error WrongPool(address token, address quoteToken);
     error InvalidParameters();
+    error ExceedMaxOpenInterest();
     error InsufficientCollateral(uint256 amount, uint256 neededAmount);
 
     event SetInterest(uint256 newInterest);
+    event SetMaxOpenInterest(uint256 newMaxOpenInterest);
     event SetBaseToken(address baseToken, address quoteToken, bool tradeable);
     event UpdateQuoteReserve(uint256 newQuoteReserve);
     event UpdateQuoteInDebt(uint256 newQuoteInDebt);
@@ -196,6 +200,14 @@ contract Pool is Lockable, IPool {
         interest = _interest;
 
         emit SetInterest(_interest);
+    }
+
+    function setMaxOpenInterest(
+        uint256 _maxOpenInterest
+    ) external override onlyFactory {
+        maxOpenInterest = _maxOpenInterest;
+
+        emit SetMaxOpenInterest(_maxOpenInterest);
     }
 
     function setBaseTokens(
@@ -481,6 +493,8 @@ contract Pool is Lockable, IPool {
         }
         if (_params.baseToken == _params.quoteToken) revert InvalidParameters();
         if (!_checkInputTokens(_params)) revert InsufficientInput();
+        if (openInterest + _params.quoteAmount > maxOpenInterest)
+            revert ExceedMaxOpenInterest();
 
         IPositionStorage positionStorage = IPositionStorage(
             IFactory(factory).positionStorage()
@@ -506,6 +520,7 @@ contract Pool is Lockable, IPool {
             _params.collateral,
             collateralReserve[_params.collateral] + _params.collateralAmount
         );
+        openInterest += pos.quoteToken.amount;
 
         _safeTransfer(_quoteToken, _params.owner, _params.quoteAmount);
 
@@ -658,6 +673,7 @@ contract Pool is Lockable, IPool {
             pos.collateral.id,
             collateralReserve[pos.collateral.id] - pos.collateral.amount
         );
+        openInterest -= pos.quoteToken.amount;
 
         if (liquidationFee > 0) {
             address liquidationFeeTo = _factory.liquidationFeeTo();
@@ -727,6 +743,7 @@ contract Pool is Lockable, IPool {
             pos.collateral.id,
             collateralReserve[pos.collateral.id] - pos.collateral.amount
         );
+        openInterest -= pos.quoteToken.amount;
 
         _safeTransfer(pos.baseToken.id, pos.owner, pos.baseToken.amount);
         _safeTransfer(pos.collateral.id, pos.owner, pos.collateral.amount);
@@ -822,6 +839,7 @@ contract Pool is Lockable, IPool {
         _updateWithdrawingLiquidity(
             withdrawingLiquidity + pos.quoteToken.amount
         );
+        openInterest -= pos.quoteToken.amount;
 
         if (_liquidationFee > 0) {
             address liquidationFeeTo = IFactory(factory).liquidationFeeTo();
@@ -889,13 +907,7 @@ contract Pool is Lockable, IPool {
 
     function updateCollateralAmount(
         IPositionStorage.UpdateCollateralAmountParams memory _params
-    )
-        external
-        override
-        lock
-        onlyOperator
-        returns (uint256 collateralLiqPrice)
-    {
+    ) external override lock onlyOperator returns (uint256 collateralLiqPrice) {
         IFactory _factory = IFactory(factory);
         address serviceToken = _factory.serviceToken();
         uint256 serviceFee = _factory.updateCollateralAmountFee();
@@ -904,8 +916,7 @@ contract Pool is Lockable, IPool {
         IPositionStorage positionStorage = IPositionStorage(
             _factory.positionStorage()
         );
-        collateralLiqPrice = positionStorage
-            .updateCollateralAmount(_params);
+        collateralLiqPrice = positionStorage.updateCollateralAmount(_params);
 
         emit UpdateCollateralAmount(
             msg.sender,

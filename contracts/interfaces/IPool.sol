@@ -20,6 +20,10 @@ interface IPool {
 
     function interest() external view returns (uint256);
 
+    function maxOpenInterest() external view returns (uint256);
+
+    function openInterest() external view returns (uint256);
+
     function quoteReserve() external view returns (uint256);
 
     function quoteInDebt() external view returns (uint256);
@@ -55,6 +59,8 @@ interface IPool {
     function claimableFee(address) external view returns (uint256);
 
     function setInterest(uint256) external;
+
+    function setMaxOpenInterest(uint256) external;
 
     function setBaseTokens(
         address[] memory _baseTokens,
