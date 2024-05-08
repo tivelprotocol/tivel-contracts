@@ -9,7 +9,6 @@ import { forkNetwork, deployContract, ThenArgRecursive, computePoolAddress } fro
 import addresses from "./shared/addresses.json";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { defaultAbiCoder } from "@ethersproject/abi";
-import { keccak256 } from "@ethersproject/solidity";
 
 const { uniswapv3 } = addresses.arbitrum.dexes;
 const { tokens } = addresses.arbitrum;
