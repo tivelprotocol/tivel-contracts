@@ -68,8 +68,9 @@ contract UserStorage is IUserStorage {
     function canUpdateDeadline(
         address _user
     ) external view override returns (bool) {
-        User memory user = userInfo[_user];
-        return user.membershipLevel > 0;
+        // User memory user = userInfo[_user];
+        // return user.membershipLevel > 0;
+        return true;
     }
 
     function updateRef(

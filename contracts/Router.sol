@@ -2,6 +2,7 @@
 pragma solidity >=0.8.4;
 
 import "./libraries/TransferHelper.sol";
+import "./libraries/PoolAddress.sol";
 import "./interfaces/external/IWETH9.sol";
 import "./interfaces/ICloseCallback.sol";
 import "./interfaces/IDEXAggregator.sol";
@@ -14,6 +15,7 @@ import "./base/PeripheryValidation.sol";
 contract Router is IRouter, ICloseCallback, PeripheryValidation {
     address public immutable override WETH;
     address public immutable override factory;
+    address public immutable poolDeployer;
 
     error InvalidPool(address pool);
     error InsufficientInput();
@@ -22,6 +24,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
     constructor(address _factory, address _WETH) {
         factory = _factory;
         WETH = _WETH;
+        poolDeployer = IFactory(_factory).poolDeployer();
     }
 
     receive() external payable {
@@ -77,7 +80,10 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         checkDeadline(_params.txDeadline)
         returns (bytes32 positionKey)
     {
-        address pool = IFactory(factory).poolByQuoteToken(_params.quoteToken);
+        address pool = PoolAddress.computeAddress(
+            poolDeployer,
+            _params.quoteToken
+        );
         if (pool == address(0)) revert InvalidPool(pool);
         TransferHelper.safeTransferFrom(
             _params.collateral,
@@ -105,7 +111,10 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
     {
         if (_params.collateral != WETH) revert InvalidParameters();
         if (msg.value < _params.collateralAmount) revert InsufficientInput();
-        address pool = IFactory(factory).poolByQuoteToken(_params.quoteToken);
+        address pool = PoolAddress.computeAddress(
+            poolDeployer,
+            _params.quoteToken
+        );
         if (pool == address(0)) revert InvalidPool(pool);
         IWETH9(_params.collateral).deposit{value: _params.collateralAmount}();
         assert(
@@ -131,7 +140,10 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
     {
         if (_params.baseToken != WETH) revert InvalidParameters();
         if (msg.value < _params.baseAmount) revert InsufficientInput();
-        address pool = IFactory(factory).poolByQuoteToken(_params.quoteToken);
+        address pool = PoolAddress.computeAddress(
+            poolDeployer,
+            _params.quoteToken
+        );
         if (pool == address(0)) revert InvalidPool(pool);
         IWETH9(_params.baseToken).deposit{value: _params.baseAmount}();
         assert(IERC20(_params.baseToken).transfer(pool, _params.baseAmount));
@@ -159,7 +171,10 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         uint256 totalInputAmount = _params.collateralAmount +
             _params.baseAmount;
         if (msg.value < totalInputAmount) revert InsufficientInput();
-        address pool = IFactory(factory).poolByQuoteToken(_params.quoteToken);
+        address pool = PoolAddress.computeAddress(
+            poolDeployer,
+            _params.quoteToken
+        );
         if (pool == address(0)) revert InvalidPool(pool);
         IWETH9(_params.collateral).deposit{value: totalInputAmount}();
         assert(IERC20(_params.collateral).transfer(pool, totalInputAmount));
@@ -172,9 +187,8 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         uint256 _amountOut,
         bytes calldata /* _data */
     ) external override {
-        IDEXAggregator aggregator = IDEXAggregator(
-            IFactory(factory).dexAggregator()
-        );
+        IFactory _factory = IFactory(factory);
+        IDEXAggregator aggregator = IDEXAggregator(_factory.dexAggregator());
 
         uint256 balance = IERC20(_tokenIn).balanceOf(address(this));
         TransferHelper.safeTransfer(_tokenIn, address(aggregator), balance);
@@ -189,14 +203,32 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
 
         uint256 dust = IERC20(_tokenOut).balanceOf(address(this));
         if (dust > 0) {
-            TransferHelper.safeTransfer(_tokenOut, address(aggregator), dust);
-            IDEXAggregator(aggregator).swap(
+            (uint256 dustOut, ) = IDEXAggregator(aggregator).getAmountOut(
                 address(0),
                 _tokenOut,
                 _tokenIn,
-                0,
-                address(msg.sender)
+                dust
             );
+            if (dustOut > 0) {
+                TransferHelper.safeTransfer(
+                    _tokenOut,
+                    address(aggregator),
+                    dust
+                );
+                IDEXAggregator(aggregator).swap(
+                    address(0),
+                    _tokenOut,
+                    _tokenIn,
+                    0,
+                    address(msg.sender)
+                );
+            } else {
+                TransferHelper.safeTransfer(
+                    _tokenOut,
+                    _factory.protocolFeeTo(),
+                    dust
+                );
+            }
         }
     }
 
@@ -221,6 +253,18 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         IFactory _factory = IFactory(factory);
         uint256 index = _factory.poolIndex(_params.pool);
         if (index == 0) revert InvalidPool(_params.pool);
+
+        IPositionStorage positionStorage = IPositionStorage(
+            _factory.positionStorage()
+        );
+        IPositionStorage.TradePosition memory pos = positionStorage
+            .positionByKey(_params.positionKey);
+        TransferHelper.safeTransferFrom(
+            pos.quoteToken.id,
+            msg.sender,
+            _params.pool,
+            pos.quoteToken.amount
+        );
 
         address serviceToken = _factory.serviceToken();
         uint256 serviceFee = _factory.rollbackFee();
@@ -280,6 +324,18 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         uint256 index = _factory.poolIndex(_params.pool);
         if (index == 0) revert InvalidPool(_params.pool);
 
+        IPositionStorage positionStorage = IPositionStorage(
+            _factory.positionStorage()
+        );
+        IPositionStorage.TradePosition memory pos = positionStorage
+            .positionByKey(_params.positionKey);
+        TransferHelper.safeTransferFrom(
+            pos.collateral.id,
+            msg.sender,
+            _params.pool,
+            _params.amount
+        );
+
         address serviceToken = _factory.serviceToken();
         uint256 serviceFee = _factory.updateCollateralAmountFee();
         if (serviceToken != address(0) && serviceFee > 0) {
@@ -291,14 +347,13 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
             );
         }
 
-        collateralLiqPrice = IPool(_params.pool)
-            .updateCollateralAmount(
-                IPositionStorage.UpdateCollateralAmountParams({
-                    positionKey: _params.positionKey,
-                    amount: _params.amount,
-                    updater: msg.sender
-                })
-            );
+        collateralLiqPrice = IPool(_params.pool).updateCollateralAmount(
+            IPositionStorage.UpdateCollateralAmountParams({
+                positionKey: _params.positionKey,
+                amount: _params.amount,
+                updater: msg.sender
+            })
+        );
     }
 
     function updateDeadline(

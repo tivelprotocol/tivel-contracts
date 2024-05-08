@@ -116,7 +116,9 @@ contract UniswapV3DEXIntegration is IDEXIntegration, Lockable {
             } catch (bytes memory /*lowLevelData*/) {
                 tempAmountIn = 0;
             }
-            if (tempAmountIn > 0 && tempAmountIn < amountIn) {
+            if (
+                amountIn == 0 || (tempAmountIn > 0 && tempAmountIn < amountIn)
+            ) {
                 amountIn = tempAmountIn;
                 fee = _feeTiers[i];
             }

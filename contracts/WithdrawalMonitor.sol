@@ -2,6 +2,7 @@
 pragma solidity >=0.8.4;
 
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
+import "./libraries/PoolAddress.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IFactory.sol";
 import "./interfaces/IPool.sol";
@@ -15,6 +16,7 @@ contract WithdrawalMonitor is
     bytes4 private constant SELECTOR =
         bytes4(keccak256(bytes("transfer(address,uint256)")));
     address public override factory;
+    address public poolDeployer;
 
     address public manager;
     address public keeper;
@@ -64,6 +66,7 @@ contract WithdrawalMonitor is
     function setFactory(address _factory) external {
         if (factory != address(0)) revert InitializedAlready();
         factory = _factory;
+        poolDeployer = IFactory(_factory).poolDeployer();
     }
 
     function setManager(address _manager) external onlyManager {
@@ -91,7 +94,7 @@ contract WithdrawalMonitor is
         address _to,
         bytes calldata _data
     ) external override returns (uint256 index) {
-        address pool = IFactory(factory).poolByQuoteToken(_quoteToken);
+        address pool = PoolAddress.computeAddress(poolDeployer, _quoteToken);
         if (msg.sender != pool) revert Forbidden(msg.sender);
 
         index = request[pool].length;

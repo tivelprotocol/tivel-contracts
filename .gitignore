@@ -2,7 +2,8 @@ node_modules
 deprecated
 merged
 scripts
-test
+artifacts
+cache
 typechain-types
 .DS_Store
 .env

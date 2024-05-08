@@ -7,6 +7,8 @@ interface ISyncswapPool {
         uint amount;
     }
 
+    function vault() external view returns (address);
+
     function token0() external view returns (address);
 
     function token1() external view returns (address);

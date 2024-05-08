@@ -4,7 +4,7 @@ pragma solidity >=0.8.4;
 /// @title Provides functions for deriving a pool address from the pool deployer, tokens
 library PoolAddress {
     bytes32 internal constant POOL_INIT_CODE_HASH =
-        0x70ef69ec8152a99be9dbad56797842efb855eae534abf8441ef003b2ffdb503b;
+        0x6c6a3125043137214ba9fce2fbc49163378d28fdd84e53dba5c0af27a794e0bf;
 
     function computeAddress(
         address _poolDeployer,
@@ -26,3 +26,4 @@ library PoolAddress {
         );
     }
 }
+

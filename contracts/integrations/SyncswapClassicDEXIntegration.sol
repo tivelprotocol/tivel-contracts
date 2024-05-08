@@ -6,6 +6,7 @@ import "../interfaces/IERC20.sol";
 import "../interfaces/IDEXIntegration.sol";
 import "../interfaces/external/ISyncswapFactory.sol";
 import "../interfaces/external/ISyncswapPool.sol";
+import "../interfaces/external/ISyncswapVault.sol";
 import "../base/Lockable.sol";
 
 contract SyncswapClassicDEXIntegration is IDEXIntegration, Lockable {
@@ -95,7 +96,10 @@ contract SyncswapClassicDEXIntegration is IDEXIntegration, Lockable {
         );
         address pair = _getPair(_tokenIn, _tokenOut);
         require(pair != address(0), "SyncswapClassicIntegration: INVALID_PAIR");
-        TransferHelper.safeTransfer(_tokenIn, pair, amountIn);
+        address vault = ISyncswapPool(pair).vault();
+        require(vault != address(0), "SyncswapClassicIntegration: INVALID_VAULT");
+        TransferHelper.safeTransfer(_tokenIn, vault, amountIn);
+        ISyncswapVault(vault).deposit(_tokenIn, pair);
 
         uint256 initialBalance = IERC20(_tokenOut).balanceOf(_to);
         bytes memory data = abi.encode(_tokenIn, _to, 2);
