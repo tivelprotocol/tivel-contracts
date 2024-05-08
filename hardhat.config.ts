@@ -46,13 +46,13 @@ const config: HardhatUserConfig = {
       tags: ["local"],
     },
     hardhat: {
-      forking: {
-        enabled: true,
-        url: "https://arbitrum-one.publicnode.com",
-      },
-      live: false,
-      saveDeployments: true,
-      tags: ["test", "local"],
+      allowUnlimitedContractSize: false
+    },
+    mainnet: {
+      url: `https://eth.llamarpc.com`,
+      accounts,
+      // gasPrice: 120 * 1000000000,
+      chainId: 1,
     },
     goerli: {
       url: "https://ethereum-goerli.publicnode.com",
@@ -76,7 +76,8 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
     },
     arbitrum: {
-      url: "https://arbitrum-one.publicnode.com",
+      // url: "https://arbitrum.llamarpc.com",
+      url: `https://arb-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_KEY ?? ''}`,
       accounts,
       chainId: 42161,
       live: true,
