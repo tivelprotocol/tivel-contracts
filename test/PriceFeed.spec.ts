@@ -3,12 +3,12 @@ import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { expect } from "chai";
 
-import { forkNetwork, deployContract, ThenArgRecursive, bestUniswapV3Price, precision } from "./shared/helpers";
+import { forkNetwork, deployContract, ThenArgRecursive, bestUniswapV3Price, precision, bestUniswapV2Price } from "./shared/helpers";
 import addresses from "./shared/addresses.json";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const chainlink = addresses.arbitrum.chainlink;
-const { uniswapv3 } = addresses.arbitrum.dexes;
+const { uniswapv2, uniswapv3 } = addresses.arbitrum.dexes;
 const { tokens } = addresses.arbitrum;
 
 async function fixture() {
@@ -18,6 +18,7 @@ async function fixture() {
     const usdt_usd = await getChainlink(chainlink["usdt/usd"]);
     const usdc_usd = await getChainlink(chainlink["usdc/usd"]);
     const chainlinkIntegration = await deployContract(deployer, "ChainlinkPriceFeedIntegration", []);
+    const univ2Integration = await deployContract(deployer, "UniswapV2PriceFeedIntegration", [uniswapv2.factory]);
     const univ3Integration = await deployContract(deployer, "UniswapV3PriceFeedIntegration", [uniswapv3.factory]);
     const pricefeed = await deployPriceFeed(deployer, []);
     // console.log("PriceFeed:", pricefeed.address);
@@ -29,6 +30,7 @@ async function fixture() {
         usdt_usd,
         usdc_usd,
         chainlinkIntegration,
+        univ2Integration,
         univ3Integration,
         pricefeed
     };
@@ -68,11 +70,13 @@ describe("PriceFeed", async () => {
                 await fix.chainlinkIntegration.setPriceFeed(tokens.wbtc, chainlink["btc/usd"])
                 await fix.chainlinkIntegration.setPriceFeed(tokens.usdt, chainlink["usdt/usd"])
                 await fix.chainlinkIntegration.setPriceFeed(tokens.usdc, chainlink["usdc/usd"])
-                await fix.pricefeed.setIntegrations([fix.chainlinkIntegration.address, fix.univ3Integration.address])
+                await fix.pricefeed.setIntegrations([fix.chainlinkIntegration.address, fix.univ2Integration.address, fix.univ3Integration.address])
                 const i0 = await fix.pricefeed.integrations(0)
                 const i1 = await fix.pricefeed.integrations(1)
+                const i2 = await fix.pricefeed.integrations(2)
                 expect(i0).equals(fix.chainlinkIntegration.address)
-                expect(i1).equals(fix.univ3Integration.address)
+                expect(i1).equals(fix.univ2Integration.address)
+                expect(i2).equals(fix.univ3Integration.address)
             });
 
             it("setManager", async () => {
@@ -114,11 +118,16 @@ describe("PriceFeed", async () => {
                 const chainlinkResult = eth_usd.mul(precision(8)).div(usdt_usd).mul(precision(22))
                 const i0Result = await fix.chainlinkIntegration.getPrice(baseToken, quoteToken)
                 expect(chainlinkResult).equals(i0Result.mul(precision(22)))
+                const univ2PoolResult = await bestUniswapV2Price(uniswapv2.factory, baseToken, quoteToken, prec)
+                const i1Result = await fix.univ2Integration.getPrice(baseToken, quoteToken)
+                expect(univ2PoolResult.price).equals(i1Result)
                 const univ3PoolResult = await bestUniswapV3Price(uniswapv3.factory, baseToken, quoteToken, prec)
-                const i1Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
-                expect(univ3PoolResult.price).equals(i1Result)
+                const i2Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
+                expect(univ3PoolResult.price).equals(i2Result)
                 
-                const reference = chainlinkResult.gt(univ3PoolResult.price) ? chainlinkResult : univ3PoolResult.price
+                const reference = [chainlinkResult, univ2PoolResult.price, univ3PoolResult.price].sort((a, b) => {
+                    return a.gt(b) ? -1 : 1
+                })[0]
                 const price = await fix.pricefeed.getHighestPrice(baseToken, quoteToken)
                 expect(price).equals(reference.mul(precision(univ3PoolResult.quoteDecimals)).div(precision(univ3PoolResult.baseDecimals)))
             });
@@ -133,11 +142,16 @@ describe("PriceFeed", async () => {
                 const chainlinkResult = usdt_usd.mul(precision(8)).div(eth_usd).mul(precision(22))
                 const i0Result = await fix.chainlinkIntegration.getPrice(baseToken, quoteToken)
                 expect(chainlinkResult).equals(i0Result.mul(precision(22)))
+                const univ2PoolResult = await bestUniswapV2Price(uniswapv2.factory, baseToken, quoteToken, prec)
+                const i1Result = await fix.univ2Integration.getPrice(baseToken, quoteToken)
+                expect(univ2PoolResult.price).equals(i1Result)
                 const univ3PoolResult = await bestUniswapV3Price(uniswapv3.factory, baseToken, quoteToken, prec)
-                const i1Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
-                expect(univ3PoolResult.price).equals(i1Result)
+                const i2Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
+                expect(univ3PoolResult.price).equals(i2Result)
                 
-                const reference = chainlinkResult.gt(univ3PoolResult.price) ? chainlinkResult : univ3PoolResult.price
+                const reference = [chainlinkResult, univ2PoolResult.price, univ3PoolResult.price].sort((a, b) => {
+                    return a.gt(b) ? -1 : 1
+                })[0]
                 const price = await fix.pricefeed.getHighestPrice(baseToken, quoteToken)
                 expect(price).equals(reference.mul(precision(univ3PoolResult.quoteDecimals)).div(precision(univ3PoolResult.baseDecimals)))
             });
@@ -162,11 +176,16 @@ describe("PriceFeed", async () => {
                 const chainlinkResult = eth_usd.mul(precision(8)).div(usdt_usd).mul(precision(22))
                 const i0Result = await fix.chainlinkIntegration.getPrice(baseToken, quoteToken)
                 expect(chainlinkResult).equals(i0Result.mul(precision(22)))
+                const univ2PoolResult = await bestUniswapV2Price(uniswapv2.factory, baseToken, quoteToken, prec)
+                const i1Result = await fix.univ2Integration.getPrice(baseToken, quoteToken)
+                expect(univ2PoolResult.price).equals(i1Result)
                 const univ3PoolResult = await bestUniswapV3Price(uniswapv3.factory, baseToken, quoteToken, prec)
-                const i1Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
-                expect(univ3PoolResult.price).equals(i1Result)
-
-                const reference = chainlinkResult.lt(univ3PoolResult.price) ? chainlinkResult : univ3PoolResult.price
+                const i2Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
+                expect(univ3PoolResult.price).equals(i2Result)
+                
+                const reference = [chainlinkResult, univ2PoolResult.price, univ3PoolResult.price].sort((a, b) => {
+                    return a.lt(b) ? -1 : 1
+                })[0]
                 const price = await fix.pricefeed.getLowestPrice(baseToken, quoteToken)
                 expect(price).equals(reference.mul(precision(univ3PoolResult.quoteDecimals)).div(precision(univ3PoolResult.baseDecimals)))
             });
@@ -181,11 +200,16 @@ describe("PriceFeed", async () => {
                 const chainlinkResult = usdt_usd.mul(precision(8)).div(eth_usd).mul(precision(22))
                 const i0Result = await fix.chainlinkIntegration.getPrice(baseToken, quoteToken)
                 expect(chainlinkResult).equals(i0Result.mul(precision(22)))
+                const univ2PoolResult = await bestUniswapV2Price(uniswapv2.factory, baseToken, quoteToken, prec)
+                const i1Result = await fix.univ2Integration.getPrice(baseToken, quoteToken)
+                expect(univ2PoolResult.price).equals(i1Result)
                 const univ3PoolResult = await bestUniswapV3Price(uniswapv3.factory, baseToken, quoteToken, prec)
-                const i1Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
-                expect(univ3PoolResult.price).equals(i1Result)
-
-                const reference = chainlinkResult.lt(univ3PoolResult.price) ? chainlinkResult : univ3PoolResult.price
+                const i2Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
+                expect(univ3PoolResult.price).equals(i2Result)
+                
+                const reference = [chainlinkResult, univ2PoolResult.price, univ3PoolResult.price].sort((a, b) => {
+                    return a.lt(b) ? -1 : 1
+                })[0]
                 const price = await fix.pricefeed.getLowestPrice(baseToken, quoteToken)
                 expect(price).equals(reference.mul(precision(univ3PoolResult.quoteDecimals)).div(precision(univ3PoolResult.baseDecimals)))
             });
@@ -211,12 +235,19 @@ describe("PriceFeed", async () => {
                 const chainlinkResult = eth_usd.mul(precision(8)).div(usdt_usd).mul(precision(22))
                 const i0Result = await fix.chainlinkIntegration.getPrice(baseToken, quoteToken)
                 expect(chainlinkResult).equals(i0Result.mul(precision(22)))
+                const univ2PoolResult = await bestUniswapV2Price(uniswapv2.factory, baseToken, quoteToken, prec)
+                const i1Result = await fix.univ2Integration.getPrice(baseToken, quoteToken)
+                expect(univ2PoolResult.price).equals(i1Result)
                 const univ3PoolResult = await bestUniswapV3Price(uniswapv3.factory, baseToken, quoteToken, prec)
-                const i1Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
-                expect(univ3PoolResult.price).equals(i1Result)
-
-                const lowestRef = chainlinkResult.lt(univ3PoolResult.price) ? chainlinkResult : univ3PoolResult.price
-                const highestRef = chainlinkResult.gt(univ3PoolResult.price) ? chainlinkResult : univ3PoolResult.price
+                const i2Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
+                expect(univ3PoolResult.price).equals(i2Result)
+                
+                const lowestRef = [chainlinkResult, univ2PoolResult.price, univ3PoolResult.price].sort((a, b) => {
+                    return a.lt(b) ? -1 : 1
+                })[0]
+                const highestRef = [chainlinkResult, univ2PoolResult.price, univ3PoolResult.price].sort((a, b) => {
+                    return a.gt(b) ? -1 : 1
+                })[0]
                 const prices = await fix.pricefeed.getPrice(baseToken, quoteToken)
                 expect(prices['lowest']).equals(lowestRef.mul(precision(univ3PoolResult.quoteDecimals)).div(precision(univ3PoolResult.baseDecimals)))
                 expect(prices['highest']).equals(highestRef.mul(precision(univ3PoolResult.quoteDecimals)).div(precision(univ3PoolResult.baseDecimals)))
@@ -232,12 +263,19 @@ describe("PriceFeed", async () => {
                 const chainlinkResult = usdt_usd.mul(precision(8)).div(eth_usd).mul(precision(22))
                 const i0Result = await fix.chainlinkIntegration.getPrice(baseToken, quoteToken)
                 expect(chainlinkResult).equals(i0Result.mul(precision(22)))
+                const univ2PoolResult = await bestUniswapV2Price(uniswapv2.factory, baseToken, quoteToken, prec)
+                const i1Result = await fix.univ2Integration.getPrice(baseToken, quoteToken)
+                expect(univ2PoolResult.price).equals(i1Result)
                 const univ3PoolResult = await bestUniswapV3Price(uniswapv3.factory, baseToken, quoteToken, prec)
-                const i1Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
-                expect(univ3PoolResult.price).equals(i1Result)
-
-                const lowestRef = chainlinkResult.lt(univ3PoolResult.price) ? chainlinkResult : univ3PoolResult.price
-                const highestRef = chainlinkResult.gt(univ3PoolResult.price) ? chainlinkResult : univ3PoolResult.price
+                const i2Result = await fix.univ3Integration.getPrice(baseToken, quoteToken)
+                expect(univ3PoolResult.price).equals(i2Result)
+                
+                const lowestRef = [chainlinkResult, univ2PoolResult.price, univ3PoolResult.price].sort((a, b) => {
+                    return a.lt(b) ? -1 : 1
+                })[0]
+                const highestRef = [chainlinkResult, univ2PoolResult.price, univ3PoolResult.price].sort((a, b) => {
+                    return a.gt(b) ? -1 : 1
+                })[0]
                 const prices = await fix.pricefeed.getPrice(baseToken, quoteToken)
                 expect(prices['lowest']).equals(lowestRef.mul(precision(univ3PoolResult.quoteDecimals)).div(precision(univ3PoolResult.baseDecimals)))
                 expect(prices['highest']).equals(highestRef.mul(precision(univ3PoolResult.quoteDecimals)).div(precision(univ3PoolResult.baseDecimals)))

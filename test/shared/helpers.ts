@@ -1,11 +1,13 @@
 import { config, ethers, network } from "hardhat";
 import { BigNumber, BytesLike, Contract, Overrides, Signer } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { INIT_CODE_HASH } from "@uniswap/v2-sdk";
 import { FeeAmount, POOL_INIT_CODE_HASH } from "@uniswap/v3-sdk";
 import { getCreate2Address } from "@ethersproject/address";
-import { keccak256 } from "@ethersproject/solidity";
+import { keccak256, pack } from "@ethersproject/solidity";
 import { defaultAbiCoder } from "@ethersproject/abi";
 import { abi as ERC20_ABI } from "../../artifacts/contracts/test/MockERC20.sol/MockERC20.json";
+import { abi as UNIV2_PAIR_ABI } from "@uniswap/v2-core/build/UniswapV2Pair.json";
 import { abi as UNIV3_POOL_ABI } from "@uniswap/v3-core/artifacts/contracts/UniswapV3Pool.sol/UniswapV3Pool.json";
 
 export const setHardhatNetwork = async (
@@ -59,6 +61,14 @@ export function computePoolAddress(poolDeployerAddress: string, quoteToken: stri
     )
 }
 
+export function computeUniV2PoolAddress(factoryAddress: string, tokenA: string, tokenB: string, initCodeHashManualOverride?: string): string {
+    return getCreate2Address(
+        factoryAddress,
+        keccak256(['bytes'], [pack(['address', 'address'], [tokenA, tokenB])]),
+        initCodeHashManualOverride ?? INIT_CODE_HASH
+    )
+}
+
 export function computeUniV3PoolAddress(factoryAddress: string, tokenA: string, tokenB: string, fee: FeeAmount, initCodeHashManualOverride?: string): string {
     return getCreate2Address(
         factoryAddress,
@@ -68,6 +78,18 @@ export function computeUniV3PoolAddress(factoryAddress: string, tokenA: string, 
         ),
         initCodeHashManualOverride ?? POOL_INIT_CODE_HASH
     )
+}
+
+export async function uniswapV2PoolInfo(poolAddress: string): Promise<{ address: string, reserveA: BigNumber, reserveB: BigNumber }> {
+    const pool = await ethers.getContractAt(UNIV2_PAIR_ABI, poolAddress)
+    const reserves = await pool.getReserves()
+    const reserveA = reserves['_reserve0']
+    const reserveB = reserves['_reserve1']
+    return {
+        address: poolAddress,
+        reserveA,
+        reserveB
+    }
 }
 
 export async function uniswapV3PoolInfo(tokenA: Contract, tokenB: Contract, poolAddress: string, prec: BigNumber): Promise<{ address: string, price: BigNumber, liquidity: BigNumber }> {
@@ -92,6 +114,30 @@ export function precision(decimals: number): BigNumber {
     }
 
     return result
+}
+
+export async function bestUniswapV2Price(factoryAddress: string, baseToken: string, quoteToken: string, prec: BigNumber): Promise<{ address: string, baseDecimals: number, quoteDecimals: number, price: BigNumber }> {
+    const tokenAAddress = baseToken < quoteToken ? baseToken : quoteToken
+    const tokenBAddress = baseToken < quoteToken ? quoteToken : baseToken
+
+    const tokenA = await ethers.getContractAt(ERC20_ABI, tokenAAddress)
+    const tokenB = await ethers.getContractAt(ERC20_ABI, tokenBAddress)
+    const decimalsA = Number((await tokenA.decimals()).toString())
+    const decimalsB = Number((await tokenB.decimals()).toString())
+
+    const poolAddress = computeUniV2PoolAddress(factoryAddress, tokenAAddress, tokenBAddress)
+    const info = await uniswapV2PoolInfo(poolAddress)
+
+    const price = baseToken === tokenAAddress
+        ? (info.reserveB.mul(prec).div(info.reserveA)).mul(precision(decimalsA)).div(precision(decimalsB))
+        : (info.reserveA.mul(prec).div(info.reserveB)).mul(precision(decimalsB)).div(precision(decimalsA))
+
+    return {
+        address: info.address,
+        baseDecimals: baseToken < quoteToken ? decimalsA : decimalsB,
+        quoteDecimals: baseToken < quoteToken ? decimalsB : decimalsA,
+        price
+    }
 }
 
 export async function bestUniswapV3Price(factoryAddress: string, baseToken: string, quoteToken: string, prec: BigNumber): Promise<{ address: string, baseDecimals: number, quoteDecimals: number, price: BigNumber, liquidity: BigNumber }> {
@@ -136,6 +182,36 @@ async function tryCall(call: any) {
         console.log(e)
         return undefined
     }
+}
+
+export async function bestUniswapV2AmountOut(router: Contract, tokenIn: string, tokenOut: string, amountIn: BigNumber): Promise<BigNumber> {
+    const tokenAAddress = tokenIn < tokenOut ? tokenIn : tokenOut
+    const tokenBAddress = tokenIn < tokenOut ? tokenOut : tokenIn
+
+    const factoryAddress = await router.factory()
+    const poolAddress = computeUniV2PoolAddress(factoryAddress, tokenAAddress, tokenBAddress)
+    const info = await uniswapV2PoolInfo(poolAddress)
+    const reserveIn = tokenIn < tokenOut ? info.reserveA : info.reserveB
+    const reserveOut = tokenIn < tokenOut ? info.reserveB : info.reserveA
+
+    const amountOut = await tryCall(router.getAmountOut(amountIn, reserveIn, reserveOut))
+
+    return amountOut ? amountOut : BigNumber.from("0")
+}
+
+export async function bestUniswapV2AmountIn(router: Contract, tokenIn: string, tokenOut: string, amountOut: BigNumber): Promise<BigNumber> {
+    const tokenAAddress = tokenIn < tokenOut ? tokenIn : tokenOut
+    const tokenBAddress = tokenIn < tokenOut ? tokenOut : tokenIn
+
+    const factoryAddress = await router.factory()
+    const poolAddress = computeUniV2PoolAddress(factoryAddress, tokenAAddress, tokenBAddress)
+    const info = await uniswapV2PoolInfo(poolAddress)
+    const reserveIn = tokenIn < tokenOut ? info.reserveA : info.reserveB
+    const reserveOut = tokenIn < tokenOut ? info.reserveB : info.reserveA
+
+    const amountIn = await tryCall(router.getAmountIn(amountOut, reserveIn, reserveOut))
+
+    return amountIn ? amountIn : BigNumber.from("0")
 }
 
 export async function bestUniswapV3AmountOut(quoter: Contract, tokenIn: string, tokenOut: string, amountIn: BigNumber): Promise<BigNumber> {
