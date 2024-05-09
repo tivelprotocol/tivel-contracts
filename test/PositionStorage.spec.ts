@@ -39,7 +39,7 @@ async function fixture() {
     const wethPool = await ethers.getContractAt(POOL_ABI, wethPoolAddress)
     const usdtPool = await ethers.getContractAt(POOL_ABI, usdtPoolAddress)
 
-    const callee = await deployContract(deployer, "Callee", [])
+    const callee = await deployContract(deployer, "Callee", [factory.address])
     const time = await deployContract(deployer, "Time", [])
     return {
         deployer,
@@ -423,6 +423,112 @@ describe("PositionStorage", async () => {
                 expect(await fix.positionStorage.openingPositionIndex(positionKey)).equals(BigNumber.from("1"))
                 expect(await fix.positionStorage.userPositionLength(fix.deployer.address)).equals(BigNumber.from("1"))
                 expect(await fix.positionStorage.positionKeyByUser(fix.deployer.address, 0)).equals(positionKey)
+            });
+
+            it("updateStatus", async () => {
+                const baseToken = tokens.weth
+                const quoteToken = tokens.usdt
+                const collateral = tokens.usdce
+                const baseAmount = BigNumber.from("1000000000000000") // 0.001 WETH
+                const timestamp = await fix.time.timestamp()
+                const deadline = timestamp.add(15 * 60) // 15 minutes
+
+                const basePrice = await fix.pricefeed.getLowestPrice(baseToken, quoteToken)
+                const minCollateralAmount = await fix.positionStorage.getMinCollateralAmount({
+                    owner: fix.deployer.address,
+                    baseToken,
+                    quoteToken,
+                    collateral,
+                    baseAmount,
+                    quoteAmount: "0",
+                    collateralAmount: "0",
+                    deadline,
+                    stoplossPrice: "0"
+                })
+
+                const collateralAmount = minCollateralAmount.add(1)
+                const quoteAmountRange = await fix.positionStorage.getQuoteAmountRange({
+                    owner: fix.deployer.address,
+                    baseToken,
+                    quoteToken,
+                    collateral,
+                    baseAmount,
+                    quoteAmount: "0",
+                    collateralAmount,
+                    deadline,
+                    stoplossPrice: "0"
+                })
+                const quoteAmount = quoteAmountRange['minQuoteAmount'].eq(quoteAmountRange['maxQuoteAmount']) ? quoteAmountRange['minQuoteAmount'] : quoteAmountRange['minQuoteAmount'].add(1)
+
+                const params = {
+                    owner: fix.deployer.address,
+                    baseToken,
+                    quoteToken,
+                    collateral,
+                    baseAmount,
+                    quoteAmount,
+                    collateralAmount,
+                    deadline,
+                    stoplossPrice: basePrice.mul(9).div(10) // decrease 10%
+                }
+                // setup tradeable tokens
+                await fix.factory.setPoolBaseTokens(tokens.usdt, [tokens.weth], [true])
+                await fix.weth.transfer(fix.usdtPool.address, baseAmount)
+                await fix.usdce.transfer(fix.usdtPool.address, collateralAmount)
+                await fix.factory.setPoolMaxOpenInterest(tokens.usdt, "10000000000000000")
+                await fix.factory.setOperator(fix.callee.address, true)
+
+                await fix.usdtPool.open(params)
+                await fix.weth.transfer(fix.usdtPool.address, baseAmount)
+                await fix.usdce.transfer(fix.usdtPool.address, collateralAmount)
+                await fix.usdtPool.open(params)
+                const positionKey1 = (await fix.positionStorage.position(0)).positionKey
+                const positionKey2 = (await fix.positionStorage.position(1)).positionKey
+
+                await fix.callee.close(fix.usdtPool.address, positionKey1)
+                const pos1 = await fix.positionStorage.position(0)
+                expect(pos1.status.isClosed).equals(true)
+                expect(pos1.closer).equals(fix.deployer.address)
+
+                expect(await fix.positionStorage.positionLength()).equals(BigNumber.from("2"))
+                expect(await fix.positionStorage.openingPositionLength()).equals(BigNumber.from("1"))
+                expect(await fix.positionStorage.userPositionLength(fix.deployer.address)).equals(BigNumber.from("2"))
+
+                expect((await fix.positionStorage.positionByKey(positionKey1)).positionKey).equals(positionKey1)
+                expect(await fix.positionStorage.positionIndex(positionKey1)).equals(BigNumber.from("1"))
+                expect(await fix.positionStorage.openingPositionKeys(0)).equals(positionKey2)
+                expect(await fix.positionStorage.openingPositionIndex(positionKey1)).equals("0")
+                expect(await fix.positionStorage.positionKeyByUser(fix.deployer.address, 0)).equals(positionKey1)
+
+                expect((await fix.positionStorage.positionByKey(positionKey2)).positionKey).equals(positionKey2)
+                expect(await fix.positionStorage.positionIndex(positionKey2)).equals(BigNumber.from("2"))
+                await expect(fix.positionStorage.openingPositionKeys(1)).to.be.reverted
+                expect(await fix.positionStorage.openingPositionIndex(positionKey2)).equals("1")
+                expect(await fix.positionStorage.positionKeyByUser(fix.deployer.address, 1)).equals(positionKey2)
+
+                await expect(fix.callee.close(fix.usdtPool.address, positionKey1)).to.be.revertedWith("TradePositionClosedAlready")
+                await fix.callee.close(fix.usdtPool.address, positionKey2)
+                const pos2 = await fix.positionStorage.position(1)
+                expect(pos1.status.isClosed).equals(true)
+                expect(pos1.closer).equals(fix.deployer.address)
+                expect(pos2.status.isClosed).equals(true)
+                expect(pos2.closer).equals(fix.deployer.address)
+
+                expect(await fix.positionStorage.positionLength()).equals(BigNumber.from("2"))
+                expect(await fix.positionStorage.openingPositionLength()).equals(BigNumber.from("0"))
+                expect(await fix.positionStorage.userPositionLength(fix.deployer.address)).equals(BigNumber.from("2"))
+
+                expect((await fix.positionStorage.positionByKey(positionKey1)).positionKey).equals(positionKey1)
+                expect(await fix.positionStorage.positionIndex(positionKey1)).equals(BigNumber.from("1"))
+                await expect(fix.positionStorage.openingPositionKeys(0)).to.be.reverted
+                expect(await fix.positionStorage.openingPositionIndex(positionKey1)).equals("0")
+                expect(await fix.positionStorage.positionKeyByUser(fix.deployer.address, 0)).equals(positionKey1)
+
+                expect((await fix.positionStorage.positionByKey(positionKey2)).positionKey).equals(positionKey2)
+                expect(await fix.positionStorage.positionIndex(positionKey2)).equals(BigNumber.from("2"))
+                await expect(fix.positionStorage.openingPositionKeys(1)).to.be.reverted
+                expect(await fix.positionStorage.openingPositionIndex(positionKey2)).equals("0")
+                expect(await fix.positionStorage.positionKeyByUser(fix.deployer.address, 1)).equals(positionKey2)
             });
         });
     });

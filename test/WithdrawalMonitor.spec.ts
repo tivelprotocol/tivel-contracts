@@ -38,7 +38,7 @@ async function fixture() {
     const wethPool = await ethers.getContractAt(POOL_ABI, wethPoolAddress)
     const usdtPool = await ethers.getContractAt(POOL_ABI, usdtPoolAddress)
 
-    const callee = await deployContract(deployer, "Callee", [])
+    const callee = await deployContract(deployer, "Callee", [factory.address])
     return {
         deployer,
         poolDeployer,

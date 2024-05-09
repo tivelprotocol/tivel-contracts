@@ -5,6 +5,3028 @@
       "contracts/PositionStorage.sol:PositionStorage": {
         "src": "contracts/PositionStorage.sol:11",
         "version": {
+          "withMetadata": "749609747480bbef9e6b92641d68faffee514acb16aea8e0ec669d303c27bd54",
+          "withoutMetadata": "2e820dc22cab920bbc87eba3274e549f48d84c4b88d6dbc0f1d4f29971ff9c20",
+          "linkedWithoutMetadata": "2e820dc22cab920bbc87eba3274e549f48d84c4b88d6dbc0f1d4f29971ff9c20"
+        },
+        "inherit": [
+          "contracts/interfaces/IPositionStorage.sol:IPositionStorage"
+        ],
+        "libraries": [
+          "contracts/libraries/PoolAddress.sol:PoolAddress"
+        ],
+        "methods": [
+          "setFactory(address)",
+          "position(uint256)",
+          "positionByKey(bytes32)",
+          "openingPositionKey(uint256)",
+          "positionLength()",
+          "openingPositionLength()",
+          "userPositionLength(address)",
+          "positionKeyByUser(address,uint256)",
+          "getMinCollateralAmount((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "getQuoteAmountRange((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewTradePosition((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewUpdateCollateralAmount((bytes32,uint256,address))",
+          "previewUpdateDeadline((bytes32,uint256,address))",
+          "canLiquidate(bytes32)",
+          "canLiquidationMark(bytes32)",
+          "openTradePosition((bytes32,address,address,(address,uint256,uint256,uint256,uint256),(address,uint256),(address,uint256,uint256,uint256,uint256),uint256,uint256,uint256,uint256,(bool,bool,bool,bool,bool,bool,bool,bool),address,uint256))",
+          "updateStatus(bytes32,address)",
+          "liquidationMark(bytes32)",
+          "rollback(bytes32,address)",
+          "closeManuallyStep1(bytes32)",
+          "closeManuallyStep2(bytes32)",
+          "updateCloseValues(bytes32,uint256,uint256,uint256)",
+          "updateStoplossPrice((bytes32,uint256,address))",
+          "updateCollateralAmount((bytes32,uint256,address))",
+          "updateDeadline((bytes32,uint256,address))"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [
+            {
+              "label": "factory",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:12"
+            },
+            {
+              "label": "poolDeployer",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:13"
+            },
+            {
+              "label": "positions",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_array(t_struct(TradePosition)3062_storage)dyn_storage",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:15"
+            },
+            {
+              "label": "openingPositionKeys",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_array(t_bytes32)dyn_storage",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:16"
+            },
+            {
+              "label": "openingPositionIndex",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:17"
+            },
+            {
+              "label": "positionIndex",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:18"
+            },
+            {
+              "label": "positionKeysByUser",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:19"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address",
+              "numberOfBytes": "20"
+            },
+            "t_array(t_bytes32)dyn_storage": {
+              "label": "bytes32[]",
+              "numberOfBytes": "32"
+            },
+            "t_array(t_struct(TradePosition)3062_storage)dyn_storage": {
+              "label": "struct IPositionStorage.TradePosition[]",
+              "numberOfBytes": "32"
+            },
+            "t_bool": {
+              "label": "bool",
+              "numberOfBytes": "1"
+            },
+            "t_bytes32": {
+              "label": "bytes32",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_array(t_bytes32)dyn_storage)": {
+              "label": "mapping(address => bytes32[])",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_bytes32,t_uint256)": {
+              "label": "mapping(bytes32 => uint256)",
+              "numberOfBytes": "32"
+            },
+            "t_struct(BaseToken)2998_storage": {
+              "label": "struct IPositionStorage.BaseToken",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "entryPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "liqPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "closePrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "4"
+                }
+              ],
+              "numberOfBytes": "160"
+            },
+            "t_struct(Collateral)3014_storage": {
+              "label": "struct IPositionStorage.Collateral",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "entryPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "liqPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "closePrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "4"
+                }
+              ],
+              "numberOfBytes": "160"
+            },
+            "t_struct(QuoteToken)3003_storage": {
+              "label": "struct IPositionStorage.QuoteToken",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                }
+              ],
+              "numberOfBytes": "64"
+            },
+            "t_struct(Status)3031_storage": {
+              "label": "struct IPositionStorage.Status",
+              "members": [
+                {
+                  "label": "isClosed",
+                  "type": "t_bool",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "isExpired",
+                  "type": "t_bool",
+                  "offset": 1,
+                  "slot": "0"
+                },
+                {
+                  "label": "isStoploss",
+                  "type": "t_bool",
+                  "offset": 2,
+                  "slot": "0"
+                },
+                {
+                  "label": "isBaseLiquidated",
+                  "type": "t_bool",
+                  "offset": 3,
+                  "slot": "0"
+                },
+                {
+                  "label": "isCollateralLiquidated",
+                  "type": "t_bool",
+                  "offset": 4,
+                  "slot": "0"
+                },
+                {
+                  "label": "isRollbacked",
+                  "type": "t_bool",
+                  "offset": 5,
+                  "slot": "0"
+                },
+                {
+                  "label": "isClosedManuallyStep1",
+                  "type": "t_bool",
+                  "offset": 6,
+                  "slot": "0"
+                },
+                {
+                  "label": "isClosedManuallyStep2",
+                  "type": "t_bool",
+                  "offset": 7,
+                  "slot": "0"
+                }
+              ],
+              "numberOfBytes": "32"
+            },
+            "t_struct(TradePosition)3062_storage": {
+              "label": "struct IPositionStorage.TradePosition",
+              "members": [
+                {
+                  "label": "positionKey",
+                  "type": "t_bytes32",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "owner",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "pool",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "baseToken",
+                  "type": "t_struct(BaseToken)2998_storage",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "quoteToken",
+                  "type": "t_struct(QuoteToken)3003_storage",
+                  "offset": 0,
+                  "slot": "8"
+                },
+                {
+                  "label": "collateral",
+                  "type": "t_struct(Collateral)3014_storage",
+                  "offset": 0,
+                  "slot": "10"
+                },
+                {
+                  "label": "deadline",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "15"
+                },
+                {
+                  "label": "stoplossPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "16"
+                },
+                {
+                  "label": "fee",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "17"
+                },
+                {
+                  "label": "protocolFee",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "18"
+                },
+                {
+                  "label": "status",
+                  "type": "t_struct(Status)3031_storage",
+                  "offset": 0,
+                  "slot": "19"
+                },
+                {
+                  "label": "closer",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "20"
+                },
+                {
+                  "label": "liquidationMarkTime",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "21"
+                }
+              ],
+              "numberOfBytes": "704"
+            },
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IERC20.sol:IERC20": {
+        "src": "contracts/interfaces/IERC20.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "name()",
+          "symbol()",
+          "decimals()",
+          "totalSupply()",
+          "balanceOf(address)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transfer(address,uint256)",
+          "transferFrom(address,address,uint256)",
+          "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IFactory.sol:IFactory": {
+        "src": "contracts/interfaces/IFactory.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "manager()",
+          "poolDeployer()",
+          "positionStorage()",
+          "withdrawalMonitor()",
+          "userStorage()",
+          "priceFeed()",
+          "dexAggregator()",
+          "protocolFeeRate()",
+          "protocolFeeTo()",
+          "liquidationFeeRate()",
+          "liquidationFeeTo()",
+          "serviceToken()",
+          "serviceFeeTo()",
+          "rollbackFee()",
+          "updateStoplossPriceFee()",
+          "updateCollateralAmountFee()",
+          "updateDeadlineFee()",
+          "minQuoteRate()",
+          "manualExpiration()",
+          "operator(address)",
+          "pools(uint256)",
+          "poolLength()",
+          "poolIndex(address)",
+          "poolByQuoteToken(address)",
+          "baseTokenMUT(address)",
+          "collateralMUT(address)",
+          "baseTokenLT(address)",
+          "collateralLT(address)",
+          "interest(address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IPositionStorage.sol:IPositionStorage": {
+        "src": "contracts/interfaces/IPositionStorage.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "factory()",
+          "position(uint256)",
+          "positionIndex(bytes32)",
+          "positionByKey(bytes32)",
+          "openingPositionKey(uint256)",
+          "positionLength()",
+          "openingPositionLength()",
+          "userPositionLength(address)",
+          "positionKeyByUser(address,uint256)",
+          "getMinCollateralAmount((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "getQuoteAmountRange((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewTradePosition((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewUpdateCollateralAmount((bytes32,uint256,address))",
+          "previewUpdateDeadline((bytes32,uint256,address))",
+          "canLiquidate(bytes32)",
+          "canLiquidationMark(bytes32)",
+          "openTradePosition((bytes32,address,address,(address,uint256,uint256,uint256,uint256),(address,uint256),(address,uint256,uint256,uint256,uint256),uint256,uint256,uint256,uint256,(bool,bool,bool,bool,bool,bool,bool,bool),address,uint256))",
+          "updateStatus(bytes32,address)",
+          "liquidationMark(bytes32)",
+          "rollback(bytes32,address)",
+          "closeManuallyStep1(bytes32)",
+          "closeManuallyStep2(bytes32)",
+          "updateCloseValues(bytes32,uint256,uint256,uint256)",
+          "updateStoplossPrice((bytes32,uint256,address))",
+          "updateCollateralAmount((bytes32,uint256,address))",
+          "updateDeadline((bytes32,uint256,address))"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IPriceFeed.sol:IPriceFeed": {
+        "src": "contracts/interfaces/IPriceFeed.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "PRECISION()",
+          "getPrice(address,address)",
+          "getHighestPrice(address,address)",
+          "getLowestPrice(address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IUserStorage.sol:IUserStorage": {
+        "src": "contracts/interfaces/IUserStorage.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "getUserInfo(address)",
+          "discountedFee(address,uint256)",
+          "canUpdateDeadline(address)",
+          "updateRef(address,address)",
+          "updateMembership(address,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/libraries/PoolAddress.sol:PoolAddress": {
+        "src": "contracts/libraries/PoolAddress.sol:5",
+        "version": {
+          "withMetadata": "c02998a12bfee3b880beaea0db284cc35b69a20de104b46b8aa365ce07267c9f",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      }
+    },
+    {
+      "contracts/PositionStorage.sol:PositionStorage": {
+        "src": "contracts/PositionStorage.sol:12",
+        "version": {
+          "withMetadata": "04c7fac274f9e9e89fd0bcf64125e5cb8d2b18b71ac7be3ef593a1efabe89592",
+          "withoutMetadata": "2e820dc22cab920bbc87eba3274e549f48d84c4b88d6dbc0f1d4f29971ff9c20",
+          "linkedWithoutMetadata": "2e820dc22cab920bbc87eba3274e549f48d84c4b88d6dbc0f1d4f29971ff9c20"
+        },
+        "inherit": [
+          "contracts/interfaces/IPositionStorage.sol:IPositionStorage"
+        ],
+        "libraries": [
+          "contracts/libraries/PoolAddress.sol:PoolAddress"
+        ],
+        "methods": [
+          "setFactory(address)",
+          "position(uint256)",
+          "positionByKey(bytes32)",
+          "openingPositionKey(uint256)",
+          "positionLength()",
+          "openingPositionLength()",
+          "userPositionLength(address)",
+          "positionKeyByUser(address,uint256)",
+          "getMinCollateralAmount((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "getQuoteAmountRange((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewTradePosition((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewUpdateCollateralAmount((bytes32,uint256,address))",
+          "previewUpdateDeadline((bytes32,uint256,address))",
+          "canLiquidate(bytes32)",
+          "canLiquidationMark(bytes32)",
+          "openTradePosition((bytes32,address,address,(address,uint256,uint256,uint256,uint256),(address,uint256),(address,uint256,uint256,uint256,uint256),uint256,uint256,uint256,uint256,(bool,bool,bool,bool,bool,bool,bool,bool),address,uint256))",
+          "updateStatus(bytes32,address)",
+          "liquidationMark(bytes32)",
+          "rollback(bytes32,address)",
+          "closeManuallyStep1(bytes32)",
+          "closeManuallyStep2(bytes32)",
+          "updateCloseValues(bytes32,uint256,uint256,uint256)",
+          "updateStoplossPrice((bytes32,uint256,address))",
+          "updateCollateralAmount((bytes32,uint256,address))",
+          "updateDeadline((bytes32,uint256,address))"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [
+            {
+              "label": "factory",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:13"
+            },
+            {
+              "label": "poolDeployer",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:14"
+            },
+            {
+              "label": "positions",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_array(t_struct(TradePosition)3063_storage)dyn_storage",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:16"
+            },
+            {
+              "label": "openingPositionKeys",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_array(t_bytes32)dyn_storage",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:17"
+            },
+            {
+              "label": "openingPositionIndex",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:18"
+            },
+            {
+              "label": "positionIndex",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:19"
+            },
+            {
+              "label": "positionKeysByUser",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:20"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address",
+              "numberOfBytes": "20"
+            },
+            "t_array(t_bytes32)dyn_storage": {
+              "label": "bytes32[]",
+              "numberOfBytes": "32"
+            },
+            "t_array(t_struct(TradePosition)3063_storage)dyn_storage": {
+              "label": "struct IPositionStorage.TradePosition[]",
+              "numberOfBytes": "32"
+            },
+            "t_bool": {
+              "label": "bool",
+              "numberOfBytes": "1"
+            },
+            "t_bytes32": {
+              "label": "bytes32",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_array(t_bytes32)dyn_storage)": {
+              "label": "mapping(address => bytes32[])",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_bytes32,t_uint256)": {
+              "label": "mapping(bytes32 => uint256)",
+              "numberOfBytes": "32"
+            },
+            "t_struct(BaseToken)2999_storage": {
+              "label": "struct IPositionStorage.BaseToken",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "entryPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "liqPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "closePrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "4"
+                }
+              ],
+              "numberOfBytes": "160"
+            },
+            "t_struct(Collateral)3015_storage": {
+              "label": "struct IPositionStorage.Collateral",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "entryPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "liqPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "closePrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "4"
+                }
+              ],
+              "numberOfBytes": "160"
+            },
+            "t_struct(QuoteToken)3004_storage": {
+              "label": "struct IPositionStorage.QuoteToken",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                }
+              ],
+              "numberOfBytes": "64"
+            },
+            "t_struct(Status)3032_storage": {
+              "label": "struct IPositionStorage.Status",
+              "members": [
+                {
+                  "label": "isClosed",
+                  "type": "t_bool",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "isExpired",
+                  "type": "t_bool",
+                  "offset": 1,
+                  "slot": "0"
+                },
+                {
+                  "label": "isStoploss",
+                  "type": "t_bool",
+                  "offset": 2,
+                  "slot": "0"
+                },
+                {
+                  "label": "isBaseLiquidated",
+                  "type": "t_bool",
+                  "offset": 3,
+                  "slot": "0"
+                },
+                {
+                  "label": "isCollateralLiquidated",
+                  "type": "t_bool",
+                  "offset": 4,
+                  "slot": "0"
+                },
+                {
+                  "label": "isRollbacked",
+                  "type": "t_bool",
+                  "offset": 5,
+                  "slot": "0"
+                },
+                {
+                  "label": "isClosedManuallyStep1",
+                  "type": "t_bool",
+                  "offset": 6,
+                  "slot": "0"
+                },
+                {
+                  "label": "isClosedManuallyStep2",
+                  "type": "t_bool",
+                  "offset": 7,
+                  "slot": "0"
+                }
+              ],
+              "numberOfBytes": "32"
+            },
+            "t_struct(TradePosition)3063_storage": {
+              "label": "struct IPositionStorage.TradePosition",
+              "members": [
+                {
+                  "label": "positionKey",
+                  "type": "t_bytes32",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "owner",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "pool",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "baseToken",
+                  "type": "t_struct(BaseToken)2999_storage",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "quoteToken",
+                  "type": "t_struct(QuoteToken)3004_storage",
+                  "offset": 0,
+                  "slot": "8"
+                },
+                {
+                  "label": "collateral",
+                  "type": "t_struct(Collateral)3015_storage",
+                  "offset": 0,
+                  "slot": "10"
+                },
+                {
+                  "label": "deadline",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "15"
+                },
+                {
+                  "label": "stoplossPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "16"
+                },
+                {
+                  "label": "fee",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "17"
+                },
+                {
+                  "label": "protocolFee",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "18"
+                },
+                {
+                  "label": "status",
+                  "type": "t_struct(Status)3032_storage",
+                  "offset": 0,
+                  "slot": "19"
+                },
+                {
+                  "label": "closer",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "20"
+                },
+                {
+                  "label": "liquidationMarkTime",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "21"
+                }
+              ],
+              "numberOfBytes": "704"
+            },
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IERC20.sol:IERC20": {
+        "src": "contracts/interfaces/IERC20.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "name()",
+          "symbol()",
+          "decimals()",
+          "totalSupply()",
+          "balanceOf(address)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transfer(address,uint256)",
+          "transferFrom(address,address,uint256)",
+          "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IFactory.sol:IFactory": {
+        "src": "contracts/interfaces/IFactory.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "manager()",
+          "poolDeployer()",
+          "positionStorage()",
+          "withdrawalMonitor()",
+          "userStorage()",
+          "priceFeed()",
+          "dexAggregator()",
+          "protocolFeeRate()",
+          "protocolFeeTo()",
+          "liquidationFeeRate()",
+          "liquidationFeeTo()",
+          "serviceToken()",
+          "serviceFeeTo()",
+          "rollbackFee()",
+          "updateStoplossPriceFee()",
+          "updateCollateralAmountFee()",
+          "updateDeadlineFee()",
+          "minQuoteRate()",
+          "manualExpiration()",
+          "operator(address)",
+          "pools(uint256)",
+          "poolLength()",
+          "poolIndex(address)",
+          "poolByQuoteToken(address)",
+          "baseTokenMUT(address)",
+          "collateralMUT(address)",
+          "baseTokenLT(address)",
+          "collateralLT(address)",
+          "interest(address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IPositionStorage.sol:IPositionStorage": {
+        "src": "contracts/interfaces/IPositionStorage.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "factory()",
+          "position(uint256)",
+          "positionIndex(bytes32)",
+          "positionByKey(bytes32)",
+          "openingPositionKey(uint256)",
+          "positionLength()",
+          "openingPositionLength()",
+          "userPositionLength(address)",
+          "positionKeyByUser(address,uint256)",
+          "getMinCollateralAmount((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "getQuoteAmountRange((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewTradePosition((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewUpdateCollateralAmount((bytes32,uint256,address))",
+          "previewUpdateDeadline((bytes32,uint256,address))",
+          "canLiquidate(bytes32)",
+          "canLiquidationMark(bytes32)",
+          "openTradePosition((bytes32,address,address,(address,uint256,uint256,uint256,uint256),(address,uint256),(address,uint256,uint256,uint256,uint256),uint256,uint256,uint256,uint256,(bool,bool,bool,bool,bool,bool,bool,bool),address,uint256))",
+          "updateStatus(bytes32,address)",
+          "liquidationMark(bytes32)",
+          "rollback(bytes32,address)",
+          "closeManuallyStep1(bytes32)",
+          "closeManuallyStep2(bytes32)",
+          "updateCloseValues(bytes32,uint256,uint256,uint256)",
+          "updateStoplossPrice((bytes32,uint256,address))",
+          "updateCollateralAmount((bytes32,uint256,address))",
+          "updateDeadline((bytes32,uint256,address))"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IPriceFeed.sol:IPriceFeed": {
+        "src": "contracts/interfaces/IPriceFeed.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "PRECISION()",
+          "getPrice(address,address)",
+          "getHighestPrice(address,address)",
+          "getLowestPrice(address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IUserStorage.sol:IUserStorage": {
+        "src": "contracts/interfaces/IUserStorage.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "getUserInfo(address)",
+          "discountedFee(address,uint256)",
+          "canUpdateDeadline(address)",
+          "updateRef(address,address)",
+          "updateMembership(address,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/libraries/PoolAddress.sol:PoolAddress": {
+        "src": "contracts/libraries/PoolAddress.sol:5",
+        "version": {
+          "withMetadata": "c02998a12bfee3b880beaea0db284cc35b69a20de104b46b8aa365ce07267c9f",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "hardhat/console.sol:console": {
+        "src": "hardhat/console.sol:4",
+        "version": {
+          "withMetadata": "c0000bbe88ef3dc1d9e974419bac60c7f2eabf7e255e2a1a058bc401e472cb8b",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      }
+    },
+    {
+      "contracts/PositionStorage.sol:PositionStorage": {
+        "src": "contracts/PositionStorage.sol:12",
+        "version": {
+          "withMetadata": "8496d0a80f6554511866d03f863c8e353b5b14055c97af68ccd605aee591c2b9",
+          "withoutMetadata": "c726d51ac20719958be320920cbfe5f12bcc4e046fd64e552171440aecb4b8b8",
+          "linkedWithoutMetadata": "c726d51ac20719958be320920cbfe5f12bcc4e046fd64e552171440aecb4b8b8"
+        },
+        "inherit": [
+          "contracts/interfaces/IPositionStorage.sol:IPositionStorage"
+        ],
+        "libraries": [
+          "contracts/libraries/PoolAddress.sol:PoolAddress"
+        ],
+        "methods": [
+          "setFactory(address)",
+          "position(uint256)",
+          "positionByKey(bytes32)",
+          "openingPositionKey(uint256)",
+          "positionLength()",
+          "openingPositionLength()",
+          "userPositionLength(address)",
+          "positionKeyByUser(address,uint256)",
+          "getMinCollateralAmount((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "getQuoteAmountRange((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewTradePosition((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewUpdateCollateralAmount((bytes32,uint256,address))",
+          "previewUpdateDeadline((bytes32,uint256,address))",
+          "canLiquidate(bytes32)",
+          "canLiquidationMark(bytes32)",
+          "openTradePosition((bytes32,address,address,(address,uint256,uint256,uint256,uint256),(address,uint256),(address,uint256,uint256,uint256,uint256),uint256,uint256,uint256,uint256,(bool,bool,bool,bool,bool,bool,bool,bool),address,uint256))",
+          "updateStatus(bytes32,address)",
+          "liquidationMark(bytes32)",
+          "rollback(bytes32,address)",
+          "closeManuallyStep1(bytes32)",
+          "closeManuallyStep2(bytes32)",
+          "updateCloseValues(bytes32,uint256,uint256,uint256)",
+          "updateStoplossPrice((bytes32,uint256,address))",
+          "updateCollateralAmount((bytes32,uint256,address))",
+          "updateDeadline((bytes32,uint256,address))"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [
+            {
+              "label": "factory",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:13"
+            },
+            {
+              "label": "poolDeployer",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:14"
+            },
+            {
+              "label": "positions",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_array(t_struct(TradePosition)3372_storage)dyn_storage",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:16"
+            },
+            {
+              "label": "openingPositionKeys",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_array(t_bytes32)dyn_storage",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:17"
+            },
+            {
+              "label": "openingPositionIndex",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:18"
+            },
+            {
+              "label": "positionIndex",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:19"
+            },
+            {
+              "label": "positionKeysByUser",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:20"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address",
+              "numberOfBytes": "20"
+            },
+            "t_array(t_bytes32)dyn_storage": {
+              "label": "bytes32[]",
+              "numberOfBytes": "32"
+            },
+            "t_array(t_struct(TradePosition)3372_storage)dyn_storage": {
+              "label": "struct IPositionStorage.TradePosition[]",
+              "numberOfBytes": "32"
+            },
+            "t_bool": {
+              "label": "bool",
+              "numberOfBytes": "1"
+            },
+            "t_bytes32": {
+              "label": "bytes32",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_array(t_bytes32)dyn_storage)": {
+              "label": "mapping(address => bytes32[])",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_bytes32,t_uint256)": {
+              "label": "mapping(bytes32 => uint256)",
+              "numberOfBytes": "32"
+            },
+            "t_struct(BaseToken)3308_storage": {
+              "label": "struct IPositionStorage.BaseToken",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "entryPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "liqPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "closePrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "4"
+                }
+              ],
+              "numberOfBytes": "160"
+            },
+            "t_struct(Collateral)3324_storage": {
+              "label": "struct IPositionStorage.Collateral",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "entryPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "liqPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "closePrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "4"
+                }
+              ],
+              "numberOfBytes": "160"
+            },
+            "t_struct(QuoteToken)3313_storage": {
+              "label": "struct IPositionStorage.QuoteToken",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                }
+              ],
+              "numberOfBytes": "64"
+            },
+            "t_struct(Status)3341_storage": {
+              "label": "struct IPositionStorage.Status",
+              "members": [
+                {
+                  "label": "isClosed",
+                  "type": "t_bool",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "isExpired",
+                  "type": "t_bool",
+                  "offset": 1,
+                  "slot": "0"
+                },
+                {
+                  "label": "isStoploss",
+                  "type": "t_bool",
+                  "offset": 2,
+                  "slot": "0"
+                },
+                {
+                  "label": "isBaseLiquidated",
+                  "type": "t_bool",
+                  "offset": 3,
+                  "slot": "0"
+                },
+                {
+                  "label": "isCollateralLiquidated",
+                  "type": "t_bool",
+                  "offset": 4,
+                  "slot": "0"
+                },
+                {
+                  "label": "isRollbacked",
+                  "type": "t_bool",
+                  "offset": 5,
+                  "slot": "0"
+                },
+                {
+                  "label": "isClosedManuallyStep1",
+                  "type": "t_bool",
+                  "offset": 6,
+                  "slot": "0"
+                },
+                {
+                  "label": "isClosedManuallyStep2",
+                  "type": "t_bool",
+                  "offset": 7,
+                  "slot": "0"
+                }
+              ],
+              "numberOfBytes": "32"
+            },
+            "t_struct(TradePosition)3372_storage": {
+              "label": "struct IPositionStorage.TradePosition",
+              "members": [
+                {
+                  "label": "positionKey",
+                  "type": "t_bytes32",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "owner",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "pool",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "baseToken",
+                  "type": "t_struct(BaseToken)3308_storage",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "quoteToken",
+                  "type": "t_struct(QuoteToken)3313_storage",
+                  "offset": 0,
+                  "slot": "8"
+                },
+                {
+                  "label": "collateral",
+                  "type": "t_struct(Collateral)3324_storage",
+                  "offset": 0,
+                  "slot": "10"
+                },
+                {
+                  "label": "deadline",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "15"
+                },
+                {
+                  "label": "stoplossPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "16"
+                },
+                {
+                  "label": "fee",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "17"
+                },
+                {
+                  "label": "protocolFee",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "18"
+                },
+                {
+                  "label": "status",
+                  "type": "t_struct(Status)3341_storage",
+                  "offset": 0,
+                  "slot": "19"
+                },
+                {
+                  "label": "closer",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "20"
+                },
+                {
+                  "label": "liquidationMarkTime",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "21"
+                }
+              ],
+              "numberOfBytes": "704"
+            },
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IDEXAggregator.sol:IDEXAggregator": {
+        "src": "contracts/interfaces/IDEXAggregator.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "dexes(uint256)",
+          "dexNames(uint256)",
+          "dexIndex(address)",
+          "dexLength()",
+          "validatePair(address,address,address)",
+          "getAmountIn(address,address,address,uint256)",
+          "getAmountOut(address,address,address,uint256)",
+          "swap(address,address,address,uint256,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IERC20.sol:IERC20": {
+        "src": "contracts/interfaces/IERC20.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "name()",
+          "symbol()",
+          "decimals()",
+          "totalSupply()",
+          "balanceOf(address)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transfer(address,uint256)",
+          "transferFrom(address,address,uint256)",
+          "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IFactory.sol:IFactory": {
+        "src": "contracts/interfaces/IFactory.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "manager()",
+          "poolDeployer()",
+          "positionStorage()",
+          "withdrawalMonitor()",
+          "userStorage()",
+          "priceFeed()",
+          "dexAggregator()",
+          "protocolFeeRate()",
+          "protocolFeeTo()",
+          "liquidationFeeRate()",
+          "liquidationFeeTo()",
+          "serviceToken()",
+          "serviceFeeTo()",
+          "rollbackFee()",
+          "updateStoplossPriceFee()",
+          "updateCollateralAmountFee()",
+          "updateDeadlineFee()",
+          "minQuoteRate()",
+          "manualExpiration()",
+          "operator(address)",
+          "pools(uint256)",
+          "poolLength()",
+          "poolIndex(address)",
+          "poolByQuoteToken(address)",
+          "baseTokenMUT(address)",
+          "collateralMUT(address)",
+          "baseTokenLT(address)",
+          "collateralLT(address)",
+          "interest(address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IMintCallback.sol:IMintCallback": {
+        "src": "contracts/interfaces/IMintCallback.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "mintCallback(address,uint256,bytes)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IPool.sol:IPool": {
+        "src": "contracts/interfaces/IPool.sol:7",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "factory()",
+          "quoteToken()",
+          "precision()",
+          "interest()",
+          "maxOpenInterest()",
+          "openInterest()",
+          "quoteReserve()",
+          "quoteInDebt()",
+          "withdrawingLiquidity()",
+          "accFee()",
+          "accProtocolFee()",
+          "accFeePerShare()",
+          "tradeableBaseToken(address)",
+          "baseReserve(address)",
+          "collateralReserve(address)",
+          "availableLiquidity()",
+          "liquidityPosition(address)",
+          "claimableFee(address)",
+          "setInterest(uint256)",
+          "setMaxOpenInterest(uint256)",
+          "setBaseTokens(address[],bool[])",
+          "availLiquidity()",
+          "mint(address,uint256,bytes)",
+          "collect(address,uint256)",
+          "addBurnRequest(uint256,address,bytes)",
+          "burn((uint256,address,address,uint256,address,bytes,string))",
+          "open((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "close((bytes32,bytes,bytes,address))",
+          "rollback((bytes32,address))",
+          "updateStoplossPrice((bytes32,uint256,address))",
+          "updateCollateralAmount((bytes32,uint256,address))",
+          "updateDeadline((bytes32,uint256,address))"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IPositionStorage.sol:IPositionStorage": {
+        "src": "contracts/interfaces/IPositionStorage.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "factory()",
+          "position(uint256)",
+          "positionIndex(bytes32)",
+          "positionByKey(bytes32)",
+          "openingPositionKey(uint256)",
+          "positionLength()",
+          "openingPositionLength()",
+          "userPositionLength(address)",
+          "positionKeyByUser(address,uint256)",
+          "getMinCollateralAmount((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "getQuoteAmountRange((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewTradePosition((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewUpdateCollateralAmount((bytes32,uint256,address))",
+          "previewUpdateDeadline((bytes32,uint256,address))",
+          "canLiquidate(bytes32)",
+          "canLiquidationMark(bytes32)",
+          "openTradePosition((bytes32,address,address,(address,uint256,uint256,uint256,uint256),(address,uint256),(address,uint256,uint256,uint256,uint256),uint256,uint256,uint256,uint256,(bool,bool,bool,bool,bool,bool,bool,bool),address,uint256))",
+          "updateStatus(bytes32,address)",
+          "liquidationMark(bytes32)",
+          "rollback(bytes32,address)",
+          "closeManuallyStep1(bytes32)",
+          "closeManuallyStep2(bytes32)",
+          "updateCloseValues(bytes32,uint256,uint256,uint256)",
+          "updateStoplossPrice((bytes32,uint256,address))",
+          "updateCollateralAmount((bytes32,uint256,address))",
+          "updateDeadline((bytes32,uint256,address))"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IPriceFeed.sol:IPriceFeed": {
+        "src": "contracts/interfaces/IPriceFeed.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "PRECISION()",
+          "getPrice(address,address)",
+          "getHighestPrice(address,address)",
+          "getLowestPrice(address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IUserStorage.sol:IUserStorage": {
+        "src": "contracts/interfaces/IUserStorage.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "getUserInfo(address)",
+          "discountedFee(address,uint256)",
+          "canUpdateDeadline(address)",
+          "updateRef(address,address)",
+          "updateMembership(address,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IWithdrawalMonitor.sol:IWithdrawalMonitor": {
+        "src": "contracts/interfaces/IWithdrawalMonitor.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "factory()",
+          "requestLength(address)",
+          "currentIndex(address)",
+          "request(address,uint256)",
+          "addRequest(address,address,uint256,address,bytes)",
+          "updateCallbackResult(uint256,string)",
+          "execute(address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/libraries/PoolAddress.sol:PoolAddress": {
+        "src": "contracts/libraries/PoolAddress.sol:5",
+        "version": {
+          "withMetadata": "c02998a12bfee3b880beaea0db284cc35b69a20de104b46b8aa365ce07267c9f",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/libraries/TransferHelper.sol:TransferHelper": {
+        "src": "contracts/libraries/TransferHelper.sol:5",
+        "version": {
+          "withMetadata": "ed5b07d263c2724fc044f96ad3b1c720aefa1ce89b0a0f35d04d9f18f7f8ad39",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/test/Callee.sol:Callee": {
+        "src": "contracts/test/Callee.sol:11",
+        "version": {
+          "withMetadata": "4f796e4c9a97d432e778d033a3024461f63202d19a967ce8d68302287b5e2f25",
+          "withoutMetadata": "82bd061864993d369aad8c4c70fd5707a762e89d42333402f2d3822b347741d0",
+          "linkedWithoutMetadata": "82bd061864993d369aad8c4c70fd5707a762e89d42333402f2d3822b347741d0"
+        },
+        "inherit": [
+          "contracts/interfaces/IMintCallback.sol:IMintCallback"
+        ],
+        "libraries": [
+          "contracts/libraries/TransferHelper.sol:TransferHelper"
+        ],
+        "methods": [
+          "(address)",
+          "mintCallback(address,uint256,bytes)",
+          "closeCallback(address,address,uint256,bytes)",
+          "mint(address,address,uint256,bytes)",
+          "collect(address,address,uint256)",
+          "addBurnRequest(address,uint256,address,bytes)",
+          "close(address,bytes32)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "Callee",
+            "src": "contracts/test/Callee.sol:16"
+          },
+          {
+            "kind": "state-variable-immutable",
+            "name": "factory",
+            "src": "contracts/test/Callee.sol:14"
+          }
+        ],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "hardhat/console.sol:console": {
+        "src": "hardhat/console.sol:4",
+        "version": {
+          "withMetadata": "c0000bbe88ef3dc1d9e974419bac60c7f2eabf7e255e2a1a058bc401e472cb8b",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      }
+    },
+    {
+      "contracts/PositionStorage.sol:PositionStorage": {
+        "src": "contracts/PositionStorage.sol:12",
+        "version": {
+          "withMetadata": "5422482c0bd9f6fbfe2e9d1ce9dd527460abcac2ae7589d79612e9333921c3d6",
+          "withoutMetadata": "7c8fd287f3d61a5532fccfe4dc758b078f3d04824c355ed9efd13e0d14fd695a",
+          "linkedWithoutMetadata": "7c8fd287f3d61a5532fccfe4dc758b078f3d04824c355ed9efd13e0d14fd695a"
+        },
+        "inherit": [
+          "contracts/interfaces/IPositionStorage.sol:IPositionStorage"
+        ],
+        "libraries": [
+          "hardhat/console.sol:console",
+          "contracts/libraries/PoolAddress.sol:PoolAddress"
+        ],
+        "methods": [
+          "setFactory(address)",
+          "position(uint256)",
+          "positionByKey(bytes32)",
+          "openingPositionKey(uint256)",
+          "positionLength()",
+          "openingPositionLength()",
+          "userPositionLength(address)",
+          "positionKeyByUser(address,uint256)",
+          "getMinCollateralAmount((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "getQuoteAmountRange((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewTradePosition((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewUpdateCollateralAmount((bytes32,uint256,address))",
+          "previewUpdateDeadline((bytes32,uint256,address))",
+          "canLiquidate(bytes32)",
+          "canLiquidationMark(bytes32)",
+          "openTradePosition((bytes32,address,address,(address,uint256,uint256,uint256,uint256),(address,uint256),(address,uint256,uint256,uint256,uint256),uint256,uint256,uint256,uint256,(bool,bool,bool,bool,bool,bool,bool,bool),address,uint256))",
+          "updateStatus(bytes32,address)",
+          "liquidationMark(bytes32)",
+          "rollback(bytes32,address)",
+          "closeManuallyStep1(bytes32)",
+          "closeManuallyStep2(bytes32)",
+          "updateCloseValues(bytes32,uint256,uint256,uint256)",
+          "updateStoplossPrice((bytes32,uint256,address))",
+          "updateCollateralAmount((bytes32,uint256,address))",
+          "updateDeadline((bytes32,uint256,address))"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [
+            {
+              "label": "factory",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:13"
+            },
+            {
+              "label": "poolDeployer",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:14"
+            },
+            {
+              "label": "positions",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_array(t_struct(TradePosition)3070_storage)dyn_storage",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:16"
+            },
+            {
+              "label": "openingPositionKeys",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_array(t_bytes32)dyn_storage",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:17"
+            },
+            {
+              "label": "openingPositionIndex",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:18"
+            },
+            {
+              "label": "positionIndex",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:19"
+            },
+            {
+              "label": "positionKeysByUser",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:20"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address",
+              "numberOfBytes": "20"
+            },
+            "t_array(t_bytes32)dyn_storage": {
+              "label": "bytes32[]",
+              "numberOfBytes": "32"
+            },
+            "t_array(t_struct(TradePosition)3070_storage)dyn_storage": {
+              "label": "struct IPositionStorage.TradePosition[]",
+              "numberOfBytes": "32"
+            },
+            "t_bool": {
+              "label": "bool",
+              "numberOfBytes": "1"
+            },
+            "t_bytes32": {
+              "label": "bytes32",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_array(t_bytes32)dyn_storage)": {
+              "label": "mapping(address => bytes32[])",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_bytes32,t_uint256)": {
+              "label": "mapping(bytes32 => uint256)",
+              "numberOfBytes": "32"
+            },
+            "t_struct(BaseToken)3006_storage": {
+              "label": "struct IPositionStorage.BaseToken",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "entryPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "liqPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "closePrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "4"
+                }
+              ],
+              "numberOfBytes": "160"
+            },
+            "t_struct(Collateral)3022_storage": {
+              "label": "struct IPositionStorage.Collateral",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "entryPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "liqPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "closePrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "4"
+                }
+              ],
+              "numberOfBytes": "160"
+            },
+            "t_struct(QuoteToken)3011_storage": {
+              "label": "struct IPositionStorage.QuoteToken",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                }
+              ],
+              "numberOfBytes": "64"
+            },
+            "t_struct(Status)3039_storage": {
+              "label": "struct IPositionStorage.Status",
+              "members": [
+                {
+                  "label": "isClosed",
+                  "type": "t_bool",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "isExpired",
+                  "type": "t_bool",
+                  "offset": 1,
+                  "slot": "0"
+                },
+                {
+                  "label": "isStoploss",
+                  "type": "t_bool",
+                  "offset": 2,
+                  "slot": "0"
+                },
+                {
+                  "label": "isBaseLiquidated",
+                  "type": "t_bool",
+                  "offset": 3,
+                  "slot": "0"
+                },
+                {
+                  "label": "isCollateralLiquidated",
+                  "type": "t_bool",
+                  "offset": 4,
+                  "slot": "0"
+                },
+                {
+                  "label": "isRollbacked",
+                  "type": "t_bool",
+                  "offset": 5,
+                  "slot": "0"
+                },
+                {
+                  "label": "isClosedManuallyStep1",
+                  "type": "t_bool",
+                  "offset": 6,
+                  "slot": "0"
+                },
+                {
+                  "label": "isClosedManuallyStep2",
+                  "type": "t_bool",
+                  "offset": 7,
+                  "slot": "0"
+                }
+              ],
+              "numberOfBytes": "32"
+            },
+            "t_struct(TradePosition)3070_storage": {
+              "label": "struct IPositionStorage.TradePosition",
+              "members": [
+                {
+                  "label": "positionKey",
+                  "type": "t_bytes32",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "owner",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "pool",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "baseToken",
+                  "type": "t_struct(BaseToken)3006_storage",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "quoteToken",
+                  "type": "t_struct(QuoteToken)3011_storage",
+                  "offset": 0,
+                  "slot": "8"
+                },
+                {
+                  "label": "collateral",
+                  "type": "t_struct(Collateral)3022_storage",
+                  "offset": 0,
+                  "slot": "10"
+                },
+                {
+                  "label": "deadline",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "15"
+                },
+                {
+                  "label": "stoplossPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "16"
+                },
+                {
+                  "label": "fee",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "17"
+                },
+                {
+                  "label": "protocolFee",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "18"
+                },
+                {
+                  "label": "status",
+                  "type": "t_struct(Status)3039_storage",
+                  "offset": 0,
+                  "slot": "19"
+                },
+                {
+                  "label": "closer",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "20"
+                },
+                {
+                  "label": "liquidationMarkTime",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "21"
+                }
+              ],
+              "numberOfBytes": "704"
+            },
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IERC20.sol:IERC20": {
+        "src": "contracts/interfaces/IERC20.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "name()",
+          "symbol()",
+          "decimals()",
+          "totalSupply()",
+          "balanceOf(address)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transfer(address,uint256)",
+          "transferFrom(address,address,uint256)",
+          "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IFactory.sol:IFactory": {
+        "src": "contracts/interfaces/IFactory.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "manager()",
+          "poolDeployer()",
+          "positionStorage()",
+          "withdrawalMonitor()",
+          "userStorage()",
+          "priceFeed()",
+          "dexAggregator()",
+          "protocolFeeRate()",
+          "protocolFeeTo()",
+          "liquidationFeeRate()",
+          "liquidationFeeTo()",
+          "serviceToken()",
+          "serviceFeeTo()",
+          "rollbackFee()",
+          "updateStoplossPriceFee()",
+          "updateCollateralAmountFee()",
+          "updateDeadlineFee()",
+          "minQuoteRate()",
+          "manualExpiration()",
+          "operator(address)",
+          "pools(uint256)",
+          "poolLength()",
+          "poolIndex(address)",
+          "poolByQuoteToken(address)",
+          "baseTokenMUT(address)",
+          "collateralMUT(address)",
+          "baseTokenLT(address)",
+          "collateralLT(address)",
+          "interest(address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IPositionStorage.sol:IPositionStorage": {
+        "src": "contracts/interfaces/IPositionStorage.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "factory()",
+          "position(uint256)",
+          "positionIndex(bytes32)",
+          "positionByKey(bytes32)",
+          "openingPositionKey(uint256)",
+          "positionLength()",
+          "openingPositionLength()",
+          "userPositionLength(address)",
+          "positionKeyByUser(address,uint256)",
+          "getMinCollateralAmount((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "getQuoteAmountRange((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewTradePosition((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewUpdateCollateralAmount((bytes32,uint256,address))",
+          "previewUpdateDeadline((bytes32,uint256,address))",
+          "canLiquidate(bytes32)",
+          "canLiquidationMark(bytes32)",
+          "openTradePosition((bytes32,address,address,(address,uint256,uint256,uint256,uint256),(address,uint256),(address,uint256,uint256,uint256,uint256),uint256,uint256,uint256,uint256,(bool,bool,bool,bool,bool,bool,bool,bool),address,uint256))",
+          "updateStatus(bytes32,address)",
+          "liquidationMark(bytes32)",
+          "rollback(bytes32,address)",
+          "closeManuallyStep1(bytes32)",
+          "closeManuallyStep2(bytes32)",
+          "updateCloseValues(bytes32,uint256,uint256,uint256)",
+          "updateStoplossPrice((bytes32,uint256,address))",
+          "updateCollateralAmount((bytes32,uint256,address))",
+          "updateDeadline((bytes32,uint256,address))"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IPriceFeed.sol:IPriceFeed": {
+        "src": "contracts/interfaces/IPriceFeed.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "PRECISION()",
+          "getPrice(address,address)",
+          "getHighestPrice(address,address)",
+          "getLowestPrice(address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IUserStorage.sol:IUserStorage": {
+        "src": "contracts/interfaces/IUserStorage.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "getUserInfo(address)",
+          "discountedFee(address,uint256)",
+          "canUpdateDeadline(address)",
+          "updateRef(address,address)",
+          "updateMembership(address,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/libraries/PoolAddress.sol:PoolAddress": {
+        "src": "contracts/libraries/PoolAddress.sol:5",
+        "version": {
+          "withMetadata": "c02998a12bfee3b880beaea0db284cc35b69a20de104b46b8aa365ce07267c9f",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "hardhat/console.sol:console": {
+        "src": "hardhat/console.sol:4",
+        "version": {
+          "withMetadata": "c0000bbe88ef3dc1d9e974419bac60c7f2eabf7e255e2a1a058bc401e472cb8b",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      }
+    },
+    {
+      "contracts/PositionStorage.sol:PositionStorage": {
+        "src": "contracts/PositionStorage.sol:12",
+        "version": {
+          "withMetadata": "caa2a75f4626955e6aa9d325d3cb4f30e2619163fa56cf2fcbf4ddb67b4d454c",
+          "withoutMetadata": "a390c67f01664d1cbe7f2d1ec04e08ef5651cc53d76fe244b1d31b9ac43bc3cc",
+          "linkedWithoutMetadata": "a390c67f01664d1cbe7f2d1ec04e08ef5651cc53d76fe244b1d31b9ac43bc3cc"
+        },
+        "inherit": [
+          "contracts/interfaces/IPositionStorage.sol:IPositionStorage"
+        ],
+        "libraries": [
+          "hardhat/console.sol:console",
+          "contracts/libraries/PoolAddress.sol:PoolAddress"
+        ],
+        "methods": [
+          "setFactory(address)",
+          "position(uint256)",
+          "positionByKey(bytes32)",
+          "openingPositionKey(uint256)",
+          "positionLength()",
+          "openingPositionLength()",
+          "userPositionLength(address)",
+          "positionKeyByUser(address,uint256)",
+          "getMinCollateralAmount((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "getQuoteAmountRange((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewTradePosition((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewUpdateCollateralAmount((bytes32,uint256,address))",
+          "previewUpdateDeadline((bytes32,uint256,address))",
+          "canLiquidate(bytes32)",
+          "canLiquidationMark(bytes32)",
+          "openTradePosition((bytes32,address,address,(address,uint256,uint256,uint256,uint256),(address,uint256),(address,uint256,uint256,uint256,uint256),uint256,uint256,uint256,uint256,(bool,bool,bool,bool,bool,bool,bool,bool),address,uint256))",
+          "updateStatus(bytes32,address)",
+          "liquidationMark(bytes32)",
+          "rollback(bytes32,address)",
+          "closeManuallyStep1(bytes32)",
+          "closeManuallyStep2(bytes32)",
+          "updateCloseValues(bytes32,uint256,uint256,uint256)",
+          "updateStoplossPrice((bytes32,uint256,address))",
+          "updateCollateralAmount((bytes32,uint256,address))",
+          "updateDeadline((bytes32,uint256,address))"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [
+            {
+              "label": "factory",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_address",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:13"
+            },
+            {
+              "label": "poolDeployer",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:14"
+            },
+            {
+              "label": "positions",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_array(t_struct(TradePosition)3100_storage)dyn_storage",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:16"
+            },
+            {
+              "label": "openingPositionKeys",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_array(t_bytes32)dyn_storage",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:17"
+            },
+            {
+              "label": "openingPositionIndex",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:18"
+            },
+            {
+              "label": "positionIndex",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_bytes32,t_uint256)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:19"
+            },
+            {
+              "label": "positionKeysByUser",
+              "offset": 0,
+              "slot": "6",
+              "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)",
+              "contract": "PositionStorage",
+              "src": "contracts/PositionStorage.sol:20"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address",
+              "numberOfBytes": "20"
+            },
+            "t_array(t_bytes32)dyn_storage": {
+              "label": "bytes32[]",
+              "numberOfBytes": "32"
+            },
+            "t_array(t_struct(TradePosition)3100_storage)dyn_storage": {
+              "label": "struct IPositionStorage.TradePosition[]",
+              "numberOfBytes": "32"
+            },
+            "t_bool": {
+              "label": "bool",
+              "numberOfBytes": "1"
+            },
+            "t_bytes32": {
+              "label": "bytes32",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_array(t_bytes32)dyn_storage)": {
+              "label": "mapping(address => bytes32[])",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_bytes32,t_uint256)": {
+              "label": "mapping(bytes32 => uint256)",
+              "numberOfBytes": "32"
+            },
+            "t_struct(BaseToken)3036_storage": {
+              "label": "struct IPositionStorage.BaseToken",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "entryPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "liqPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "closePrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "4"
+                }
+              ],
+              "numberOfBytes": "160"
+            },
+            "t_struct(Collateral)3052_storage": {
+              "label": "struct IPositionStorage.Collateral",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "entryPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "liqPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "closePrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "4"
+                }
+              ],
+              "numberOfBytes": "160"
+            },
+            "t_struct(QuoteToken)3041_storage": {
+              "label": "struct IPositionStorage.QuoteToken",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "amount",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "1"
+                }
+              ],
+              "numberOfBytes": "64"
+            },
+            "t_struct(Status)3069_storage": {
+              "label": "struct IPositionStorage.Status",
+              "members": [
+                {
+                  "label": "isClosed",
+                  "type": "t_bool",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "isExpired",
+                  "type": "t_bool",
+                  "offset": 1,
+                  "slot": "0"
+                },
+                {
+                  "label": "isStoploss",
+                  "type": "t_bool",
+                  "offset": 2,
+                  "slot": "0"
+                },
+                {
+                  "label": "isBaseLiquidated",
+                  "type": "t_bool",
+                  "offset": 3,
+                  "slot": "0"
+                },
+                {
+                  "label": "isCollateralLiquidated",
+                  "type": "t_bool",
+                  "offset": 4,
+                  "slot": "0"
+                },
+                {
+                  "label": "isRollbacked",
+                  "type": "t_bool",
+                  "offset": 5,
+                  "slot": "0"
+                },
+                {
+                  "label": "isClosedManuallyStep1",
+                  "type": "t_bool",
+                  "offset": 6,
+                  "slot": "0"
+                },
+                {
+                  "label": "isClosedManuallyStep2",
+                  "type": "t_bool",
+                  "offset": 7,
+                  "slot": "0"
+                }
+              ],
+              "numberOfBytes": "32"
+            },
+            "t_struct(TradePosition)3100_storage": {
+              "label": "struct IPositionStorage.TradePosition",
+              "members": [
+                {
+                  "label": "positionKey",
+                  "type": "t_bytes32",
+                  "offset": 0,
+                  "slot": "0"
+                },
+                {
+                  "label": "owner",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "1"
+                },
+                {
+                  "label": "pool",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "2"
+                },
+                {
+                  "label": "baseToken",
+                  "type": "t_struct(BaseToken)3036_storage",
+                  "offset": 0,
+                  "slot": "3"
+                },
+                {
+                  "label": "quoteToken",
+                  "type": "t_struct(QuoteToken)3041_storage",
+                  "offset": 0,
+                  "slot": "8"
+                },
+                {
+                  "label": "collateral",
+                  "type": "t_struct(Collateral)3052_storage",
+                  "offset": 0,
+                  "slot": "10"
+                },
+                {
+                  "label": "deadline",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "15"
+                },
+                {
+                  "label": "stoplossPrice",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "16"
+                },
+                {
+                  "label": "fee",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "17"
+                },
+                {
+                  "label": "protocolFee",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "18"
+                },
+                {
+                  "label": "status",
+                  "type": "t_struct(Status)3069_storage",
+                  "offset": 0,
+                  "slot": "19"
+                },
+                {
+                  "label": "closer",
+                  "type": "t_address",
+                  "offset": 0,
+                  "slot": "20"
+                },
+                {
+                  "label": "liquidationMarkTime",
+                  "type": "t_uint256",
+                  "offset": 0,
+                  "slot": "21"
+                }
+              ],
+              "numberOfBytes": "704"
+            },
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IERC20.sol:IERC20": {
+        "src": "contracts/interfaces/IERC20.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "name()",
+          "symbol()",
+          "decimals()",
+          "totalSupply()",
+          "balanceOf(address)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transfer(address,uint256)",
+          "transferFrom(address,address,uint256)",
+          "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IFactory.sol:IFactory": {
+        "src": "contracts/interfaces/IFactory.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "manager()",
+          "poolDeployer()",
+          "positionStorage()",
+          "withdrawalMonitor()",
+          "userStorage()",
+          "priceFeed()",
+          "dexAggregator()",
+          "protocolFeeRate()",
+          "protocolFeeTo()",
+          "liquidationFeeRate()",
+          "liquidationFeeTo()",
+          "serviceToken()",
+          "serviceFeeTo()",
+          "rollbackFee()",
+          "updateStoplossPriceFee()",
+          "updateCollateralAmountFee()",
+          "updateDeadlineFee()",
+          "minQuoteRate()",
+          "manualExpiration()",
+          "operator(address)",
+          "pools(uint256)",
+          "poolLength()",
+          "poolIndex(address)",
+          "poolByQuoteToken(address)",
+          "baseTokenMUT(address)",
+          "collateralMUT(address)",
+          "baseTokenLT(address)",
+          "collateralLT(address)",
+          "interest(address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IPositionStorage.sol:IPositionStorage": {
+        "src": "contracts/interfaces/IPositionStorage.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "factory()",
+          "position(uint256)",
+          "positionIndex(bytes32)",
+          "positionByKey(bytes32)",
+          "openingPositionKey(uint256)",
+          "positionLength()",
+          "openingPositionLength()",
+          "userPositionLength(address)",
+          "positionKeyByUser(address,uint256)",
+          "getMinCollateralAmount((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "getQuoteAmountRange((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewTradePosition((address,address,address,address,uint256,uint256,uint256,uint256,uint256))",
+          "previewUpdateCollateralAmount((bytes32,uint256,address))",
+          "previewUpdateDeadline((bytes32,uint256,address))",
+          "canLiquidate(bytes32)",
+          "canLiquidationMark(bytes32)",
+          "openTradePosition((bytes32,address,address,(address,uint256,uint256,uint256,uint256),(address,uint256),(address,uint256,uint256,uint256,uint256),uint256,uint256,uint256,uint256,(bool,bool,bool,bool,bool,bool,bool,bool),address,uint256))",
+          "updateStatus(bytes32,address)",
+          "liquidationMark(bytes32)",
+          "rollback(bytes32,address)",
+          "closeManuallyStep1(bytes32)",
+          "closeManuallyStep2(bytes32)",
+          "updateCloseValues(bytes32,uint256,uint256,uint256)",
+          "updateStoplossPrice((bytes32,uint256,address))",
+          "updateCollateralAmount((bytes32,uint256,address))",
+          "updateDeadline((bytes32,uint256,address))"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IPriceFeed.sol:IPriceFeed": {
+        "src": "contracts/interfaces/IPriceFeed.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "PRECISION()",
+          "getPrice(address,address)",
+          "getHighestPrice(address,address)",
+          "getLowestPrice(address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IUserStorage.sol:IUserStorage": {
+        "src": "contracts/interfaces/IUserStorage.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "getUserInfo(address)",
+          "discountedFee(address,uint256)",
+          "canUpdateDeadline(address)",
+          "updateRef(address,address)",
+          "updateMembership(address,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/libraries/PoolAddress.sol:PoolAddress": {
+        "src": "contracts/libraries/PoolAddress.sol:5",
+        "version": {
+          "withMetadata": "c02998a12bfee3b880beaea0db284cc35b69a20de104b46b8aa365ce07267c9f",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "hardhat/console.sol:console": {
+        "src": "hardhat/console.sol:4",
+        "version": {
+          "withMetadata": "c0000bbe88ef3dc1d9e974419bac60c7f2eabf7e255e2a1a058bc401e472cb8b",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      }
+    },
+    {
+      "contracts/PositionStorage.sol:PositionStorage": {
+        "src": "contracts/PositionStorage.sol:11",
+        "version": {
           "withMetadata": "9427c81ba86d32ab0d65b01c81341e1aaf76da2b74c24ffa143c432d98129738",
           "withoutMetadata": "c726d51ac20719958be320920cbfe5f12bcc4e046fd64e552171440aecb4b8b8",
           "linkedWithoutMetadata": "c726d51ac20719958be320920cbfe5f12bcc4e046fd64e552171440aecb4b8b8"

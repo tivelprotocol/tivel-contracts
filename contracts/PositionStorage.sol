@@ -450,8 +450,10 @@ contract PositionStorage is IPositionStorage {
         uint256 lgth = openingPositionKeys.length;
         uint256 idx = openingPositionIndex[_positionKey];
         openingPositionIndex[_positionKey] = 0;
-        openingPositionIndex[openingPositionKeys[lgth - 1]] = idx;
-        openingPositionKeys[idx - 1] = openingPositionKeys[lgth - 1];
+        if (lgth > 1) {
+            openingPositionIndex[openingPositionKeys[lgth - 1]] = idx;
+            openingPositionKeys[idx - 1] = openingPositionKeys[lgth - 1];
+        }
         openingPositionKeys.pop();
     }
 
