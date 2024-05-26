@@ -118,7 +118,9 @@ contract PositionStorage is IPositionStorage {
 
         uint256 minQuoteRate = _factory.minQuoteRate();
         uint256 baseTokenMUT = _factory.baseTokenMUT(_params.baseToken);
-        uint256 collateralMUT = _factory.collateralMUT(_params.collateral);
+        uint256 collateralMUT = _params.collateral == _params.quoteToken
+            ? 10000
+            : _factory.collateralMUT(_params.collateral);
         uint256 minCollateralValue = (baseValue *
             (minQuoteRate - baseTokenMUT)) / collateralMUT;
 
@@ -161,7 +163,9 @@ contract PositionStorage is IPositionStorage {
 
         uint256 minQuoteRate = _factory.minQuoteRate();
         uint256 baseTokenMUT = _factory.baseTokenMUT(_params.baseToken);
-        uint256 collateralMUT = _factory.collateralMUT(_params.collateral);
+        uint256 collateralMUT = _params.collateral == _params.quoteToken
+            ? 10000
+            : _factory.collateralMUT(_params.collateral);
 
         {
             uint256 minCollateralValue = (baseValue *
@@ -255,7 +259,9 @@ contract PositionStorage is IPositionStorage {
 
             uint256 minQuoteRate = _factory.minQuoteRate();
             uint256 baseTokenMUT = _factory.baseTokenMUT(_params.baseToken);
-            uint256 collateralMUT = _factory.collateralMUT(_params.collateral);
+            uint256 collateralMUT = _params.collateral == _params.quoteToken
+                ? 10000
+                : _factory.collateralMUT(_params.collateral);
 
             {
                 // avoid too deep stack
@@ -340,7 +346,9 @@ contract PositionStorage is IPositionStorage {
             IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
             uint256 pricePrecision = priceFeed.PRECISION();
             uint256 baseTokenMUT = _factory.baseTokenMUT(pos.baseToken.id);
-            uint256 collateralMUT = _factory.collateralMUT(pos.collateral.id);
+            uint256 collateralMUT = pos.collateral.id == pos.quoteToken.id
+                ? 10000
+                : _factory.collateralMUT(pos.collateral.id);
             uint256 newCollateralAmount = pos.collateral.amount +
                 _params.amount;
 
