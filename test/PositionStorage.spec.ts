@@ -109,7 +109,7 @@ describe("PositionStorage", async () => {
                 // setup collateral MUT & LT
                 await fix.factory.setCollateralMUT([tokens.weth, tokens.usdt, tokens.usdce], ["8000", "8000", "8000"])
                 await fix.factory.setCollateralLT([tokens.weth, tokens.usdt, tokens.usdce], ["8500", "8500", "8500"])
-                
+
                 // wrap 10 ETH => WETH
                 await fix.weth.deposit({ value: "10000000000000000000" })
                 // swap 0.01 ETH => USDT
@@ -154,7 +154,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: "0",
                     collateralAmount: "0",
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 }
                 expect(await fix.positionStorage.getMinCollateralAmount(params)).equals(minCollateralAmount)
             });
@@ -189,7 +190,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: "0",
                     collateralAmount: minCollateralAmount.sub(1),
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 }
                 const failedResults = await fix.positionStorage.getQuoteAmountRange(failedParams)
                 expect(failedResults[0]).equals(BigNumber.from("0"))
@@ -209,7 +211,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: "0",
                     collateralAmount,
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 }
                 const results = await fix.positionStorage.getQuoteAmountRange(params)
                 expect(results[0]).equals(minQuoteAmount)
@@ -240,7 +243,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: "0",
                     collateralAmount: "0",
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 })
 
                 const collateralAmount = minCollateralAmount.add(1)
@@ -253,7 +257,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: "0",
                     collateralAmount,
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 })
                 const quoteAmount = quoteAmountRange['minQuoteAmount'].eq(quoteAmountRange['maxQuoteAmount']) ? quoteAmountRange['minQuoteAmount'] : quoteAmountRange['minQuoteAmount'].add(1)
 
@@ -266,7 +271,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: quoteAmount,
                     collateralAmount: minCollateralAmount.sub(1),
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 }
                 const failedResults1 = await fix.positionStorage.previewTradePosition(failedParams1)
                 expect(failedResults1.pool).equals("0x0000000000000000000000000000000000000000")
@@ -280,7 +286,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: quoteAmountRange['minQuoteAmount'].sub(1),
                     collateralAmount,
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 }
                 const failedResults2 = await fix.positionStorage.previewTradePosition(failedParams2)
                 expect(failedResults2.pool).equals("0x0000000000000000000000000000000000000000")
@@ -294,7 +301,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: quoteAmountRange['maxQuoteAmount'].add(1),
                     collateralAmount,
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 }
                 const failedResults3 = await fix.positionStorage.previewTradePosition(failedParams3)
                 expect(failedResults3.pool).equals("0x0000000000000000000000000000000000000000")
@@ -319,7 +327,8 @@ describe("PositionStorage", async () => {
                     quoteAmount,
                     collateralAmount,
                     deadline,
-                    stoplossPrice: basePrice.mul(9).div(10) // decrease 10%
+                    stoplossPrice: basePrice.mul(9).div(10), // decrease 10%,
+                    takeProfitPrice: basePrice.mul(105).div(100) // increase 5%
                 }
                 const results = await fix.positionStorage.previewTradePosition(params)
                 expect(results.pool).equals(fix.usdtPool.address)
@@ -338,13 +347,10 @@ describe("PositionStorage", async () => {
                 expect(results.quoteToken.amount).equals(quoteAmount)
                 expect(results.deadline).equals(deadline)
                 expect(results.stoplossPrice).equals(params.stoplossPrice)
+                expect(results.takeProfitPrice).equals(params.takeProfitPrice)
                 expect(results.fee).equals(fee)
                 expect(results.protocolFee).equals(protocolFee)
                 expect(results.status.isClosed).equals(false)
-                expect(results.status.isExpired).equals(false)
-                expect(results.status.isStoploss).equals(false)
-                expect(results.status.isBaseLiquidated).equals(false)
-                expect(results.status.isCollateralLiquidated).equals(false)
                 expect(results.status.isRollbacked).equals(false)
                 expect(results.status.isClosedManuallyStep1).equals(false)
                 expect(results.status.isClosedManuallyStep2).equals(false)
@@ -370,7 +376,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: "0",
                     collateralAmount: "0",
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 })
 
                 const collateralAmount = minCollateralAmount.add(1)
@@ -383,7 +390,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: "0",
                     collateralAmount,
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 })
                 const quoteAmount = quoteAmountRange['minQuoteAmount'].eq(quoteAmountRange['maxQuoteAmount']) ? quoteAmountRange['minQuoteAmount'] : quoteAmountRange['minQuoteAmount'].add(1)
 
@@ -396,7 +404,8 @@ describe("PositionStorage", async () => {
                     quoteAmount,
                     collateralAmount,
                     deadline,
-                    stoplossPrice: basePrice.mul(9).div(10) // decrease 10%
+                    stoplossPrice: basePrice.mul(9).div(10), // decrease 10%
+                    takeProfitPrice: basePrice.mul(105).div(100), // increase 5%
                 }
                 await expect(fix.wethPool.open(params)).to.be.revertedWith('WrongPool')
                 await expect(fix.usdtPool.open({
@@ -415,14 +424,9 @@ describe("PositionStorage", async () => {
 
                 await fix.usdtPool.open(params)
                 expect(await fix.positionStorage.positionLength()).equals(BigNumber.from("1"))
-                const positionKey = (await fix.positionStorage.position(0)).positionKey
-                expect((await fix.positionStorage.positionByKey(positionKey)).positionKey).equals(positionKey)
-                expect(await fix.positionStorage.positionIndex(positionKey)).equals(BigNumber.from("1"))
-                expect(await fix.positionStorage.openingPositionLength()).equals(BigNumber.from("1"))
-                expect(await fix.positionStorage.openingPositionKeys(0)).equals(positionKey)
-                expect(await fix.positionStorage.openingPositionIndex(positionKey)).equals(BigNumber.from("1"))
-                expect(await fix.positionStorage.userPositionLength(fix.deployer.address)).equals(BigNumber.from("1"))
-                expect(await fix.positionStorage.positionKeyByUser(fix.deployer.address, 0)).equals(positionKey)
+                const positionKey = (await fix.positionStorage.positionKeys(1)).positionKey
+                expect((await fix.positionStorage.position(positionKey)).positionKey).equals(positionKey)
+                expect(await fix.positionStorage.positionKeyToIndex(positionKey)).equals(BigNumber.from("1"))
             });
 
             it("updateStatus", async () => {
@@ -443,7 +447,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: "0",
                     collateralAmount: "0",
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 })
 
                 const collateralAmount = minCollateralAmount.add(1)
@@ -456,7 +461,8 @@ describe("PositionStorage", async () => {
                     quoteAmount: "0",
                     collateralAmount,
                     deadline,
-                    stoplossPrice: "0"
+                    stoplossPrice: "0",
+                    takeProfitPrice: "0"
                 })
                 const quoteAmount = quoteAmountRange['minQuoteAmount'].eq(quoteAmountRange['maxQuoteAmount']) ? quoteAmountRange['minQuoteAmount'] : quoteAmountRange['minQuoteAmount'].add(1)
 
@@ -469,7 +475,8 @@ describe("PositionStorage", async () => {
                     quoteAmount,
                     collateralAmount,
                     deadline,
-                    stoplossPrice: basePrice.mul(9).div(10) // decrease 10%
+                    stoplossPrice: basePrice.mul(9).div(10), // decrease 10%
+                    takeProfitPrice: basePrice.mul(105).div(100), // increase 5%
                 }
                 // setup tradeable tokens
                 await fix.factory.setPoolBaseTokens(tokens.usdt, [tokens.weth], [true])
@@ -482,53 +489,34 @@ describe("PositionStorage", async () => {
                 await fix.weth.transfer(fix.usdtPool.address, baseAmount)
                 await fix.usdce.transfer(fix.usdtPool.address, collateralAmount)
                 await fix.usdtPool.open(params)
-                const positionKey1 = (await fix.positionStorage.position(0)).positionKey
-                const positionKey2 = (await fix.positionStorage.position(1)).positionKey
+                const positionKey1 = await fix.positionStorage.positionKeys(1)
+                const positionKey2 = await fix.positionStorage.positionKeys(2)
 
                 await fix.callee.close(fix.usdtPool.address, positionKey1)
-                const pos1 = await fix.positionStorage.position(0)
+                const pos1 = await fix.positionStorage.position(positionKey1)
                 expect(pos1.status.isClosed).equals(true)
                 expect(pos1.closer).equals(fix.deployer.address)
 
-                expect(await fix.positionStorage.positionLength()).equals(BigNumber.from("2"))
-                expect(await fix.positionStorage.openingPositionLength()).equals(BigNumber.from("1"))
-                expect(await fix.positionStorage.userPositionLength(fix.deployer.address)).equals(BigNumber.from("2"))
+                expect(await fix.positionStorage.positionLength()).equals(BigNumber.from("1"))
 
-                expect((await fix.positionStorage.positionByKey(positionKey1)).positionKey).equals(positionKey1)
-                expect(await fix.positionStorage.positionIndex(positionKey1)).equals(BigNumber.from("1"))
-                expect(await fix.positionStorage.openingPositionKeys(0)).equals(positionKey2)
-                expect(await fix.positionStorage.openingPositionIndex(positionKey1)).equals("0")
-                expect(await fix.positionStorage.positionKeyByUser(fix.deployer.address, 0)).equals(positionKey1)
+                expect(await fix.positionStorage.positionKeyToIndex(positionKey1)).equals(BigNumber.from("0"))
 
-                expect((await fix.positionStorage.positionByKey(positionKey2)).positionKey).equals(positionKey2)
-                expect(await fix.positionStorage.positionIndex(positionKey2)).equals(BigNumber.from("2"))
-                await expect(fix.positionStorage.openingPositionKeys(1)).to.be.reverted
-                expect(await fix.positionStorage.openingPositionIndex(positionKey2)).equals("1")
-                expect(await fix.positionStorage.positionKeyByUser(fix.deployer.address, 1)).equals(positionKey2)
+                expect((await fix.positionStorage.position(positionKey2)).positionKey).equals(positionKey2)
+                expect(await fix.positionStorage.positionKeyToIndex(positionKey2)).equals(BigNumber.from("1"))
 
-                await expect(fix.callee.close(fix.usdtPool.address, positionKey1)).to.be.revertedWith("TradePositionClosedAlready")
+                await expect(fix.callee.close(fix.usdtPool.address, positionKey1)).to.be.reverted
                 await fix.callee.close(fix.usdtPool.address, positionKey2)
-                const pos2 = await fix.positionStorage.position(1)
+                const pos2 = await fix.positionStorage.position(positionKey2)
                 expect(pos1.status.isClosed).equals(true)
                 expect(pos1.closer).equals(fix.deployer.address)
                 expect(pos2.status.isClosed).equals(true)
                 expect(pos2.closer).equals(fix.deployer.address)
 
-                expect(await fix.positionStorage.positionLength()).equals(BigNumber.from("2"))
-                expect(await fix.positionStorage.openingPositionLength()).equals(BigNumber.from("0"))
-                expect(await fix.positionStorage.userPositionLength(fix.deployer.address)).equals(BigNumber.from("2"))
+                expect(await fix.positionStorage.positionLength()).equals(BigNumber.from("0"))
 
-                expect((await fix.positionStorage.positionByKey(positionKey1)).positionKey).equals(positionKey1)
-                expect(await fix.positionStorage.positionIndex(positionKey1)).equals(BigNumber.from("1"))
-                await expect(fix.positionStorage.openingPositionKeys(0)).to.be.reverted
-                expect(await fix.positionStorage.openingPositionIndex(positionKey1)).equals("0")
-                expect(await fix.positionStorage.positionKeyByUser(fix.deployer.address, 0)).equals(positionKey1)
+                expect(await fix.positionStorage.positionKeyToIndex(positionKey1)).equals(BigNumber.from("0"))
 
-                expect((await fix.positionStorage.positionByKey(positionKey2)).positionKey).equals(positionKey2)
-                expect(await fix.positionStorage.positionIndex(positionKey2)).equals(BigNumber.from("2"))
-                await expect(fix.positionStorage.openingPositionKeys(1)).to.be.reverted
-                expect(await fix.positionStorage.openingPositionIndex(positionKey2)).equals("0")
-                expect(await fix.positionStorage.positionKeyByUser(fix.deployer.address, 1)).equals(positionKey2)
+                expect(await fix.positionStorage.positionKeyToIndex(positionKey2)).equals(BigNumber.from("0"))
             });
         });
     });

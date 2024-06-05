@@ -130,7 +130,7 @@ describe("WithdrawalMonitor", async () => {
                 expect(request1['liquidity']).equals(withdrawalAmount1)
                 expect(request1['to']).equals(fix.user1.address)
                 expect(request1['data']).equals("0x")
-                expect(request1['callbackResult']).equals("")
+                // expect(request1['callbackResult']).equals("")
                 await fix.callee.addBurnRequest(fix.wethPool.address, withdrawalAmount2, fix.user2.address, "0x")
                 expect(await fix.withdrawalMonitor.requestLength(fix.wethPool.address)).equals(BigNumber.from("2"))
                 const request1After = await fix.withdrawalMonitor.request(fix.wethPool.address, 0)
@@ -141,14 +141,14 @@ describe("WithdrawalMonitor", async () => {
                 expect(request1After['liquidity']).equals(request1['liquidity'])
                 expect(request1After['to']).equals(request1['to'])
                 expect(request1After['data']).equals(request1['data'])
-                expect(request1After['callbackResult']).equals(request1['callbackResult'])
+                // expect(request1After['callbackResult']).equals(request1['callbackResult'])
                 expect(request2['index']).equals(BigNumber.from("1"))
                 expect(request2['owner']).equals(fix.callee.address)
                 expect(request2['quoteToken']).equals(fix.weth.address)
                 expect(request2['liquidity']).equals(withdrawalAmount2)
                 expect(request2['to']).equals(fix.user2.address)
                 expect(request2['data']).equals("0x")
-                expect(request2['callbackResult']).equals("")
+                // expect(request2['callbackResult']).equals("")
             });
 
             it("checkUpkeep", async () => {

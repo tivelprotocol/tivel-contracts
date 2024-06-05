@@ -13,6 +13,7 @@ interface IRouter {
         uint256 collateralAmount;
         uint256 deadline;
         uint256 stoplossPrice;
+        uint256 takeProfitPrice;
         uint256 txDeadline;
     }
     struct CloseTradePositionParams {
@@ -25,9 +26,10 @@ interface IRouter {
         bytes32 positionKey;
         uint256 txDeadline;
     }
-    struct UpdateStoplossPriceParams {
+    struct UpdateTPnSLParams {
         address pool;
         bytes32 positionKey;
+        uint256 takeProfitPrice;
         uint256 stoplossPrice;
         uint256 txDeadline;
     }
@@ -70,7 +72,7 @@ interface IRouter {
 
     function rollback(RollbackTradePositionParams memory) external;
 
-    function updateStoplossPrice(UpdateStoplossPriceParams memory) external;
+    function updateTPnSL(UpdateTPnSLParams memory) external;
 
     function updateCollateralAmount(
         UpdateCollateralAmountParams memory

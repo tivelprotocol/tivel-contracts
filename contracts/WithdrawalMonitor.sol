@@ -105,8 +105,7 @@ contract WithdrawalMonitor is
                 quoteToken: _quoteToken,
                 liquidity: _liquidity,
                 to: _to,
-                data: _data,
-                callbackResult: ""
+                data: _data
             })
         );
 
@@ -125,10 +124,6 @@ contract WithdrawalMonitor is
         uint256 _index,
         string memory _result
     ) external override {
-        WithdrawalRequest storage _request = request[msg.sender][_index];
-
-        _request.callbackResult = _result;
-
         emit UpdateCallbackResult(msg.sender, _index, _result);
     }
 

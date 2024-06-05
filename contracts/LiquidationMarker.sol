@@ -106,19 +106,21 @@ contract LiquidationMarker is AutomationCompatibleInterface {
         uint256 count;
         uint256 i;
 
-        uint256 openingPositionLength = positionStorage.openingPositionLength();
-        for (uint256 j = startIndex; j < openingPositionLength; j++) {
-            bytes32 positionKey = positionStorage.openingPositionKey(j);
-            if (positionStorage.canLiquidationMark(positionKey)) {
-                batchPositionKeys[count] = positionKey;
-                count++;
-            }
-            i++;
-            if (i == monitorSize) {
-                break;
-            }
-            if (count == batchSize) {
-                break;
+        uint256 positionLength = positionStorage.positionLength();
+        if (startIndex < positionLength) {
+            for (uint256 j = startIndex; j < positionLength; j++) {
+                bytes32 positionKey = positionStorage.positionKeys(j);
+                if (positionStorage.canLiquidationMark(positionKey)) {
+                    batchPositionKeys[count] = positionKey;
+                    count++;
+                }
+                i++;
+                if (i == monitorSize) {
+                    break;
+                }
+                if (count == batchSize) {
+                    break;
+                }
             }
         }
 
@@ -139,12 +141,7 @@ contract LiquidationMarker is AutomationCompatibleInterface {
         );
 
         for (uint256 i = 0; i < count; i++) {
-            uint256 index = positionStorage.positionIndex(batchPositionKeys[i]);
-            if (index > 0) {
-                IPositionStorage.TradePosition memory pos = positionStorage
-                    .position(index - 1);
-                positionStorage.liquidationMark(pos.positionKey);
-            }
+            positionStorage.liquidationMark(batchPositionKeys[i]);
         }
 
         emit ProcessBatch(
@@ -168,19 +165,21 @@ contract LiquidationMarker is AutomationCompatibleInterface {
         uint256 count;
         uint256 i;
 
-        uint256 openingPositionLength = positionStorage.openingPositionLength();
-        for (uint256 j = startIndex; j < openingPositionLength; j++) {
-            bytes32 positionKey = positionStorage.openingPositionKey(j);
-            if (positionStorage.canLiquidationMark(positionKey)) {
-                batchPositionKeys[count] = positionKey;
-                count++;
-            }
-            i++;
-            if (i == monitorSize) {
-                break;
-            }
-            if (count == batchSize) {
-                break;
+        uint256 positionLength = positionStorage.positionLength();
+        if (startIndex < positionLength) {
+            for (uint256 j = startIndex; j < positionLength; j++) {
+                bytes32 positionKey = positionStorage.positionKeys(j);
+                if (positionStorage.canLiquidationMark(positionKey)) {
+                    batchPositionKeys[count] = positionKey;
+                    count++;
+                }
+                i++;
+                if (i == monitorSize) {
+                    break;
+                }
+                if (count == batchSize) {
+                    break;
+                }
             }
         }
 

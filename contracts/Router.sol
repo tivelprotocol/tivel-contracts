@@ -16,6 +16,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
     address public immutable override WETH;
     address public immutable override factory;
     address public immutable poolDeployer;
+    address public immutable positionStorage;
 
     error InvalidPool(address pool);
     error InsufficientInput();
@@ -25,6 +26,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         factory = _factory;
         WETH = _WETH;
         poolDeployer = IFactory(_factory).poolDeployer();
+        positionStorage = IFactory(_factory).positionStorage();
     }
 
     receive() external payable {
@@ -34,11 +36,9 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
     function preview(
         IRouter.OpenTradePositionParams memory _params
     ) external view override returns (IPositionStorage.TradePosition memory) {
-        IPositionStorage positionStorage = IPositionStorage(
-            IFactory(factory).positionStorage()
-        );
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
         return
-            positionStorage.previewTradePosition(
+            _positionStorage.previewTradePosition(
                 IPositionStorage.OpenTradePositionParams({
                     owner: msg.sender,
                     baseToken: _params.baseToken,
@@ -48,7 +48,8 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
                     quoteAmount: _params.quoteAmount,
                     collateralAmount: _params.collateralAmount,
                     deadline: _params.deadline,
-                    stoplossPrice: _params.stoplossPrice
+                    stoplossPrice: _params.stoplossPrice,
+                    takeProfitPrice: _params.takeProfitPrice
                 })
             );
     }
@@ -67,7 +68,8 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
                 quoteAmount: _params.quoteAmount,
                 collateralAmount: _params.collateralAmount,
                 deadline: _params.deadline,
-                stoplossPrice: _params.stoplossPrice
+                stoplossPrice: _params.stoplossPrice,
+                takeProfitPrice: _params.takeProfitPrice
             })
         );
     }
@@ -254,11 +256,10 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         uint256 index = _factory.poolIndex(_params.pool);
         if (index == 0) revert InvalidPool(_params.pool);
 
-        IPositionStorage positionStorage = IPositionStorage(
-            _factory.positionStorage()
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
+        IPositionStorage.TradePosition memory pos = _positionStorage.position(
+            _params.positionKey
         );
-        IPositionStorage.TradePosition memory pos = positionStorage
-            .positionByKey(_params.positionKey);
         TransferHelper.safeTransferFrom(
             pos.quoteToken.id,
             msg.sender,
@@ -285,15 +286,15 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         );
     }
 
-    function updateStoplossPrice(
-        IRouter.UpdateStoplossPriceParams memory _params
+    function updateTPnSL(
+        IRouter.UpdateTPnSLParams memory _params
     ) external override checkDeadline(_params.txDeadline) {
         IFactory _factory = IFactory(factory);
         uint256 index = _factory.poolIndex(_params.pool);
         if (index == 0) revert InvalidPool(_params.pool);
 
         address serviceToken = _factory.serviceToken();
-        uint256 serviceFee = _factory.updateStoplossPriceFee();
+        uint256 serviceFee = _factory.updateTPnSLFee();
         if (serviceToken != address(0) && serviceFee > 0) {
             TransferHelper.safeTransferFrom(
                 serviceToken,
@@ -303,11 +304,15 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
             );
         }
 
-        IPool(_params.pool).updateStoplossPrice(
-            IPositionStorage.UpdateStoplossPriceParams({
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
+        _positionStorage.updateTPnSL(
+            IPositionStorage.UpdateTPnSLParams({
                 positionKey: _params.positionKey,
+                takeProfitPrice: _params.takeProfitPrice,
                 stoplossPrice: _params.stoplossPrice,
-                updater: msg.sender
+                updater: msg.sender,
+                serviceToken: serviceToken,
+                serviceFee: serviceFee
             })
         );
     }
@@ -324,11 +329,10 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         uint256 index = _factory.poolIndex(_params.pool);
         if (index == 0) revert InvalidPool(_params.pool);
 
-        IPositionStorage positionStorage = IPositionStorage(
-            _factory.positionStorage()
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
+        IPositionStorage.TradePosition memory pos = _positionStorage.position(
+            _params.positionKey
         );
-        IPositionStorage.TradePosition memory pos = positionStorage
-            .positionByKey(_params.positionKey);
         TransferHelper.safeTransferFrom(
             pos.collateral.id,
             msg.sender,

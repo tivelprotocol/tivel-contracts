@@ -143,11 +143,6 @@
               "internalType": "bytes",
               "name": "data",
               "type": "bytes"
-            },
-            {
-              "internalType": "string",
-              "name": "callbackResult",
-              "type": "string"
             }
           ],
           "internalType": "struct IWithdrawalMonitor.WithdrawalRequest",
@@ -395,6 +390,11 @@
               "internalType": "uint256",
               "name": "stoplossPrice",
               "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "takeProfitPrice",
+              "type": "uint256"
             }
           ],
           "internalType": "struct IPositionStorage.OpenTradePositionParams",
@@ -421,6 +421,19 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "positionStorage",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -633,33 +646,16 @@
       "type": "function"
     },
     {
-      "inputs": [
+      "inputs": [],
+      "name": "withdrawalMonitor",
+      "outputs": [
         {
-          "components": [
-            {
-              "internalType": "bytes32",
-              "name": "positionKey",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "uint256",
-              "name": "stoplossPrice",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "updater",
-              "type": "address"
-            }
-          ],
-          "internalType": "struct IPositionStorage.UpdateStoplossPriceParams",
+          "internalType": "address",
           "name": "",
-          "type": "tuple"
+          "type": "address"
         }
       ],
-      "name": "updateStoplossPrice",
-      "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {

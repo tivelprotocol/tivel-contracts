@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity >=0.8.4;
 
+import "./libraries/TransferHelper.sol";
 import "./interfaces/ICloseCallback.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IDEXAggregator.sol";
@@ -15,6 +16,8 @@ contract Pool is Lockable, IPool {
     bytes4 private constant SELECTOR =
         bytes4(keccak256(bytes("transfer(address,uint256)")));
     address public override factory;
+    address public override positionStorage;
+    address public override withdrawalMonitor;
     address public override quoteToken;
     uint256 public override precision;
     uint256 public override interest; // annual // 10000 = 100%
@@ -40,7 +43,6 @@ contract Pool is Lockable, IPool {
     error InsufficientInput();
     error InsufficientOutput();
     error ZeroValue();
-    error WrongPool(address token, address quoteToken);
     error UntradeableBaseToken(address token);
     error InvalidParameters();
     error ExceedMaxOpenInterest();
@@ -92,14 +94,6 @@ contract Pool is Lockable, IPool {
         bytes32 indexed positionKey,
         address indexed executor
     );
-    event UpdateStoplossPrice(
-        address indexed sender,
-        bytes32 indexed positionKey,
-        uint256 newStoplossPrice,
-        address updater,
-        address serviceToken,
-        uint256 serviceFee
-    );
     event UpdateCollateralAmount(
         address indexed sender,
         bytes32 indexed positionKey,
@@ -129,6 +123,8 @@ contract Pool is Lockable, IPool {
     ) external {
         if (factory != address(0)) revert InitializedAlready();
         factory = _factory;
+        positionStorage = IFactory(_factory).positionStorage();
+        withdrawalMonitor = IFactory(_factory).withdrawalMonitor();
         quoteToken = _quoteToken;
         precision = 10 ** IERC20(_quoteToken).decimals();
         interest = _interest;
@@ -141,13 +137,6 @@ contract Pool is Lockable, IPool {
 
     modifier onlyOperator() {
         if (!IFactory(factory).operator(msg.sender)) {
-            revert Forbidden(msg.sender);
-        }
-        _;
-    }
-
-    modifier onlyWithdrawalMonitor() {
-        if (msg.sender != IFactory(factory).withdrawalMonitor()) {
             revert Forbidden(msg.sender);
         }
         _;
@@ -216,39 +205,6 @@ contract Pool is Lockable, IPool {
         }
     }
 
-    function _safeTransfer(
-        address _token,
-        address _to,
-        uint256 _value
-    ) internal {
-        (bool success, bytes memory data) = _token.call(
-            abi.encodeWithSelector(SELECTOR, _to, _value)
-        );
-        if (!success || !(data.length == 0 || abi.decode(data, (bool)))) {
-            revert TransferFailed(_token, _to, _value);
-        }
-    }
-
-    function _updateQuoteReserve(uint256 _quoteReserve) internal {
-        quoteReserve = _quoteReserve;
-
-        emit UpdateQuoteReserve(quoteReserve);
-    }
-
-    function _updateQuoteInDebt(uint256 _quoteInDebt) internal {
-        quoteInDebt = _quoteInDebt;
-
-        emit UpdateQuoteInDebt(quoteInDebt);
-    }
-
-    function _updateWithdrawingLiquidity(
-        uint256 _withdrawingLiquidity
-    ) internal {
-        withdrawingLiquidity = _withdrawingLiquidity;
-
-        emit UpdateWithdrawingLiquidity(_withdrawingLiquidity);
-    }
-
     function _addFee(uint256 _fee) internal {
         accFee += _fee;
         accFeePerShare += (_fee * precision) / quoteReserve;
@@ -256,43 +212,22 @@ contract Pool is Lockable, IPool {
         emit UpdateFee(accFee);
     }
 
-    function _updateProtocolFee(uint256 _protocolFee) internal {
-        accProtocolFee = _protocolFee;
-
-        emit UpdateProtocolFee(accProtocolFee);
-    }
-
-    function _updateBaseReserve(
-        address _baseToken,
-        uint256 _baseReserve
-    ) internal {
-        baseReserve[_baseToken] = _baseReserve;
-
-        emit UpdateBaseReserve(_baseToken, _baseReserve);
-    }
-
-    function _updateCollateralReserve(
-        address _collateral,
-        uint256 _collateralReserve
-    ) internal {
-        collateralReserve[_collateral] = _collateralReserve;
-
-        emit UpdateCollateralReserve(_collateral, _collateralReserve);
-    }
-
     function _transferProtocolFee() internal {
         uint256 _protocolFee = accProtocolFee;
         if (_protocolFee > 0) {
             address feeTo = IFactory(factory).protocolFeeTo();
             if (feeTo != address(0)) {
-                _updateProtocolFee(0);
-                _safeTransfer(quoteToken, feeTo, _protocolFee);
+                accProtocolFee = 0;
+                TransferHelper.safeTransfer(quoteToken, feeTo, _protocolFee);
             }
         }
     }
 
-    function availLiquidity() external override onlyWithdrawalMonitor {
-        _updateWithdrawingLiquidity(0);
+    function availLiquidity() external override {
+        if (msg.sender != withdrawalMonitor) {
+            revert Forbidden(msg.sender);
+        }
+        withdrawingLiquidity = 0;
     }
 
     function mint(
@@ -315,7 +250,7 @@ contract Pool is Lockable, IPool {
         pos.liquidity += _liquidity;
         pos.feeDebt = (_accFeePerShare * pos.liquidity) / _precision;
 
-        _updateQuoteReserve(quoteReserve + _liquidity);
+        quoteReserve += _liquidity;
         _transferProtocolFee();
 
         uint256 balanceBefore = IERC20(_quoteToken).balanceOf(address(this));
@@ -347,7 +282,7 @@ contract Pool is Lockable, IPool {
             }
             pos.pendingFee -= _amount;
 
-            _safeTransfer(quoteToken, _to, _amount);
+            TransferHelper.safeTransfer(quoteToken, _to, _amount);
 
             emit Collect(msg.sender, _to, _amount);
         }
@@ -363,18 +298,20 @@ contract Pool is Lockable, IPool {
             revert InsufficientOutput();
 
         pos.withdrawingLiquidity += _liquidity;
-        _updateWithdrawingLiquidity(withdrawingLiquidity + _liquidity);
+        withdrawingLiquidity += _liquidity;
 
-        IWithdrawalMonitor monitor = IWithdrawalMonitor(
-            IFactory(factory).withdrawalMonitor()
-        );
+        IWithdrawalMonitor monitor = IWithdrawalMonitor(withdrawalMonitor);
         return
             monitor.addRequest(msg.sender, quoteToken, _liquidity, _to, _data);
     }
 
     function burn(
         IWithdrawalMonitor.WithdrawalRequest memory _request
-    ) external override lock onlyWithdrawalMonitor {
+    ) external override lock {
+        IWithdrawalMonitor monitor = IWithdrawalMonitor(withdrawalMonitor);
+        if (msg.sender != address(monitor)) {
+            revert Forbidden(msg.sender);
+        }
         LiquidityPosition storage pos = liquidityPosition[_request.owner];
         if (_request.liquidity > pos.withdrawingLiquidity)
             revert InsufficientOutput();
@@ -383,11 +320,8 @@ contract Pool is Lockable, IPool {
             uint256 liq = _availableLiquidity();
             if (_request.liquidity > _withdrawingLiquidity + liq)
                 revert InsufficientOutput();
-            _updateWithdrawingLiquidity(0);
-        } else
-            _updateWithdrawingLiquidity(
-                _withdrawingLiquidity - _request.liquidity
-            );
+            withdrawingLiquidity = 0;
+        } else withdrawingLiquidity -= _request.liquidity;
 
         uint256 _accFeePerShare = accFeePerShare;
         uint256 _precision = precision;
@@ -402,14 +336,11 @@ contract Pool is Lockable, IPool {
         pos.withdrawingLiquidity -= _request.liquidity;
         pos.feeDebt = (_accFeePerShare * pos.liquidity) / _precision;
 
-        _updateQuoteReserve(quoteReserve - _request.liquidity);
+        quoteReserve -= _request.liquidity;
         _transferProtocolFee();
 
         // callback
         if (_request.data.length > 0) {
-            IWithdrawalMonitor monitor = IWithdrawalMonitor(
-                IFactory(factory).withdrawalMonitor()
-            );
             bytes memory callbackData = abi.encodeWithSignature(
                 "burnCallback(uint256,bytes)",
                 _request.liquidity,
@@ -439,7 +370,11 @@ contract Pool is Lockable, IPool {
             }
         }
 
-        _safeTransfer(quoteToken, _request.to, _request.liquidity);
+        TransferHelper.safeTransfer(
+            quoteToken,
+            _request.to,
+            _request.liquidity
+        );
 
         emit Burn(msg.sender, _request.liquidity);
     }
@@ -482,21 +417,18 @@ contract Pool is Lockable, IPool {
     function open(
         IPositionStorage.OpenTradePositionParams memory _params
     ) external override lock returns (bytes32 positionKey) {
-        address _quoteToken = quoteToken;
-        if (_params.quoteToken != _quoteToken) {
-            revert WrongPool(_params.quoteToken, _quoteToken);
-        }
-        if (_params.baseToken == _params.quoteToken) revert InvalidParameters();
         if (!tradeableBaseToken[_params.baseToken])
             revert UntradeableBaseToken(_params.baseToken);
-        if (!_checkInputTokens(_params)) revert InsufficientInput();
         if (openInterest + _params.quoteAmount > maxOpenInterest)
             revert ExceedMaxOpenInterest();
 
-        IPositionStorage positionStorage = IPositionStorage(
-            IFactory(factory).positionStorage()
-        );
-        IPositionStorage.TradePosition memory pos = positionStorage
+        address _quoteToken = quoteToken;
+        _params.quoteToken = _quoteToken;
+        if (_params.baseToken == _quoteToken) revert InvalidParameters();
+        if (!_checkInputTokens(_params)) revert InsufficientInput();
+
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
+        IPositionStorage.TradePosition memory pos = _positionStorage
             .previewTradePosition(_params);
         if (pos.owner == address(0)) revert InvalidParameters();
 
@@ -504,22 +436,20 @@ contract Pool is Lockable, IPool {
         uint256 available = _availableLiquidity();
         if (realQuoteAmount > available) revert InsufficientOutput();
 
-        positionKey = positionStorage.openTradePosition(pos);
+        positionKey = _positionStorage.openTradePosition(pos);
 
-        _updateQuoteInDebt(quoteInDebt + _params.quoteAmount);
-        _addFee(pos.fee - pos.protocolFee);
-        _updateProtocolFee(accProtocolFee + pos.protocolFee);
-        _updateBaseReserve(
-            _params.baseToken,
-            baseReserve[_params.baseToken] + _params.baseAmount
-        );
-        _updateCollateralReserve(
-            _params.collateral,
-            collateralReserve[_params.collateral] + _params.collateralAmount
-        );
+        quoteInDebt += _params.quoteAmount;
+        accProtocolFee += pos.protocolFee;
+        baseReserve[_params.baseToken] += _params.baseAmount;
+        collateralReserve[_params.collateral] += _params.collateralAmount;
         openInterest += pos.quoteToken.amount;
+        _addFee(pos.fee - pos.protocolFee);
 
-        _safeTransfer(_quoteToken, _params.owner, realQuoteAmount);
+        TransferHelper.safeTransfer(
+            _quoteToken,
+            _params.owner,
+            realQuoteAmount
+        );
 
         emit Open(
             msg.sender,
@@ -544,7 +474,11 @@ contract Pool is Lockable, IPool {
         uint256 balanceBefore = IERC20(_pos.quoteToken.id).balanceOf(
             address(this)
         );
-        _safeTransfer(_pos.baseToken.id, msg.sender, _pos.baseToken.amount);
+        TransferHelper.safeTransfer(
+            _pos.baseToken.id,
+            msg.sender,
+            _pos.baseToken.amount
+        );
         ICloseCallback(msg.sender).closeCallback(
             _pos.baseToken.id,
             _pos.quoteToken.id,
@@ -571,7 +505,11 @@ contract Pool is Lockable, IPool {
         uint256 quoteBalanceBefore = IERC20(_pos.quoteToken.id).balanceOf(
             address(this)
         );
-        _safeTransfer(_pos.collateral.id, msg.sender, _neededCollateralAmount);
+        TransferHelper.safeTransfer(
+            _pos.collateral.id,
+            msg.sender,
+            _neededCollateralAmount
+        );
         ICloseCallback(msg.sender).closeCallback(
             _pos.collateral.id,
             _pos.quoteToken.id,
@@ -594,16 +532,15 @@ contract Pool is Lockable, IPool {
         IPositionStorage.CloseTradePositionParams calldata _params
     ) external override lock onlyOperator {
         IFactory _factory = IFactory(factory);
-        IPositionStorage positionStorage = IPositionStorage(
-            _factory.positionStorage()
-        );
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
 
-        bool needLiquidate = positionStorage.updateStatus(
+        bool needLiquidate = _positionStorage.updateStatus(
             _params.positionKey,
             _params.closer
         );
-        IPositionStorage.TradePosition memory pos = positionStorage
-            .positionByKey(_params.positionKey);
+        IPositionStorage.TradePosition memory pos = _positionStorage.position(
+            _params.positionKey
+        );
         IDEXAggregator dexAggregator = IDEXAggregator(_factory.dexAggregator());
         (uint256 baseValue, ) = dexAggregator.getAmountOut(
             address(0),
@@ -653,39 +590,39 @@ contract Pool is Lockable, IPool {
                 neededCollateralAmount);
         }
 
-        positionStorage.updateCloseValues(
+        _positionStorage.updateCloseValues(
             pos.positionKey,
             baseValue,
             loss,
             remainingCollateralAmount
         );
 
-        _updateQuoteInDebt(quoteInDebt - pos.quoteToken.amount);
-        _updateWithdrawingLiquidity(
-            withdrawingLiquidity + pos.quoteToken.amount
-        );
-        _updateBaseReserve(
-            pos.baseToken.id,
-            baseReserve[pos.baseToken.id] - pos.baseToken.amount
-        );
-        _updateCollateralReserve(
-            pos.collateral.id,
-            collateralReserve[pos.collateral.id] - pos.collateral.amount
-        );
+        quoteInDebt -= pos.quoteToken.amount;
+        withdrawingLiquidity += pos.quoteToken.amount;
+        baseReserve[pos.baseToken.id] -= pos.baseToken.amount;
+        collateralReserve[pos.collateral.id] -= pos.collateral.amount;
         openInterest -= pos.quoteToken.amount;
 
         if (liquidationFee > 0) {
             address liquidationFeeTo = _factory.liquidationFeeTo();
-            _safeTransfer(pos.quoteToken.id, liquidationFeeTo, liquidationFee);
+            TransferHelper.safeTransfer(
+                pos.quoteToken.id,
+                liquidationFeeTo,
+                liquidationFee
+            );
         }
         if (loss == 0) {
             uint256 profit = baseValue - quoteAmount;
             if (profit > 0) {
-                _safeTransfer(pos.quoteToken.id, pos.owner, profit);
+                TransferHelper.safeTransfer(
+                    pos.quoteToken.id,
+                    pos.owner,
+                    profit
+                );
             }
         }
         if (remainingCollateralAmount > 0) {
-            _safeTransfer(
+            TransferHelper.safeTransfer(
                 pos.collateral.id,
                 pos.owner,
                 remainingCollateralAmount
@@ -706,11 +643,10 @@ contract Pool is Lockable, IPool {
         IPositionStorage.RollbackTradePositionParams calldata _params
     ) external override lock onlyOperator {
         IFactory _factory = IFactory(factory);
-        IPositionStorage positionStorage = IPositionStorage(
-            _factory.positionStorage()
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
+        IPositionStorage.TradePosition memory pos = _positionStorage.position(
+            _params.positionKey
         );
-        IPositionStorage.TradePosition memory pos = positionStorage
-            .positionByKey(_params.positionKey);
         address serviceToken = _factory.serviceToken();
         uint256 serviceFee = _factory.rollbackFee();
         if (serviceToken != address(0) && serviceFee > 0) {
@@ -726,30 +662,30 @@ contract Pool is Lockable, IPool {
                 if (serviceTokenAmount < serviceFee) revert InsufficientInput();
             }
             address serviceFeeTo = _factory.serviceFeeTo();
-            _safeTransfer(serviceToken, serviceFeeTo, serviceFee);
+            TransferHelper.safeTransfer(serviceToken, serviceFeeTo, serviceFee);
         } else {
             uint256 quoteAmount = _unrealizeLiquidity();
             if (quoteAmount < pos.quoteToken.amount) revert InsufficientInput();
         }
 
-        positionStorage.rollback(_params.positionKey, _params.rollbacker);
+        _positionStorage.rollback(_params.positionKey, _params.rollbacker);
 
-        _updateQuoteInDebt(quoteInDebt - pos.quoteToken.amount);
-        _updateWithdrawingLiquidity(
-            withdrawingLiquidity + pos.quoteToken.amount
-        );
-        _updateBaseReserve(
-            pos.baseToken.id,
-            baseReserve[pos.baseToken.id] - pos.baseToken.amount
-        );
-        _updateCollateralReserve(
-            pos.collateral.id,
-            collateralReserve[pos.collateral.id] - pos.collateral.amount
-        );
+        quoteInDebt -= pos.quoteToken.amount;
+        withdrawingLiquidity += pos.quoteToken.amount;
+        baseReserve[pos.baseToken.id] -= pos.baseToken.amount;
+        collateralReserve[pos.collateral.id] -= pos.collateral.amount;
         openInterest -= pos.quoteToken.amount;
 
-        _safeTransfer(pos.baseToken.id, pos.owner, pos.baseToken.amount);
-        _safeTransfer(pos.collateral.id, pos.owner, pos.collateral.amount);
+        TransferHelper.safeTransfer(
+            pos.baseToken.id,
+            pos.owner,
+            pos.baseToken.amount
+        );
+        TransferHelper.safeTransfer(
+            pos.collateral.id,
+            pos.owner,
+            pos.collateral.amount
+        );
 
         emit Rollback(
             msg.sender,
@@ -765,26 +701,27 @@ contract Pool is Lockable, IPool {
         bytes32 _positionKey,
         address _executor
     ) external lock onlyOperator {
-        IPositionStorage positionStorage = IPositionStorage(
-            IFactory(factory).positionStorage()
-        );
-        positionStorage.closeManuallyStep1(_positionKey);
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
+        _positionStorage.closeManuallyStep1(_positionKey);
 
-        IPositionStorage.TradePosition memory pos = positionStorage
-            .positionByKey(_positionKey);
+        IPositionStorage.TradePosition memory pos = _positionStorage.position(
+            _positionKey
+        );
 
         // transfer all baseToken & collateral to executor to process manually
-        _safeTransfer(pos.baseToken.id, _executor, pos.baseToken.amount);
-        _safeTransfer(pos.collateral.id, _executor, pos.collateral.amount);
-
-        _updateBaseReserve(
+        TransferHelper.safeTransfer(
             pos.baseToken.id,
-            baseReserve[pos.baseToken.id] - pos.baseToken.amount
+            _executor,
+            pos.baseToken.amount
         );
-        _updateCollateralReserve(
+        TransferHelper.safeTransfer(
             pos.collateral.id,
-            collateralReserve[pos.collateral.id] - pos.collateral.amount
+            _executor,
+            pos.collateral.amount
         );
+
+        baseReserve[pos.baseToken.id] -= pos.baseToken.amount;
+        collateralReserve[pos.collateral.id] -= pos.collateral.amount;
 
         emit CloseManuallyStep1(msg.sender, _positionKey, _executor);
     }
@@ -796,11 +733,10 @@ contract Pool is Lockable, IPool {
         uint256 _remainingCollateralAmount,
         uint256 _liquidationFee
     ) external lock onlyOperator {
-        IPositionStorage positionStorage = IPositionStorage(
-            IFactory(factory).positionStorage()
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
+        IPositionStorage.TradePosition memory pos = _positionStorage.position(
+            _positionKey
         );
-        IPositionStorage.TradePosition memory pos = positionStorage
-            .positionByKey(_positionKey);
 
         if (pos.collateral.id == pos.quoteToken.id) {
             uint256 amount = _unrealizeLiquidity();
@@ -824,38 +760,44 @@ contract Pool is Lockable, IPool {
                 revert InsufficientInput();
         }
 
-        positionStorage.closeManuallyStep2(_positionKey);
+        _positionStorage.closeManuallyStep2(_positionKey);
 
         uint256 loss;
         uint256 neededQuoteAmount = pos.quoteToken.amount + _liquidationFee;
         if (_baseValue < neededQuoteAmount) {
             loss = neededQuoteAmount - _baseValue;
         }
-        positionStorage.updateCloseValues(
+        _positionStorage.updateCloseValues(
             pos.positionKey,
             _baseValue,
             loss,
             _remainingCollateralAmount
         );
 
-        _updateQuoteInDebt(quoteInDebt - pos.quoteToken.amount);
-        _updateWithdrawingLiquidity(
-            withdrawingLiquidity + pos.quoteToken.amount
-        );
+        quoteInDebt -= pos.quoteToken.amount;
+        withdrawingLiquidity += pos.quoteToken.amount;
         openInterest -= pos.quoteToken.amount;
 
         if (_liquidationFee > 0) {
             address liquidationFeeTo = IFactory(factory).liquidationFeeTo();
-            _safeTransfer(pos.quoteToken.id, liquidationFeeTo, _liquidationFee);
+            TransferHelper.safeTransfer(
+                pos.quoteToken.id,
+                liquidationFeeTo,
+                _liquidationFee
+            );
         }
         if (loss == 0) {
             uint256 profit = _baseValue - neededQuoteAmount;
             if (profit > 0) {
-                _safeTransfer(pos.quoteToken.id, pos.owner, profit);
+                TransferHelper.safeTransfer(
+                    pos.quoteToken.id,
+                    pos.owner,
+                    profit
+                );
             }
         }
         if (_remainingCollateralAmount > 0) {
-            _safeTransfer(
+            TransferHelper.safeTransfer(
                 pos.collateral.id,
                 pos.owner,
                 _remainingCollateralAmount
@@ -881,42 +823,22 @@ contract Pool is Lockable, IPool {
             uint256 serviceTokenAmount = _unrealizeAmount(_serviceToken);
             if (serviceTokenAmount < _serviceFee) revert InsufficientInput();
             address serviceFeeTo = _factory.serviceFeeTo();
-            _safeTransfer(_serviceToken, serviceFeeTo, _serviceFee);
+            TransferHelper.safeTransfer(
+                _serviceToken,
+                serviceFeeTo,
+                _serviceFee
+            );
         }
-    }
-
-    function updateStoplossPrice(
-        IPositionStorage.UpdateStoplossPriceParams memory _params
-    ) external override lock onlyOperator {
-        IFactory _factory = IFactory(factory);
-        address serviceToken = _factory.serviceToken();
-        uint256 serviceFee = _factory.updateStoplossPriceFee();
-        _handleServiceFee(_factory, serviceToken, serviceFee);
-
-        IPositionStorage positionStorage = IPositionStorage(
-            _factory.positionStorage()
-        );
-        positionStorage.updateStoplossPrice(_params);
-
-        emit UpdateStoplossPrice(
-            msg.sender,
-            _params.positionKey,
-            _params.stoplossPrice,
-            _params.updater,
-            serviceToken,
-            serviceFee
-        );
     }
 
     function updateCollateralAmount(
         IPositionStorage.UpdateCollateralAmountParams memory _params
     ) external override lock onlyOperator returns (uint256 collateralLiqPrice) {
         IFactory _factory = IFactory(factory);
-        IPositionStorage positionStorage = IPositionStorage(
-            _factory.positionStorage()
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
+        IPositionStorage.TradePosition memory pos = _positionStorage.position(
+            _params.positionKey
         );
-        IPositionStorage.TradePosition memory pos = positionStorage
-            .positionByKey(_params.positionKey);
         address serviceToken = _factory.serviceToken();
         uint256 serviceFee = _factory.updateCollateralAmountFee();
         if (serviceToken != address(0) && serviceFee > 0) {
@@ -934,19 +856,16 @@ contract Pool is Lockable, IPool {
                 if (serviceTokenAmount < serviceFee) revert InsufficientInput();
             }
             address serviceFeeTo = _factory.serviceFeeTo();
-            _safeTransfer(serviceToken, serviceFeeTo, serviceFee);
+            TransferHelper.safeTransfer(serviceToken, serviceFeeTo, serviceFee);
         } else {
             uint256 addedCollateralAmount = _unrealizeAmount(pos.collateral.id);
             if (addedCollateralAmount < _params.amount)
                 revert InsufficientInput();
         }
 
-        collateralLiqPrice = positionStorage.updateCollateralAmount(_params);
+        collateralLiqPrice = _positionStorage.updateCollateralAmount(_params);
 
-        _updateCollateralReserve(
-            pos.collateral.id,
-            collateralReserve[pos.collateral.id] + _params.amount
-        );
+        collateralReserve[pos.collateral.id] += _params.amount;
 
         emit UpdateCollateralAmount(
             msg.sender,
@@ -967,17 +886,16 @@ contract Pool is Lockable, IPool {
         uint256 serviceFee = _factory.updateDeadlineFee();
         _handleServiceFee(_factory, serviceToken, serviceFee);
 
-        IPositionStorage positionStorage = IPositionStorage(
-            _factory.positionStorage()
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
+        IPositionStorage.TradePosition memory pos = _positionStorage.position(
+            _params.positionKey
         );
-        IPositionStorage.TradePosition memory pos = positionStorage
-            .positionByKey(_params.positionKey);
-        (uint256 fee, uint256 protocolFee) = positionStorage.updateDeadline(
+        (uint256 fee, uint256 protocolFee) = _positionStorage.updateDeadline(
             _params
         );
 
         _addFee(fee - protocolFee);
-        _updateProtocolFee(accProtocolFee + protocolFee);
+        accProtocolFee += protocolFee;
 
         emit UpdateDeadline(
             msg.sender,

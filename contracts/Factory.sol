@@ -20,7 +20,7 @@ contract Factory is IFactory {
     address public override serviceToken;
     address public override serviceFeeTo;
     uint256 public override rollbackFee;
-    uint256 public override updateStoplossPriceFee;
+    uint256 public override updateTPnSLFee;
     uint256 public override updateCollateralAmountFee;
     uint256 public override updateDeadlineFee;
     uint256 public override minQuoteRate; // 10000 = 100%
@@ -55,7 +55,7 @@ contract Factory is IFactory {
     event SetServiceToken(address newServiceToken);
     event SetServiceFeeTo(address newServiceFeeTo);
     event SetRollbackFee(uint256 newRollbackFee);
-    event SetUpdateStoplossPriceFee(uint256 newUpdateStoplossPriceFee);
+    event SetUpdateTPnSLFee(uint256 newUpdateTPnSLFee);
     event SetUpdateCollateralAmountFee(uint256 newUpdateCollateralAmountFee);
     event SetUpdateDeadlineFee(uint256 newUpdateDeadlineFee);
     event SetMinQuoteRate(uint256 newMinQuoteRate);
@@ -191,12 +191,10 @@ contract Factory is IFactory {
         emit SetRollbackFee(_rollbackFee);
     }
 
-    function setUpdateStoplossPriceFee(
-        uint256 _updateStoplossPriceFee
-    ) external onlyManager {
-        updateStoplossPriceFee = _updateStoplossPriceFee;
+    function setUpdateTPnSLFee(uint256 _updateTPnSLFee) external onlyManager {
+        updateTPnSLFee = _updateTPnSLFee;
 
-        emit SetUpdateStoplossPriceFee(_updateStoplossPriceFee);
+        emit SetUpdateTPnSLFee(_updateTPnSLFee);
     }
 
     function setUpdateCollateralAmountFee(

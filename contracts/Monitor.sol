@@ -13,6 +13,7 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
     address public manager;
     address public keeper;
     address public factory;
+    address public positionStorage;
     uint256 public batchSize;
     uint256 public monitorSize;
     uint256 public startIndex;
@@ -44,6 +45,7 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
         manager = msg.sender;
         keeper = _keeper;
         factory = _factory;
+        positionStorage = IFactory(_factory).positionStorage();
         batchSize = _batchSize;
         monitorSize = _monitorSize;
         startIndex = _startIndex;
@@ -68,6 +70,7 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
 
     function setFactory(address _factory) external onlyManager {
         factory = _factory;
+        positionStorage = IFactory(_factory).positionStorage();
 
         emit SetFactory(_factory);
     }
@@ -140,26 +143,26 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
         override
         returns (bool upkeepNeeded, bytes memory performData)
     {
-        IPositionStorage positionStorage = IPositionStorage(
-            IFactory(factory).positionStorage()
-        );
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
         bytes32[] memory batchPositionKeys = new bytes32[](batchSize);
         uint256 count;
         uint256 i;
 
-        uint256 openingPositionLength = positionStorage.openingPositionLength();
-        for (uint256 j = startIndex; j < openingPositionLength; j++) {
-            bytes32 positionKey = positionStorage.openingPositionKey(j);
-            if (positionStorage.canLiquidate(positionKey)) {
-                batchPositionKeys[count] = positionKey;
-                count++;
-            }
-            i++;
-            if (i == monitorSize) {
-                break;
-            }
-            if (count == batchSize) {
-                break;
+        uint256 positionLength = _positionStorage.positionLength();
+        if (startIndex < positionLength) {
+            for (uint256 j = startIndex; j < positionLength; j++) {
+                bytes32 positionKey = _positionStorage.positionKeys(j);
+                if (_positionStorage.canLiquidate(positionKey)) {
+                    batchPositionKeys[count] = positionKey;
+                    count++;
+                }
+                i++;
+                if (i == monitorSize) {
+                    break;
+                }
+                if (count == batchSize) {
+                    break;
+                }
             }
         }
 
@@ -170,9 +173,7 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
     }
 
     function performUpkeep(bytes calldata _performData) external override {
-        IPositionStorage positionStorage = IPositionStorage(
-            IFactory(factory).positionStorage()
-        );
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
         uint256 usedGas = gasleft();
         (bytes32[] memory batchPositionKeys, uint256 count) = abi.decode(
             _performData,
@@ -180,19 +181,16 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
         );
 
         for (uint256 i = 0; i < count; i++) {
-            uint256 index = positionStorage.positionIndex(batchPositionKeys[i]);
-            if (index > 0) {
-                IPositionStorage.TradePosition memory pos = positionStorage
-                    .position(index - 1);
-                IPool(pos.pool).close(
-                    IPositionStorage.CloseTradePositionParams({
-                        positionKey: pos.positionKey,
-                        data0: new bytes(0),
-                        data1: new bytes(0),
-                        closer: address(this)
-                    })
-                );
-            }
+            IPositionStorage.TradePosition memory pos = _positionStorage
+                .position(batchPositionKeys[i]);
+            IPool(pos.pool).close(
+                IPositionStorage.CloseTradePositionParams({
+                    positionKey: pos.positionKey,
+                    data0: new bytes(0),
+                    data1: new bytes(0),
+                    closer: address(this)
+                })
+            );
         }
 
         emit ProcessBatch(
@@ -209,26 +207,26 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
         view
         returns (bool canExec, bytes memory execPayload)
     {
-        IPositionStorage positionStorage = IPositionStorage(
-            IFactory(factory).positionStorage()
-        );
+        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
         bytes32[] memory batchPositionKeys = new bytes32[](batchSize);
         uint256 count;
         uint256 i;
 
-        uint256 openingPositionLength = positionStorage.openingPositionLength();
-        for (uint256 j = startIndex; j < openingPositionLength; j++) {
-            bytes32 positionKey = positionStorage.openingPositionKey(j);
-            if (positionStorage.canLiquidate(positionKey)) {
-                batchPositionKeys[count] = positionKey;
-                count++;
-            }
-            i++;
-            if (i == monitorSize) {
-                break;
-            }
-            if (count == batchSize) {
-                break;
+        uint256 positionLength = _positionStorage.positionLength();
+        if (startIndex < positionLength) {
+            for (uint256 j = startIndex; j < positionLength; j++) {
+                bytes32 positionKey = _positionStorage.positionKeys(j);
+                if (_positionStorage.canLiquidate(positionKey)) {
+                    batchPositionKeys[count] = positionKey;
+                    count++;
+                }
+                i++;
+                if (i == monitorSize) {
+                    break;
+                }
+                if (count == batchSize) {
+                    break;
+                }
             }
         }
 

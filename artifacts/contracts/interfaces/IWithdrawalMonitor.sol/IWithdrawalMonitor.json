@@ -131,11 +131,6 @@
           "internalType": "bytes",
           "name": "data",
           "type": "bytes"
-        },
-        {
-          "internalType": "string",
-          "name": "callbackResult",
-          "type": "string"
         }
       ],
       "stateMutability": "view",

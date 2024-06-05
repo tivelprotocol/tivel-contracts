@@ -9,7 +9,6 @@ interface IWithdrawalMonitor {
         uint256 liquidity;
         address to;
         bytes data;
-        string callbackResult;
     }
 
     function factory() external view returns (address);
@@ -30,8 +29,7 @@ interface IWithdrawalMonitor {
             address quoteToken,
             uint256 liquidity,
             address to,
-            bytes calldata data,
-            string memory callbackResult
+            bytes calldata data
         );
 
     function addRequest(

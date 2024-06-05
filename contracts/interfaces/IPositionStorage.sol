@@ -22,10 +22,6 @@ interface IPositionStorage {
     }
     struct Status {
         bool isClosed;
-        bool isExpired;
-        bool isStoploss;
-        bool isBaseLiquidated;
-        bool isCollateralLiquidated;
         bool isRollbacked;
         bool isClosedManuallyStep1;
         bool isClosedManuallyStep2;
@@ -39,6 +35,7 @@ interface IPositionStorage {
         Collateral collateral;
         uint256 deadline;
         uint256 stoplossPrice;
+        uint256 takeProfitPrice;
         uint256 fee;
         uint256 protocolFee;
         Status status;
@@ -55,6 +52,7 @@ interface IPositionStorage {
         uint256 collateralAmount;
         uint256 deadline;
         uint256 stoplossPrice;
+        uint256 takeProfitPrice;
     }
     struct CloseTradePositionParams {
         bytes32 positionKey;
@@ -66,10 +64,13 @@ interface IPositionStorage {
         bytes32 positionKey;
         address rollbacker;
     }
-    struct UpdateStoplossPriceParams {
+    struct UpdateTPnSLParams {
         bytes32 positionKey;
+        uint256 takeProfitPrice;
         uint256 stoplossPrice;
         address updater;
+        address serviceToken;
+        uint256 serviceFee;
     }
     struct UpdateCollateralAmountParams {
         bytes32 positionKey;
@@ -84,26 +85,13 @@ interface IPositionStorage {
 
     function factory() external view returns (address);
 
-    function position(uint256) external view returns (TradePosition memory);
+    function position(bytes32) external view returns (TradePosition memory);
 
-    function positionIndex(bytes32) external view returns (uint256);
+    function positionKeys(uint256) external view returns (bytes32);
 
-    function positionByKey(
-        bytes32
-    ) external view returns (TradePosition memory);
-
-    function openingPositionKey(uint256) external view returns (bytes32);
+    function positionKeyToIndex(bytes32) external view returns (uint256);
 
     function positionLength() external view returns (uint256);
-
-    function openingPositionLength() external view returns (uint256);
-
-    function userPositionLength(address) external view returns (uint256);
-
-    function positionKeyByUser(
-        address _user,
-        uint256 _index
-    ) external view returns (bytes32);
 
     function getMinCollateralAmount(
         OpenTradePositionParams memory
@@ -153,7 +141,7 @@ interface IPositionStorage {
         uint256 _remainingCollateralAmount
     ) external;
 
-    function updateStoplossPrice(UpdateStoplossPriceParams memory) external;
+    function updateTPnSL(UpdateTPnSLParams memory) external;
 
     function updateCollateralAmount(
         UpdateCollateralAmountParams memory

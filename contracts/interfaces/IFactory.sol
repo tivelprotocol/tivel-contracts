@@ -30,7 +30,7 @@ interface IFactory {
 
     function rollbackFee() external view returns (uint256);
 
-    function updateStoplossPriceFee() external view returns (uint256);
+    function updateTPnSLFee() external view returns (uint256);
 
     function updateCollateralAmountFee() external view returns (uint256);
 

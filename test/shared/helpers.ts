@@ -57,7 +57,7 @@ export function computePoolAddress(poolDeployerAddress: string, quoteToken: stri
             ['bytes'],
             [defaultAbiCoder.encode(['address'], [quoteToken])]
         ),
-        "0x6c6a3125043137214ba9fce2fbc49163378d28fdd84e53dba5c0af27a794e0bf"
+        "0xf1036993f1275518585918ce3130714428155c415f20bed4b4bdbb1d7d87aa71"
     )
 }
 

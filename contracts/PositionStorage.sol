@@ -2,6 +2,7 @@
 pragma solidity >=0.8.4;
 
 import "./libraries/PoolAddress.sol";
+import "./libraries/TransferHelper.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IFactory.sol";
 import "./interfaces/IPositionStorage.sol";
@@ -9,14 +10,16 @@ import "./interfaces/IPriceFeed.sol";
 import "./interfaces/IUserStorage.sol";
 
 contract PositionStorage is IPositionStorage {
+    uint256 private constant PRICE_PRECISION = 1e30; // should be the same with PriceFeed PRECISION
+    uint256 private constant SECONDS_PER_YEAR = 365 * 24 * 60 * 60;
     address public override factory;
     address public poolDeployer;
 
-    TradePosition[] public positions;
-    bytes32[] public openingPositionKeys;
-    mapping(bytes32 => uint256) public openingPositionIndex;
-    mapping(bytes32 => uint256) public override positionIndex;
-    mapping(address => bytes32[]) private positionKeysByUser;
+    uint256 private positionCounter;
+    uint256 public override positionLength;
+    mapping(uint256 => bytes32) public override positionKeys;
+    mapping(bytes32 => uint256) public override positionKeyToIndex;
+    mapping(bytes32 => TradePosition) private positions;
 
     error InitializedAlready();
     error Forbidden(address sender);
@@ -30,15 +33,20 @@ contract PositionStorage is IPositionStorage {
     error NotAllowed(address user);
     error InvalidParameter();
     error BadStoplossPrice(uint256 currentPrice, uint256 stoplossPrice);
+    error BadTakeProfitPrice(uint256 currentPrice, uint256 takeProfitPrice);
+    error InsufficientServiceFee();
 
     event OpenTradePosition(bytes32 indexed positionKey);
     event CloseTradePosition(bytes32 indexed positionKey, address updater);
     event LiquidationMark(bytes32 indexed positionKey, uint256 time);
     event CloseManuallyStep1TradePosition(bytes32 indexed positionKey);
-    event UpdateStoplossPrice(
+    event UpdateTPnSLPrice(
         bytes32 indexed positionKey,
+        uint256 newTakeProfitPrice,
         uint256 newStoplossPrice,
-        address updater
+        address updater,
+        address serviceToken,
+        uint256 serviceFee
     );
     event UpdateCollateralAmount(
         bytes32 indexed positionKey,
@@ -59,45 +67,9 @@ contract PositionStorage is IPositionStorage {
     }
 
     function position(
-        uint256 _index
-    ) external view override returns (TradePosition memory) {
-        return positions[_index];
-    }
-
-    function positionByKey(
         bytes32 _positionKey
-    ) external view override returns (TradePosition memory pos) {
-        uint256 idx = positionIndex[_positionKey];
-        if (idx > 0) {
-            pos = positions[idx - 1];
-        }
-    }
-
-    function openingPositionKey(
-        uint256 _index
-    ) external view override returns (bytes32) {
-        return openingPositionKeys[_index];
-    }
-
-    function positionLength() external view override returns (uint256) {
-        return positions.length;
-    }
-
-    function openingPositionLength() external view override returns (uint256) {
-        return openingPositionKeys.length;
-    }
-
-    function userPositionLength(
-        address _user
-    ) external view override returns (uint256) {
-        return positionKeysByUser[_user].length;
-    }
-
-    function positionKeyByUser(
-        address _user,
-        uint256 _index
-    ) external view override returns (bytes32) {
-        return positionKeysByUser[_user][_index];
+    ) external view override returns (TradePosition memory) {
+        return positions[_positionKey];
     }
 
     function getMinCollateralAmount(
@@ -105,7 +77,7 @@ contract PositionStorage is IPositionStorage {
     ) external view override returns (uint256) {
         IFactory _factory = IFactory(factory);
         IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
-        uint256 pricePrecision = priceFeed.PRECISION();
+        uint256 pricePrecision = PRICE_PRECISION;
 
         uint256 baseValue;
         {
@@ -142,7 +114,7 @@ contract PositionStorage is IPositionStorage {
     {
         IFactory _factory = IFactory(factory);
         IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
-        uint256 pricePrecision = priceFeed.PRECISION();
+        uint256 pricePrecision = PRICE_PRECISION;
 
         uint256 baseValue;
         uint256 collateralValue;
@@ -207,14 +179,11 @@ contract PositionStorage is IPositionStorage {
                 }),
                 deadline: _params.deadline,
                 stoplossPrice: _params.stoplossPrice,
+                takeProfitPrice: _params.takeProfitPrice,
                 fee: 0,
                 protocolFee: 0,
                 status: Status({
                     isClosed: false,
-                    isExpired: false,
-                    isStoploss: false,
-                    isBaseLiquidated: false,
-                    isCollateralLiquidated: false,
                     isRollbacked: false,
                     isClosedManuallyStep1: false,
                     isClosedManuallyStep2: false
@@ -233,7 +202,7 @@ contract PositionStorage is IPositionStorage {
         ) {
             IFactory _factory = IFactory(factory);
             IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
-            uint256 pricePrecision = priceFeed.PRECISION();
+            uint256 pricePrecision = PRICE_PRECISION;
 
             uint256 baseValue;
             uint256 collateralValue;
@@ -242,7 +211,10 @@ contract PositionStorage is IPositionStorage {
                     _params.baseToken,
                     _params.quoteToken
                 );
-                if (_params.stoplossPrice >= basePrice) return pos;
+                if (
+                    _params.stoplossPrice >= basePrice ||
+                    _params.takeProfitPrice <= basePrice
+                ) return pos;
                 baseValue = (_params.baseAmount * basePrice) / pricePrecision;
                 uint256 collateralPrice = priceFeed.getLowestPrice(
                     _params.collateral,
@@ -314,7 +286,7 @@ contract PositionStorage is IPositionStorage {
                 uint256 fee = (_params.quoteAmount *
                     interest *
                     (_params.deadline - block.timestamp)) /
-                    (365 * 24 * 60 * 60 * 10000);
+                    (SECONDS_PER_YEAR * 10000);
                 IUserStorage userStorage = IUserStorage(_factory.userStorage());
                 fee = userStorage.discountedFee(_params.owner, fee);
                 uint256 protocolFeeRate = _factory.protocolFeeRate();
@@ -338,64 +310,53 @@ contract PositionStorage is IPositionStorage {
     function previewUpdateCollateralAmount(
         UpdateCollateralAmountParams memory _params
     ) external view override returns (uint256 collateralLiqPrice) {
-        uint256 idx = positionIndex[_params.positionKey];
-        if (idx > 0) {
-            TradePosition memory pos = positions[idx - 1];
+        TradePosition memory pos = positions[_params.positionKey];
+        IFactory _factory = IFactory(factory);
+        uint256 pricePrecision = PRICE_PRECISION;
+        uint256 baseTokenMUT = _factory.baseTokenMUT(pos.baseToken.id);
+        uint256 collateralMUT = pos.collateral.id == pos.quoteToken.id
+            ? 10000
+            : _factory.collateralMUT(pos.collateral.id);
+        uint256 newCollateralAmount = pos.collateral.amount + _params.amount;
 
-            IFactory _factory = IFactory(factory);
-            IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
-            uint256 pricePrecision = priceFeed.PRECISION();
-            uint256 baseTokenMUT = _factory.baseTokenMUT(pos.baseToken.id);
-            uint256 collateralMUT = pos.collateral.id == pos.quoteToken.id
-                ? 10000
-                : _factory.collateralMUT(pos.collateral.id);
-            uint256 newCollateralAmount = pos.collateral.amount +
-                _params.amount;
+        uint256 mutb = (pos.baseToken.amount *
+            pos.baseToken.entryPrice *
+            baseTokenMUT) / (pricePrecision * 10000);
 
-            uint256 mutb = (pos.baseToken.amount *
-                pos.baseToken.entryPrice *
-                baseTokenMUT) / (pricePrecision * 10000);
-
-            {
-                // avoid too deep stack
-                // calculate collateral liquidation price
-                uint256 collateralLT = _factory.collateralLT(pos.collateral.id);
-                uint256 collateralLiqValue = ((pos.quoteToken.amount - mutb) *
-                    collateralLT) / collateralMUT;
-                collateralLiqPrice =
-                    (collateralLiqValue * pricePrecision) /
-                    newCollateralAmount;
-            }
+        {
+            // avoid too deep stack
+            // calculate collateral liquidation price
+            uint256 collateralLT = _factory.collateralLT(pos.collateral.id);
+            uint256 collateralLiqValue = ((pos.quoteToken.amount - mutb) *
+                collateralLT) / collateralMUT;
+            collateralLiqPrice =
+                (collateralLiqValue * pricePrecision) /
+                newCollateralAmount;
         }
     }
 
     function previewUpdateDeadline(
         UpdateDeadlineParams memory _params
     ) external view override returns (uint256 fee, uint256 protocolFee) {
-        uint256 idx = positionIndex[_params.positionKey];
-        if (idx > 0) {
-            TradePosition memory pos = positions[idx - 1];
+        TradePosition memory pos = positions[_params.positionKey];
 
-            IFactory _factory = IFactory(factory);
-            IUserStorage userStorage = IUserStorage(_factory.userStorage());
-            if (_params.deadline >= pos.deadline) {
-                uint256 interest = _factory.interest(pos.quoteToken.id);
-                fee =
-                    (pos.quoteToken.amount *
-                        interest *
-                        (_params.deadline - pos.deadline)) /
-                    (365 * 24 * 60 * 60 * 10000);
-                fee = userStorage.discountedFee(pos.owner, fee);
-                uint256 protocolFeeRate = _factory.protocolFeeRate();
-                protocolFee = (fee * protocolFeeRate) / 10000;
-            }
+        IFactory _factory = IFactory(factory);
+        IUserStorage userStorage = IUserStorage(_factory.userStorage());
+        if (_params.deadline >= pos.deadline) {
+            uint256 interest = _factory.interest(pos.quoteToken.id);
+            fee =
+                (pos.quoteToken.amount *
+                    interest *
+                    (_params.deadline - pos.deadline)) /
+                (SECONDS_PER_YEAR * 10000);
+            fee = userStorage.discountedFee(pos.owner, fee);
+            uint256 protocolFeeRate = _factory.protocolFeeRate();
+            protocolFee = (fee * protocolFeeRate) / 10000;
         }
     }
 
     function _canLiquidate(bytes32 _positionKey) internal view returns (bool) {
-        uint256 idx = positionIndex[_positionKey];
-        if (idx == 0) return false;
-        TradePosition memory pos = positions[idx - 1];
+        TradePosition memory pos = positions[_positionKey];
         if (pos.status.isClosed) return false;
         if (pos.deadline <= block.timestamp) return true;
         IFactory _factory = IFactory(factory);
@@ -411,6 +372,7 @@ contract PositionStorage is IPositionStorage {
         );
         if (
             (pos.stoplossPrice > 0 && basePrice <= pos.stoplossPrice) ||
+            (pos.takeProfitPrice > 0 && basePrice >= pos.takeProfitPrice) ||
             basePrice <= pos.baseToken.liqPrice
         ) return true;
 
@@ -426,11 +388,9 @@ contract PositionStorage is IPositionStorage {
     function canLiquidationMark(
         bytes32 _positionKey
     ) external view override returns (bool) {
-        uint256 idx = positionIndex[_positionKey];
-        if (idx == 0) return false;
         return
             _canLiquidate(_positionKey) &&
-            positions[idx - 1].liquidationMarkTime == 0;
+            positions[_positionKey].liquidationMarkTime == 0;
     }
 
     function openTradePosition(
@@ -441,38 +401,34 @@ contract PositionStorage is IPositionStorage {
             PoolAddress.computeAddress(poolDeployer, _pos.quoteToken.id)
         ) revert Forbidden(msg.sender);
 
-        positionKey = keccak256(
-            abi.encodePacked(this, positions.length, block.timestamp)
-        );
+        positionKey = keccak256(abi.encodePacked(this, positionCounter++));
         _pos.positionKey = positionKey;
-        positions.push(_pos);
-        positionIndex[_pos.positionKey] = positions.length;
-        openingPositionKeys.push(_pos.positionKey);
-        openingPositionIndex[_pos.positionKey] = openingPositionKeys.length;
-        positionKeysByUser[_pos.owner].push(_pos.positionKey);
+        positions[positionKey] = _pos;
+        positionLength++;
+        positionKeys[positionLength] = positionKey;
+        positionKeyToIndex[positionKey] = positionLength;
 
         emit OpenTradePosition(_pos.positionKey);
     }
 
     function _popOpeningPosition(bytes32 _positionKey) internal {
-        uint256 lgth = openingPositionKeys.length;
-        uint256 idx = openingPositionIndex[_positionKey];
-        openingPositionIndex[_positionKey] = 0;
-        if (lgth > 1) {
-            openingPositionIndex[openingPositionKeys[lgth - 1]] = idx;
-            openingPositionKeys[idx - 1] = openingPositionKeys[lgth - 1];
+        uint256 index = positionKeyToIndex[_positionKey];
+        uint256 lastIndex = positionLength;
+        if (index != lastIndex) {
+            bytes32 lastPositionKey = positionKeys[lastIndex];
+            positionKeys[index] = lastPositionKey;
+            positionKeyToIndex[lastPositionKey] = index;
         }
-        openingPositionKeys.pop();
+        positionLength--;
+        delete positionKeys[lastIndex];
+        delete positionKeyToIndex[_positionKey];
     }
 
     function updateStatus(
         bytes32 _positionKey,
         address _updater
     ) external override returns (bool needLiquidate) {
-        uint256 idx = positionIndex[_positionKey];
-        if (idx == 0) revert TradePositionNotExists(_positionKey);
-
-        TradePosition storage pos = positions[idx - 1];
+        TradePosition storage pos = positions[_positionKey];
 
         if (
             msg.sender !=
@@ -482,32 +438,7 @@ contract PositionStorage is IPositionStorage {
         if (pos.status.isClosed)
             revert TradePositionClosedAlready(_positionKey);
 
-        if (pos.deadline <= block.timestamp) {
-            pos.status.isExpired = true;
-            needLiquidate = true;
-        }
-        IFactory _factory = IFactory(factory);
-        IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
-        uint256 collateralPrice = priceFeed.getLowestPrice(
-            pos.collateral.id,
-            pos.quoteToken.id
-        );
-        if (collateralPrice <= pos.collateral.liqPrice) {
-            pos.status.isCollateralLiquidated = true;
-            needLiquidate = true;
-        }
-        uint256 basePrice = priceFeed.getLowestPrice(
-            pos.baseToken.id,
-            pos.quoteToken.id
-        );
-        if (pos.stoplossPrice > 0 && basePrice <= pos.stoplossPrice) {
-            pos.status.isStoploss = true;
-            needLiquidate = true;
-        }
-        if (basePrice <= pos.baseToken.liqPrice) {
-            pos.status.isBaseLiquidated = true;
-            needLiquidate = true;
-        }
+        needLiquidate = _canLiquidate(_positionKey);
 
         if (_updater != pos.owner && !needLiquidate)
             revert NotOwner(pos.owner, _updater);
@@ -521,10 +452,7 @@ contract PositionStorage is IPositionStorage {
     }
 
     function liquidationMark(bytes32 _positionKey) external override {
-        uint256 idx = positionIndex[_positionKey];
-        if (idx == 0) revert TradePositionNotExists(_positionKey);
-
-        TradePosition storage pos = positions[idx - 1];
+        TradePosition storage pos = positions[_positionKey];
 
         if (pos.status.isClosed)
             revert TradePositionClosedAlready(_positionKey);
@@ -542,10 +470,7 @@ contract PositionStorage is IPositionStorage {
         bytes32 _positionKey,
         address _updater
     ) external override {
-        uint256 idx = positionIndex[_positionKey];
-        if (idx == 0) revert TradePositionNotExists(_positionKey);
-
-        TradePosition storage pos = positions[idx - 1];
+        TradePosition storage pos = positions[_positionKey];
 
         if (
             msg.sender !=
@@ -567,10 +492,7 @@ contract PositionStorage is IPositionStorage {
     }
 
     function closeManuallyStep1(bytes32 _positionKey) external override {
-        uint256 idx = positionIndex[_positionKey];
-        if (idx == 0) revert TradePositionNotExists(_positionKey);
-
-        TradePosition storage pos = positions[idx - 1];
+        TradePosition storage pos = positions[_positionKey];
 
         if (
             msg.sender !=
@@ -592,10 +514,7 @@ contract PositionStorage is IPositionStorage {
     }
 
     function closeManuallyStep2(bytes32 _positionKey) external override {
-        uint256 idx = positionIndex[_positionKey];
-        if (idx == 0) revert TradePositionNotExists(_positionKey);
-
-        TradePosition storage pos = positions[idx - 1];
+        TradePosition storage pos = positions[_positionKey];
 
         if (
             msg.sender !=
@@ -623,10 +542,7 @@ contract PositionStorage is IPositionStorage {
         uint256 _loss,
         uint256 _remainingCollateralAmount
     ) external override {
-        uint256 idx = positionIndex[_positionKey];
-        if (idx == 0) revert TradePositionNotExists(_positionKey);
-
-        TradePosition storage pos = positions[idx - 1];
+        TradePosition storage pos = positions[_positionKey];
 
         if (
             msg.sender !=
@@ -634,9 +550,7 @@ contract PositionStorage is IPositionStorage {
         ) revert Forbidden(msg.sender);
 
         if (!pos.status.isClosed) revert TradePositionNotClosed(_positionKey);
-        IFactory _factory = IFactory(factory);
-        IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
-        uint256 pricePrecision = priceFeed.PRECISION();
+        uint256 pricePrecision = PRICE_PRECISION;
 
         pos.baseToken.closePrice =
             (_baseValue * pricePrecision) /
@@ -651,18 +565,30 @@ contract PositionStorage is IPositionStorage {
         }
     }
 
-    function updateStoplossPrice(
-        UpdateStoplossPriceParams memory _params
-    ) external override {
-        uint256 idx = positionIndex[_params.positionKey];
-        if (idx == 0) revert TradePositionNotExists(_params.positionKey);
+    function _handleServiceFee(
+        address _serviceToken,
+        address _serviceFeeTo,
+        uint256 _serviceFee
+    ) internal {
+        if (_serviceToken != address(0) && _serviceFee > 0) {
+            uint256 serviceTokenAmount = IERC20(_serviceToken).balanceOf(
+                address(this)
+            );
+            if (serviceTokenAmount < _serviceFee)
+                revert InsufficientServiceFee();
+            TransferHelper.safeTransfer(
+                _serviceToken,
+                _serviceFeeTo,
+                _serviceFee
+            );
+        }
+    }
 
-        TradePosition storage pos = positions[idx - 1];
+    function updateTPnSL(UpdateTPnSLParams memory _params) external override {
+        IFactory _factory = IFactory(factory);
+        if (!_factory.operator(msg.sender)) revert Forbidden(msg.sender);
 
-        if (
-            msg.sender !=
-            PoolAddress.computeAddress(poolDeployer, pos.quoteToken.id)
-        ) revert Forbidden(msg.sender);
+        TradePosition storage pos = positions[_params.positionKey];
 
         if (pos.status.isClosed)
             revert TradePositionClosedAlready(_params.positionKey);
@@ -670,30 +596,41 @@ contract PositionStorage is IPositionStorage {
         if (_params.updater != pos.owner)
             revert NotOwner(pos.owner, _params.updater);
 
-        IFactory _factory = IFactory(factory);
+        address serviceFeeTo = _factory.serviceFeeTo();
+        _handleServiceFee(
+            _params.serviceToken,
+            serviceFeeTo,
+            _params.serviceFee
+        );
+
         IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
         uint256 basePrice = priceFeed.getLowestPrice(
             pos.baseToken.id,
             pos.quoteToken.id
         );
+
+        if (_params.takeProfitPrice <= basePrice)
+            revert BadTakeProfitPrice(basePrice, _params.takeProfitPrice);
         if (_params.stoplossPrice >= basePrice)
             revert BadStoplossPrice(basePrice, _params.stoplossPrice);
+
+        pos.takeProfitPrice = _params.takeProfitPrice;
         pos.stoplossPrice = _params.stoplossPrice;
 
-        emit UpdateStoplossPrice(
+        emit UpdateTPnSLPrice(
             _params.positionKey,
+            _params.takeProfitPrice,
             _params.stoplossPrice,
-            _params.updater
+            _params.updater,
+            _params.serviceToken,
+            _params.serviceFee
         );
     }
 
     function updateCollateralAmount(
         UpdateCollateralAmountParams memory _params
     ) external override returns (uint256 collateralLiqPrice) {
-        uint256 idx = positionIndex[_params.positionKey];
-        if (idx == 0) revert TradePositionNotExists(_params.positionKey);
-
-        TradePosition storage pos = positions[idx - 1];
+        TradePosition storage pos = positions[_params.positionKey];
 
         if (
             msg.sender !=
@@ -706,8 +643,7 @@ contract PositionStorage is IPositionStorage {
         if (_params.updater != pos.owner)
             revert NotOwner(pos.owner, _params.updater);
         IFactory _factory = IFactory(factory);
-        IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
-        uint256 pricePrecision = priceFeed.PRECISION();
+        uint256 pricePrecision = PRICE_PRECISION;
         uint256 baseTokenMUT = _factory.baseTokenMUT(pos.baseToken.id);
         uint256 collateralMUT = _factory.collateralMUT(pos.collateral.id);
         uint256 newCollateralAmount = pos.collateral.amount + _params.amount;
@@ -738,10 +674,7 @@ contract PositionStorage is IPositionStorage {
     function updateDeadline(
         UpdateDeadlineParams memory _params
     ) external override returns (uint256 fee, uint256 protocolFee) {
-        uint256 idx = positionIndex[_params.positionKey];
-        if (idx == 0) revert TradePositionNotExists(_params.positionKey);
-
-        TradePosition storage pos = positions[idx - 1];
+        TradePosition storage pos = positions[_params.positionKey];
 
         if (
             msg.sender !=
@@ -764,7 +697,7 @@ contract PositionStorage is IPositionStorage {
             (pos.quoteToken.amount *
                 interest *
                 (_params.deadline - pos.deadline)) /
-            (365 * 24 * 60 * 60 * 10000);
+            (SECONDS_PER_YEAR * 10000);
         fee = userStorage.discountedFee(pos.owner, fee);
         uint256 protocolFeeRate = _factory.protocolFeeRate();
         protocolFee = (fee * protocolFeeRate) / 10000;

@@ -14,6 +14,10 @@ interface IPool {
 
     function factory() external view returns (address);
 
+    function positionStorage() external view returns (address);
+
+    function withdrawalMonitor() external view returns (address);
+
     function quoteToken() external view returns (address);
 
     function precision() external view returns (uint256);
@@ -93,10 +97,6 @@ interface IPool {
 
     function rollback(
         IPositionStorage.RollbackTradePositionParams memory
-    ) external;
-
-    function updateStoplossPrice(
-        IPositionStorage.UpdateStoplossPriceParams memory
     ) external;
 
     function updateCollateralAmount(

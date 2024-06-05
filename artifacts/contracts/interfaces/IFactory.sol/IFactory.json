@@ -397,7 +397,7 @@
     },
     {
       "inputs": [],
-      "name": "updateStoplossPriceFee",
+      "name": "updateTPnSLFee",
       "outputs": [
         {
           "internalType": "uint256",
