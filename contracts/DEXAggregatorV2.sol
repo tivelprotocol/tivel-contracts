@@ -7,21 +7,28 @@ import "./interfaces/IDEXAggregator.sol";
 import "./interfaces/IERC20.sol";
 import "./base/Lockable.sol";
 
-contract DEXAggregator is Lockable, IDEXAggregator {
+contract DEXAggregatorV2 is Lockable, IDEXAggregator {
     address public manager;
     address[] public override dexes;
     string[] public override dexNames;
     mapping(address => uint256) public override dexIndex;
+    mapping(address => mapping(address => address)) bridgeToken;
 
     error Forbidden(address sender);
     error ZeroAddress();
     error DEXNotExists(address dex);
     error DEXExistsAlready(address dex);
+    error BadLength();
     error InsufficientOutput();
 
     event SetManager(address manager);
     event AddDEX(address indexed user, address indexed dex, string dexName);
     event RemoveDEX(address indexed user, address indexed dex, string dexName);
+    event SetBridgeToken(
+        address indexed tokenIn,
+        address indexed tokenOut,
+        address bridgeToken
+    );
     event Swap(
         address indexed user,
         address indexed to,
@@ -55,6 +62,16 @@ contract DEXAggregator is Lockable, IDEXAggregator {
         manager = _newManager;
 
         emit SetManager(_newManager);
+    }
+
+    function setBridgeToken(
+        address _tokenIn,
+        address _tokenOut,
+        address _bridgeToken
+    ) external onlyManager {
+        bridgeToken[_tokenIn][_tokenOut] = _bridgeToken;
+
+        emit SetBridgeToken(_tokenIn, _tokenOut, _bridgeToken);
     }
 
     function addDEX(address _dex, string memory _dexName) external onlyManager {
@@ -172,36 +189,110 @@ contract DEXAggregator is Lockable, IDEXAggregator {
     }
 
     function getAmountOut(
-        address _dex,
+        address /* _dex */,
         address _tokenIn,
         address _tokenOut,
         uint256 _amountIn
     ) external view override returns (uint256 amountOut, address dex) {
-        return _getAmountOut(_dex, _tokenIn, _tokenOut, _amountIn);
+        address[] memory path;
+        address bridge = bridgeToken[_tokenIn][_tokenOut];
+        if (bridge == address(0)) {
+            path = new address[](2);
+            path[0] = _tokenIn;
+            path[1] = _tokenOut;
+        } else {
+            path = new address[](3);
+            path[0] = _tokenIn;
+            path[1] = bridge;
+            path[2] = _tokenOut;
+        }
+        (uint256[] memory amounts, ) = _getAmountOuts(path, _amountIn);
+        amountOut = amounts[amounts.length - 1];
     }
 
     function getAmountIn(
-        address _dex,
+        address /* _dex */,
         address _tokenIn,
         address _tokenOut,
         uint256 _amountOut
     ) external view override returns (uint256 amountIn, address dex) {
-        return _getAmountIn(_dex, _tokenIn, _tokenOut, _amountOut);
+        address[] memory path;
+        address bridge = bridgeToken[_tokenIn][_tokenOut];
+        if (bridge == address(0)) {
+            path = new address[](2);
+            path[0] = _tokenIn;
+            path[1] = _tokenOut;
+        } else {
+            path = new address[](3);
+            path[0] = _tokenIn;
+            path[1] = bridge;
+            path[2] = _tokenOut;
+        }
+        (uint256[] memory amounts, ) = _getAmountIns(path, _amountOut);
+        amountIn = amounts[0];
+    }
+
+    function _getAmountOuts(
+        address[] memory _path,
+        uint256 _amountIn
+    )
+        internal
+        view
+        returns (uint256[] memory amounts, address[] memory dexes_)
+    {
+        if (_path.length < 2) revert BadLength();
+        amounts = new uint256[](_path.length);
+        amounts[0] = _amountIn;
+        for (uint256 i; i < _path.length - 1; i++) {
+            (amounts[i + 1], dexes_[i]) = _getAmountOut(
+                address(0),
+                _path[i],
+                _path[i + 1],
+                amounts[i]
+            );
+        }
+    }
+
+    function _getAmountIns(
+        address[] memory _path,
+        uint256 _amountOut
+    )
+        internal
+        view
+        returns (uint256[] memory amounts, address[] memory dexes_)
+    {
+        if (_path.length < 2) revert BadLength();
+        amounts = new uint256[](_path.length);
+        amounts[amounts.length - 1] = _amountOut;
+        for (uint256 i = _path.length - 1; i > 0; i--) {
+            (amounts[i - 1], dexes_[i - 1]) = _getAmountIn(
+                address(0),
+                _path[i - 1],
+                _path[i],
+                amounts[i]
+            );
+        }
     }
 
     function _swap(
-        address _dex,
-        address _tokenIn,
-        address _tokenOut,
+        address[] memory _dexes,
+        address[] memory _path,
         uint256 _amountIn,
         address _to
     ) internal returns (uint256 amountOut) {
-        TransferHelper.safeTransfer(_tokenIn, _dex, _amountIn);
-        amountOut = IDEXIntegration(_dex).swap(_tokenIn, _tokenOut, _to);
+        TransferHelper.safeTransfer(_path[0], _dexes[0], _amountIn);
+        for (uint256 i; i < _path.length - 1; i++) {
+            address to = i == _path.length - 2 ? _to : _dexes[i + 1];
+            amountOut = IDEXIntegration(_dexes[i]).swap(
+                _path[i],
+                _path[i + 1],
+                to
+            );
+        }
     }
 
     function swap(
-        address _dex,
+        address /* _dex */,
         address _tokenIn,
         address _tokenOut,
         uint256 _minAmountOut,
@@ -211,22 +302,24 @@ contract DEXAggregator is Lockable, IDEXAggregator {
         uint256 amountIn = IERC20(_tokenIn).balanceOf(address(this));
         if (_tokenIn == _tokenOut) {
             amountOut = amountIn;
-            dex = _dex;
             // send output token
             TransferHelper.safeTransfer(_tokenOut, _to, amountOut);
         } else {
-            // swap
-            if (_dex == address(0)) {
-                (, _dex) = _getAmountOut(_dex, _tokenIn, _tokenOut, amountIn);
+            address[] memory path;
+            address bridge = bridgeToken[_tokenIn][_tokenOut];
+            if (bridge == address(0)) {
+                path = new address[](2);
+                path[0] = _tokenIn;
+                path[1] = _tokenOut;
+            } else {
+                path = new address[](3);
+                path[0] = _tokenIn;
+                path[1] = bridge;
+                path[2] = _tokenOut;
             }
-            dex = _dex;
-            amountOut = _swap(
-                _dex,
-                _tokenIn,
-                _tokenOut,
-                amountIn,
-                address(this)
-            );
+            // swap
+            (, address[] memory _dexes) = _getAmountOuts(path, amountIn);
+            amountOut = _swap(_dexes, path, amountIn, address(this));
             if (amountOut < _minAmountOut) revert InsufficientOutput();
 
             // send output token
@@ -235,7 +328,7 @@ contract DEXAggregator is Lockable, IDEXAggregator {
             emit Swap(
                 msg.sender,
                 _to,
-                _dex,
+                address(0),
                 _tokenIn,
                 _tokenOut,
                 amountIn,

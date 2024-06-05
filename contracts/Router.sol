@@ -194,14 +194,14 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
 
         uint256 balance = IERC20(_tokenIn).balanceOf(address(this));
         TransferHelper.safeTransfer(_tokenIn, address(aggregator), balance);
-        IDEXAggregator(aggregator).swap(
+        (uint256 amountOut,) = IDEXAggregator(aggregator).swap(
             address(0),
             _tokenIn,
             _tokenOut,
             _amountOut,
             address(this)
         );
-        TransferHelper.safeTransfer(_tokenOut, address(msg.sender), _amountOut);
+        TransferHelper.safeTransfer(_tokenOut, address(msg.sender), amountOut);
 
         uint256 dust = IERC20(_tokenOut).balanceOf(address(this));
         if (dust > 0) {

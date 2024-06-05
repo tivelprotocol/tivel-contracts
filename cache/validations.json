@@ -2,6 +2,904 @@
   "version": "3.4",
   "log": [
     {
+      "contracts/DEXAggregatorV2.sol:DEXAggregatorV2": {
+        "src": "contracts/DEXAggregatorV2.sol:10",
+        "version": {
+          "withMetadata": "00c3d515798d105a8d8fddd4ec380d402523c514e2425c69e520c88ded6dd473",
+          "withoutMetadata": "88a15645fd3a81ad6f05f8b1cc8154bc13338ea5f6e7f984f7747402fb7a49d8",
+          "linkedWithoutMetadata": "88a15645fd3a81ad6f05f8b1cc8154bc13338ea5f6e7f984f7747402fb7a49d8"
+        },
+        "inherit": [
+          "contracts/interfaces/IDEXAggregator.sol:IDEXAggregator",
+          "contracts/base/Lockable.sol:Lockable"
+        ],
+        "libraries": [
+          "contracts/libraries/TransferHelper.sol:TransferHelper"
+        ],
+        "methods": [
+          "()",
+          "dexLength()",
+          "setManager(address)",
+          "setBridgeToken(address,address,address)",
+          "addDEX(address,string)",
+          "removeDEX(address)",
+          "validatePair(address,address,address)",
+          "getAmountOut(address,address,address,uint256)",
+          "getAmountIn(address,address,address,uint256)",
+          "swap(address,address,address,uint256,address)",
+          "rescueFunds(address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "DEXAggregatorV2",
+            "src": "contracts/DEXAggregatorV2.sol:42"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "unlocked",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "Lockable",
+              "src": "contracts/base/Lockable.sol:5"
+            },
+            {
+              "label": "manager",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:11"
+            },
+            {
+              "label": "dexes",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_array(t_address)dyn_storage",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:12"
+            },
+            {
+              "label": "dexNames",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_array(t_string_storage)dyn_storage",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:13"
+            },
+            {
+              "label": "dexIndex",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:14"
+            },
+            {
+              "label": "bridgeToken",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_address))",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:15"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address",
+              "numberOfBytes": "20"
+            },
+            "t_array(t_address)dyn_storage": {
+              "label": "address[]",
+              "numberOfBytes": "32"
+            },
+            "t_array(t_string_storage)dyn_storage": {
+              "label": "string[]",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_address)": {
+              "label": "mapping(address => address)",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_address))": {
+              "label": "mapping(address => mapping(address => address))",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)",
+              "numberOfBytes": "32"
+            },
+            "t_string_storage": {
+              "label": "string",
+              "numberOfBytes": "32"
+            },
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/base/Lockable.sol:Lockable": {
+        "src": "contracts/base/Lockable.sol:4",
+        "version": {
+          "withMetadata": "6d4f46fff663daa38194e1cdb826c0fb723a7d27885192f1ae4dfcad41ab41bd",
+          "withoutMetadata": "559234943dff2fd1a339c0de6d187f09e58dd14b67b4fd931cabee895d3b0247",
+          "linkedWithoutMetadata": "559234943dff2fd1a339c0de6d187f09e58dd14b67b4fd931cabee895d3b0247"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "state-variable-assignment",
+            "name": "unlocked",
+            "src": "contracts/base/Lockable.sol:5"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "unlocked",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "Lockable",
+              "src": "contracts/base/Lockable.sol:5"
+            }
+          ],
+          "types": {
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IDEXAggregator.sol:IDEXAggregator": {
+        "src": "contracts/interfaces/IDEXAggregator.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "dexes(uint256)",
+          "dexNames(uint256)",
+          "dexIndex(address)",
+          "dexLength()",
+          "validatePair(address,address,address)",
+          "getAmountIn(address,address,address,uint256)",
+          "getAmountOut(address,address,address,uint256)",
+          "swap(address,address,address,uint256,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IDEXIntegration.sol:IDEXIntegration": {
+        "src": "contracts/interfaces/IDEXIntegration.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "validatePair(address,address)",
+          "getAmountOut(address,address,uint256)",
+          "getAmountIn(address,address,uint256)",
+          "swap(address,address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IERC20.sol:IERC20": {
+        "src": "contracts/interfaces/IERC20.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "name()",
+          "symbol()",
+          "decimals()",
+          "totalSupply()",
+          "balanceOf(address)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transfer(address,uint256)",
+          "transferFrom(address,address,uint256)",
+          "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/libraries/TransferHelper.sol:TransferHelper": {
+        "src": "contracts/libraries/TransferHelper.sol:5",
+        "version": {
+          "withMetadata": "ed5b07d263c2724fc044f96ad3b1c720aefa1ce89b0a0f35d04d9f18f7f8ad39",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      }
+    },
+    {
+      "contracts/DEXAggregatorV2.sol:DEXAggregatorV2": {
+        "src": "contracts/DEXAggregatorV2.sol:10",
+        "version": {
+          "withMetadata": "cb292699f9cd1bf7ae3b68fadbf041d943e1b2e1bec75da328e34b600ec42291",
+          "withoutMetadata": "88a15645fd3a81ad6f05f8b1cc8154bc13338ea5f6e7f984f7747402fb7a49d8",
+          "linkedWithoutMetadata": "88a15645fd3a81ad6f05f8b1cc8154bc13338ea5f6e7f984f7747402fb7a49d8"
+        },
+        "inherit": [
+          "contracts/interfaces/IDEXAggregator.sol:IDEXAggregator",
+          "contracts/base/Lockable.sol:Lockable"
+        ],
+        "libraries": [
+          "contracts/libraries/TransferHelper.sol:TransferHelper"
+        ],
+        "methods": [
+          "()",
+          "dexLength()",
+          "setManager(address)",
+          "setBridgeToken(address,address,address)",
+          "addDEX(address,string)",
+          "removeDEX(address)",
+          "validatePair(address,address,address)",
+          "getAmountOut(address,address,address,uint256)",
+          "getAmountIn(address,address,address,uint256)",
+          "swap(address,address,address,uint256,address)",
+          "rescueFunds(address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "DEXAggregatorV2",
+            "src": "contracts/DEXAggregatorV2.sol:42"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "unlocked",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "Lockable",
+              "src": "contracts/base/Lockable.sol:5"
+            },
+            {
+              "label": "manager",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:11"
+            },
+            {
+              "label": "dexes",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_array(t_address)dyn_storage",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:12"
+            },
+            {
+              "label": "dexNames",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_array(t_string_storage)dyn_storage",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:13"
+            },
+            {
+              "label": "dexIndex",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:14"
+            },
+            {
+              "label": "bridgeToken",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_address))",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:15"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address",
+              "numberOfBytes": "20"
+            },
+            "t_array(t_address)dyn_storage": {
+              "label": "address[]",
+              "numberOfBytes": "32"
+            },
+            "t_array(t_string_storage)dyn_storage": {
+              "label": "string[]",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_address)": {
+              "label": "mapping(address => address)",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_address))": {
+              "label": "mapping(address => mapping(address => address))",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)",
+              "numberOfBytes": "32"
+            },
+            "t_string_storage": {
+              "label": "string",
+              "numberOfBytes": "32"
+            },
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/base/Lockable.sol:Lockable": {
+        "src": "contracts/base/Lockable.sol:4",
+        "version": {
+          "withMetadata": "6d4f46fff663daa38194e1cdb826c0fb723a7d27885192f1ae4dfcad41ab41bd",
+          "withoutMetadata": "559234943dff2fd1a339c0de6d187f09e58dd14b67b4fd931cabee895d3b0247",
+          "linkedWithoutMetadata": "559234943dff2fd1a339c0de6d187f09e58dd14b67b4fd931cabee895d3b0247"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "state-variable-assignment",
+            "name": "unlocked",
+            "src": "contracts/base/Lockable.sol:5"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "unlocked",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "Lockable",
+              "src": "contracts/base/Lockable.sol:5"
+            }
+          ],
+          "types": {
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IDEXAggregator.sol:IDEXAggregator": {
+        "src": "contracts/interfaces/IDEXAggregator.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "dexes(uint256)",
+          "dexNames(uint256)",
+          "dexIndex(address)",
+          "dexLength()",
+          "validatePair(address,address,address)",
+          "getAmountIn(address,address,address,uint256)",
+          "getAmountOut(address,address,address,uint256)",
+          "swap(address,address,address,uint256,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IDEXIntegration.sol:IDEXIntegration": {
+        "src": "contracts/interfaces/IDEXIntegration.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "validatePair(address,address)",
+          "getAmountOut(address,address,uint256)",
+          "getAmountIn(address,address,uint256)",
+          "swap(address,address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IERC20.sol:IERC20": {
+        "src": "contracts/interfaces/IERC20.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "name()",
+          "symbol()",
+          "decimals()",
+          "totalSupply()",
+          "balanceOf(address)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transfer(address,uint256)",
+          "transferFrom(address,address,uint256)",
+          "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/libraries/TransferHelper.sol:TransferHelper": {
+        "src": "contracts/libraries/TransferHelper.sol:5",
+        "version": {
+          "withMetadata": "ed5b07d263c2724fc044f96ad3b1c720aefa1ce89b0a0f35d04d9f18f7f8ad39",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      }
+    },
+    {
+      "contracts/DEXAggregator.sol:DEXAggregator": {
+        "src": "contracts/DEXAggregator.sol:10",
+        "version": {
+          "withMetadata": "7cf24b1ce4982e12b9666895dae0ac3d62785f19938069515cc86cc276e509be",
+          "withoutMetadata": "0665d30329c41108ff27611ea1bb9dfede169f9e8ce5547d676f2d9b296d1331",
+          "linkedWithoutMetadata": "0665d30329c41108ff27611ea1bb9dfede169f9e8ce5547d676f2d9b296d1331"
+        },
+        "inherit": [
+          "contracts/interfaces/IDEXAggregator.sol:IDEXAggregator",
+          "contracts/base/Lockable.sol:Lockable"
+        ],
+        "libraries": [
+          "contracts/libraries/TransferHelper.sol:TransferHelper"
+        ],
+        "methods": [
+          "()",
+          "dexLength()",
+          "setManager(address)",
+          "addDEX(address,string)",
+          "removeDEX(address)",
+          "validatePair(address,address,address)",
+          "getAmountOut(address,address,address,uint256)",
+          "getAmountIn(address,address,address,uint256)",
+          "swap(address,address,address,uint256,address)",
+          "rescueFunds(address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "DEXAggregator",
+            "src": "contracts/DEXAggregator.sol:35"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "unlocked",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "Lockable",
+              "src": "contracts/base/Lockable.sol:5"
+            },
+            {
+              "label": "manager",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "DEXAggregator",
+              "src": "contracts/DEXAggregator.sol:11"
+            },
+            {
+              "label": "dexes",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_array(t_address)dyn_storage",
+              "contract": "DEXAggregator",
+              "src": "contracts/DEXAggregator.sol:12"
+            },
+            {
+              "label": "dexNames",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_array(t_string_storage)dyn_storage",
+              "contract": "DEXAggregator",
+              "src": "contracts/DEXAggregator.sol:13"
+            },
+            {
+              "label": "dexIndex",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "DEXAggregator",
+              "src": "contracts/DEXAggregator.sol:14"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address",
+              "numberOfBytes": "20"
+            },
+            "t_array(t_address)dyn_storage": {
+              "label": "address[]",
+              "numberOfBytes": "32"
+            },
+            "t_array(t_string_storage)dyn_storage": {
+              "label": "string[]",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)",
+              "numberOfBytes": "32"
+            },
+            "t_string_storage": {
+              "label": "string",
+              "numberOfBytes": "32"
+            },
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/DEXAggregatorV2.sol:DEXAggregatorV2": {
+        "src": "contracts/DEXAggregatorV2.sol:10",
+        "version": {
+          "withMetadata": "00c3d515798d105a8d8fddd4ec380d402523c514e2425c69e520c88ded6dd473",
+          "withoutMetadata": "88a15645fd3a81ad6f05f8b1cc8154bc13338ea5f6e7f984f7747402fb7a49d8",
+          "linkedWithoutMetadata": "88a15645fd3a81ad6f05f8b1cc8154bc13338ea5f6e7f984f7747402fb7a49d8"
+        },
+        "inherit": [
+          "contracts/interfaces/IDEXAggregator.sol:IDEXAggregator",
+          "contracts/base/Lockable.sol:Lockable"
+        ],
+        "libraries": [
+          "contracts/libraries/TransferHelper.sol:TransferHelper"
+        ],
+        "methods": [
+          "()",
+          "dexLength()",
+          "setManager(address)",
+          "setBridgeToken(address,address,address)",
+          "addDEX(address,string)",
+          "removeDEX(address)",
+          "validatePair(address,address,address)",
+          "getAmountOut(address,address,address,uint256)",
+          "getAmountIn(address,address,address,uint256)",
+          "swap(address,address,address,uint256,address)",
+          "rescueFunds(address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "DEXAggregatorV2",
+            "src": "contracts/DEXAggregatorV2.sol:42"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "unlocked",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "Lockable",
+              "src": "contracts/base/Lockable.sol:5"
+            },
+            {
+              "label": "manager",
+              "offset": 0,
+              "slot": "1",
+              "type": "t_address",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:11"
+            },
+            {
+              "label": "dexes",
+              "offset": 0,
+              "slot": "2",
+              "type": "t_array(t_address)dyn_storage",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:12"
+            },
+            {
+              "label": "dexNames",
+              "offset": 0,
+              "slot": "3",
+              "type": "t_array(t_string_storage)dyn_storage",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:13"
+            },
+            {
+              "label": "dexIndex",
+              "offset": 0,
+              "slot": "4",
+              "type": "t_mapping(t_address,t_uint256)",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:14"
+            },
+            {
+              "label": "bridgeToken",
+              "offset": 0,
+              "slot": "5",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_address))",
+              "contract": "DEXAggregatorV2",
+              "src": "contracts/DEXAggregatorV2.sol:15"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address",
+              "numberOfBytes": "20"
+            },
+            "t_array(t_address)dyn_storage": {
+              "label": "address[]",
+              "numberOfBytes": "32"
+            },
+            "t_array(t_string_storage)dyn_storage": {
+              "label": "string[]",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_address)": {
+              "label": "mapping(address => address)",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_address))": {
+              "label": "mapping(address => mapping(address => address))",
+              "numberOfBytes": "32"
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)",
+              "numberOfBytes": "32"
+            },
+            "t_string_storage": {
+              "label": "string",
+              "numberOfBytes": "32"
+            },
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/base/Lockable.sol:Lockable": {
+        "src": "contracts/base/Lockable.sol:4",
+        "version": {
+          "withMetadata": "6d4f46fff663daa38194e1cdb826c0fb723a7d27885192f1ae4dfcad41ab41bd",
+          "withoutMetadata": "559234943dff2fd1a339c0de6d187f09e58dd14b67b4fd931cabee895d3b0247",
+          "linkedWithoutMetadata": "559234943dff2fd1a339c0de6d187f09e58dd14b67b4fd931cabee895d3b0247"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "state-variable-assignment",
+            "name": "unlocked",
+            "src": "contracts/base/Lockable.sol:5"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "label": "unlocked",
+              "offset": 0,
+              "slot": "0",
+              "type": "t_uint256",
+              "contract": "Lockable",
+              "src": "contracts/base/Lockable.sol:5"
+            }
+          ],
+          "types": {
+            "t_uint256": {
+              "label": "uint256",
+              "numberOfBytes": "32"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": true,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IDEXAggregator.sol:IDEXAggregator": {
+        "src": "contracts/interfaces/IDEXAggregator.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "dexes(uint256)",
+          "dexNames(uint256)",
+          "dexIndex(address)",
+          "dexLength()",
+          "validatePair(address,address,address)",
+          "getAmountIn(address,address,address,uint256)",
+          "getAmountOut(address,address,address,uint256)",
+          "swap(address,address,address,uint256,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IDEXIntegration.sol:IDEXIntegration": {
+        "src": "contracts/interfaces/IDEXIntegration.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "validatePair(address,address)",
+          "getAmountOut(address,address,uint256)",
+          "getAmountIn(address,address,uint256)",
+          "swap(address,address,address)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/interfaces/IERC20.sol:IERC20": {
+        "src": "contracts/interfaces/IERC20.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "name()",
+          "symbol()",
+          "decimals()",
+          "totalSupply()",
+          "balanceOf(address)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transfer(address,uint256)",
+          "transferFrom(address,address,uint256)",
+          "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      },
+      "contracts/libraries/TransferHelper.sol:TransferHelper": {
+        "src": "contracts/libraries/TransferHelper.sol:5",
+        "version": {
+          "withMetadata": "ed5b07d263c2724fc044f96ad3b1c720aefa1ce89b0a0f35d04d9f18f7f8ad39",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.7"
+      }
+    },
+    {
       "contracts/integrations/PythPriceFeedIntegration.sol:PythPriceFeedIntegration": {
         "src": "contracts/integrations/PythPriceFeedIntegration.sol:10",
         "version": {
