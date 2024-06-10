@@ -194,7 +194,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
 
         uint256 balance = IERC20(_tokenIn).balanceOf(address(this));
         TransferHelper.safeTransfer(_tokenIn, address(aggregator), balance);
-        (uint256 amountOut,) = IDEXAggregator(aggregator).swap(
+        (uint256 amountOut, ) = IDEXAggregator(aggregator).swap(
             address(0),
             _tokenIn,
             _tokenOut,
@@ -249,6 +249,21 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         );
     }
 
+    function _handleServiceFee(
+        IFactory _factory,
+        address _serviceToken,
+        uint256 _serviceFee
+    ) internal {
+        if (_serviceToken != address(0) && _serviceFee > 0) {
+            address serviceFeeTo = _factory.serviceFeeTo();
+            TransferHelper.safeTransfer(
+                _serviceToken,
+                serviceFeeTo,
+                _serviceFee
+            );
+        }
+    }
+
     function rollback(
         IRouter.RollbackTradePositionParams memory _params
     ) external override checkDeadline(_params.txDeadline) {
@@ -269,19 +284,14 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
 
         address serviceToken = _factory.serviceToken();
         uint256 serviceFee = _factory.rollbackFee();
-        if (serviceToken != address(0) && serviceFee > 0) {
-            TransferHelper.safeTransferFrom(
-                serviceToken,
-                msg.sender,
-                _params.pool,
-                serviceFee
-            );
-        }
+        _handleServiceFee(_factory, serviceToken, serviceFee);
 
         IPool(_params.pool).rollback(
             IPositionStorage.RollbackTradePositionParams({
                 positionKey: _params.positionKey,
-                rollbacker: msg.sender
+                rollbacker: msg.sender,
+                serviceToken: serviceToken,
+                serviceFee: serviceFee
             })
         );
     }
@@ -295,14 +305,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
 
         address serviceToken = _factory.serviceToken();
         uint256 serviceFee = _factory.updateTPnSLFee();
-        if (serviceToken != address(0) && serviceFee > 0) {
-            TransferHelper.safeTransferFrom(
-                serviceToken,
-                msg.sender,
-                _params.pool,
-                serviceFee
-            );
-        }
+        _handleServiceFee(_factory, serviceToken, serviceFee);
 
         IPositionStorage _positionStorage = IPositionStorage(positionStorage);
         _positionStorage.updateTPnSL(
@@ -342,20 +345,15 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
 
         address serviceToken = _factory.serviceToken();
         uint256 serviceFee = _factory.updateCollateralAmountFee();
-        if (serviceToken != address(0) && serviceFee > 0) {
-            TransferHelper.safeTransferFrom(
-                serviceToken,
-                msg.sender,
-                _params.pool,
-                serviceFee
-            );
-        }
+        _handleServiceFee(_factory, serviceToken, serviceFee);
 
         collateralLiqPrice = IPool(_params.pool).updateCollateralAmount(
             IPositionStorage.UpdateCollateralAmountParams({
                 positionKey: _params.positionKey,
                 amount: _params.amount,
-                updater: msg.sender
+                updater: msg.sender,
+                serviceToken: serviceToken,
+                serviceFee: serviceFee
             })
         );
     }
@@ -369,20 +367,15 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
 
         address serviceToken = _factory.serviceToken();
         uint256 serviceFee = _factory.updateDeadlineFee();
-        if (serviceToken != address(0) && serviceFee > 0) {
-            TransferHelper.safeTransferFrom(
-                serviceToken,
-                msg.sender,
-                _params.pool,
-                serviceFee
-            );
-        }
+        _handleServiceFee(_factory, serviceToken, serviceFee);
 
         IPool(_params.pool).updateDeadline(
             IPositionStorage.UpdateDeadlineParams({
                 positionKey: _params.positionKey,
                 deadline: _params.deadline,
-                updater: msg.sender
+                updater: msg.sender,
+                serviceToken: serviceToken,
+                serviceFee: serviceFee
             })
         );
     }

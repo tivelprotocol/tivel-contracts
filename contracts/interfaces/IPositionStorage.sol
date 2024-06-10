@@ -63,6 +63,8 @@ interface IPositionStorage {
     struct RollbackTradePositionParams {
         bytes32 positionKey;
         address rollbacker;
+        address serviceToken;
+        uint256 serviceFee;
     }
     struct UpdateTPnSLParams {
         bytes32 positionKey;
@@ -76,11 +78,15 @@ interface IPositionStorage {
         bytes32 positionKey;
         uint256 amount;
         address updater;
+        address serviceToken;
+        uint256 serviceFee;
     }
     struct UpdateDeadlineParams {
         bytes32 positionKey;
         uint256 deadline;
         address updater;
+        address serviceToken;
+        uint256 serviceFee;
     }
 
     function factory() external view returns (address);

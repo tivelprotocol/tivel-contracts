@@ -565,25 +565,6 @@ contract PositionStorage is IPositionStorage {
         }
     }
 
-    function _handleServiceFee(
-        address _serviceToken,
-        address _serviceFeeTo,
-        uint256 _serviceFee
-    ) internal {
-        if (_serviceToken != address(0) && _serviceFee > 0) {
-            uint256 serviceTokenAmount = IERC20(_serviceToken).balanceOf(
-                address(this)
-            );
-            if (serviceTokenAmount < _serviceFee)
-                revert InsufficientServiceFee();
-            TransferHelper.safeTransfer(
-                _serviceToken,
-                _serviceFeeTo,
-                _serviceFee
-            );
-        }
-    }
-
     function updateTPnSL(UpdateTPnSLParams memory _params) external override {
         IFactory _factory = IFactory(factory);
         if (!_factory.operator(msg.sender)) revert Forbidden(msg.sender);
@@ -595,13 +576,6 @@ contract PositionStorage is IPositionStorage {
 
         if (_params.updater != pos.owner)
             revert NotOwner(pos.owner, _params.updater);
-
-        address serviceFeeTo = _factory.serviceFeeTo();
-        _handleServiceFee(
-            _params.serviceToken,
-            serviceFeeTo,
-            _params.serviceFee
-        );
 
         IPriceFeed priceFeed = IPriceFeed(_factory.priceFeed());
         uint256 basePrice = priceFeed.getLowestPrice(

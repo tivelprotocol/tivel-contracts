@@ -504,6 +504,16 @@
               "internalType": "address",
               "name": "rollbacker",
               "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "serviceToken",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "serviceFee",
+              "type": "uint256"
             }
           ],
           "internalType": "struct IPositionStorage.RollbackTradePositionParams",
@@ -597,6 +607,16 @@
               "internalType": "address",
               "name": "updater",
               "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "serviceToken",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "serviceFee",
+              "type": "uint256"
             }
           ],
           "internalType": "struct IPositionStorage.UpdateCollateralAmountParams",
@@ -633,6 +653,16 @@
               "internalType": "address",
               "name": "updater",
               "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "serviceToken",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "serviceFee",
+              "type": "uint256"
             }
           ],
           "internalType": "struct IPositionStorage.UpdateDeadlineParams",

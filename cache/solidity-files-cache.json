@@ -2685,8 +2685,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/Router.sol": {
-      "lastModificationDate": 1717320081936,
-      "contentHash": "123723dfbfa97251884d6fd2e6f43574",
+      "lastModificationDate": 1717987422201,
+      "contentHash": "5f2e2bca9082406950c1ecb1d9f34605",
       "sourceName": "contracts/Router.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -2911,8 +2911,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/interfaces/IPositionStorage.sol": {
-      "lastModificationDate": 1717319890218,
-      "contentHash": "291cc2659e7b2aab7f3f2f74b228e62a",
+      "lastModificationDate": 1717987342795,
+      "contentHash": "aa899e087fb487a6b1f800d68c8780ed",
       "sourceName": "contracts/interfaces/IPositionStorage.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -3359,8 +3359,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/Pool.sol": {
-      "lastModificationDate": 1717166273520,
-      "contentHash": "ef2a8381ff9c2a74070b38b7e813984b",
+      "lastModificationDate": 1717987445796,
+      "contentHash": "3566be0e85b6dcab7ab28ef45a826235",
       "sourceName": "contracts/Pool.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -3545,8 +3545,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/PositionStorage.sol": {
-      "lastModificationDate": 1717319876295,
-      "contentHash": "260ad3a987eb15342203368c135cdec9",
+      "lastModificationDate": 1717987236721,
+      "contentHash": "eca39f0d84ccc2ae9ef9705c463e5695",
       "sourceName": "contracts/PositionStorage.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -5728,6 +5728,100 @@
       ],
       "artifacts": [
         "DEXAggregatorV2"
+      ]
+    },
+    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/integrations/SyncswapClassicPriceFeedIntegrationV2.sol": {
+      "lastModificationDate": 1717642362559,
+      "contentHash": "76c93e81bd59bbcb05ca4da7d0998d5e",
+      "sourceName": "contracts/integrations/SyncswapClassicPriceFeedIntegrationV2.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/IPriceFeedIntegration.sol",
+        "../interfaces/IERC20.sol",
+        "../interfaces/external/ISyncswapFactory.sol",
+        "../interfaces/external/ISyncswapPool.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "SyncswapClassicPriceFeedIntegrationV2"
+      ]
+    },
+    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/integrations/UniswapV2PriceFeedIntegrationV2.sol": {
+      "lastModificationDate": 1717986414259,
+      "contentHash": "e5946cc6a5c9bc9598ea458b8e22e97c",
+      "sourceName": "contracts/integrations/UniswapV2PriceFeedIntegrationV2.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol",
+        "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol",
+        "../interfaces/IPriceFeedIntegration.sol",
+        "../interfaces/IERC20.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "UniswapV2PriceFeedIntegrationV2"
       ]
     }
   }
