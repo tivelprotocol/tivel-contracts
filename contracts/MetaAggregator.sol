@@ -8,13 +8,16 @@ import "./interfaces/IMetaAggregator.sol";
 
 contract MetaAggregator is IMetaAggregator, Lockable {
     address public manager;
+    mapping(address => bool) acceptedAdapters;
     mapping(address => address) approvalAddress; // default: adapter
 
     error Forbidden(address sender);
     error ZeroAddress();
     error BadLength();
+    error InvalidAdapter(address adapter);
 
     event SetManager(address manager);
+    event SetAdapter(address adapter, bool accept);
     event SetApprovalAddress(address adapter, address approvalAddress);
     event Swap(
         address indexed user,
@@ -26,13 +29,14 @@ contract MetaAggregator is IMetaAggregator, Lockable {
     );
 
     constructor(
-        address _manager,
         address[] memory _adapters,
         address[] memory _approvalAddresses
     ) {
         if (_adapters.length != _approvalAddresses.length) revert BadLength();
-        manager = _manager;
+
+        manager = msg.sender;
         for (uint256 i = 0; i < _adapters.length; i++) {
+            acceptedAdapters[_adapters[i]] = true;
             approvalAddress[_adapters[i]] = _approvalAddresses[i];
         }
     }
@@ -47,6 +51,12 @@ contract MetaAggregator is IMetaAggregator, Lockable {
         manager = _newManager;
 
         emit SetManager(_newManager);
+    }
+
+    function setAdapter(address _adapter, bool _accept) external onlyManager {
+        acceptedAdapters[_adapter] = _accept;
+
+        emit SetAdapter(_adapter, _accept);
     }
 
     function setApprovalAddress(
@@ -69,6 +79,7 @@ contract MetaAggregator is IMetaAggregator, Lockable {
             _data,
             (address, bytes)
         );
+        if (!acceptedAdapters[adapter]) revert InvalidAdapter(adapter);
         uint256 amountIn = IERC20(_tokenIn).balanceOf(address(this));
 
         {

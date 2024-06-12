@@ -32,6 +32,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
     event SetMetaAggregator(address manager);
 
     constructor(address _factory, address _WETH) {
+        manager = msg.sender;
         factory = _factory;
         WETH = _WETH;
         poolDeployer = IFactory(_factory).poolDeployer();
@@ -259,8 +260,8 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         IPool(_params.pool).close(
             IPositionStorage.CloseTradePositionParams({
                 positionKey: _params.positionKey,
-                data0: new bytes(0),
-                data1: new bytes(0),
+                data0: _params.data0,
+                data1: _params.data1,
                 closer: msg.sender
             })
         );
