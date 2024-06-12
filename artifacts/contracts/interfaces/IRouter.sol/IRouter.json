@@ -31,6 +31,16 @@
               "type": "bytes32"
             },
             {
+              "internalType": "bytes",
+              "name": "data0",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data1",
+              "type": "bytes"
+            },
+            {
               "internalType": "uint256",
               "name": "txDeadline",
               "type": "uint256"

@@ -6,6 +6,7 @@ import "./libraries/TransferHelper.sol";
 import "./interfaces/ICloseCallback.sol";
 import "./interfaces/IFactory.sol";
 import "./interfaces/IDEXAggregator.sol";
+import "./interfaces/IMetaAggregator.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IPool.sol";
 
@@ -14,6 +15,7 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
     address public keeper;
     address public factory;
     address public positionStorage;
+    address public metaAggregator;
     uint256 public batchSize;
     uint256 public monitorSize;
     uint256 public startIndex;
@@ -26,6 +28,7 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
     event SetManager(address manager);
     event SetKeeper(address keeper);
     event SetFactory(address factory);
+    event SetMetaAggregator(address metaAggregator);
     event SetBatchSize(uint256 batchSize);
     event SetMonitorSize(uint256 monitorSize);
     event SetStartIndex(uint256 startIndex);
@@ -76,6 +79,14 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
         emit SetFactory(_factory);
     }
 
+    function setMetaAggregator(
+        address _newMetaAggregator
+    ) external onlyManager {
+        metaAggregator = _newMetaAggregator;
+
+        emit SetMetaAggregator(_newMetaAggregator);
+    }
+
     function setBatchSize(uint256 _batchSize) external onlyManager {
         if (_batchSize > monitorSize)
             revert TooHighValue(_batchSize, monitorSize);
@@ -102,21 +113,37 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
         address _tokenIn,
         address _tokenOut,
         uint256 _minAmountOut,
-        bytes calldata /* _data */
+        bytes calldata _data
     ) external override {
-        IDEXAggregator dexAggregator = IDEXAggregator(
-            IFactory(factory).dexAggregator()
-        );
-
         uint256 balance = IERC20(_tokenIn).balanceOf(address(this));
-        TransferHelper.safeTransfer(_tokenIn, address(dexAggregator), balance);
-        (uint256 amountOut, ) = dexAggregator.swap(
-            address(0),
-            _tokenIn,
-            _tokenOut,
-            _minAmountOut,
-            address(this)
-        );
+        uint256 amountOut;
+        if (metaAggregator == address(0) || _data.length == 0) {
+            IFactory _factory = IFactory(factory);
+            IDEXAggregator aggregator = IDEXAggregator(
+                _factory.dexAggregator()
+            );
+
+            TransferHelper.safeTransfer(_tokenIn, address(aggregator), balance);
+            (amountOut, ) = aggregator.swap(
+                address(0),
+                _tokenIn,
+                _tokenOut,
+                _minAmountOut,
+                address(this)
+            );
+        } else {
+            IMetaAggregator aggregator = IMetaAggregator(metaAggregator);
+
+            TransferHelper.safeTransfer(_tokenIn, address(aggregator), balance);
+            amountOut = aggregator.swap(
+                _tokenIn,
+                _tokenOut,
+                _minAmountOut,
+                address(this),
+                _data
+            );
+        }
+
         if (amountOut < _minAmountOut) revert InsufficientOutput();
         TransferHelper.safeTransfer(_tokenOut, address(msg.sender), amountOut);
     }
@@ -158,8 +185,35 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
         }
     }
 
+    function _close(
+        bytes32 _positionKey,
+        bytes memory _data0,
+        bytes memory _data1,
+        address _closer
+    ) internal {
+        IPositionStorage.TradePosition memory pos = IPositionStorage(
+            positionStorage
+        ).position(_positionKey);
+        IPool(pos.pool).close(
+            IPositionStorage.CloseTradePositionParams({
+                positionKey: pos.positionKey,
+                data0: _data0,
+                data1: _data1,
+                closer: _closer
+            })
+        );
+    }
+
+    // called by offchain monitor which uses meta aggregator
+    function close(
+        bytes32 _positionKey,
+        bytes memory _data0,
+        bytes memory _data1
+    ) external {
+        _close(_positionKey, _data0, _data1, msg.sender);
+    }
+
     function performUpkeep(bytes calldata _performData) external override {
-        IPositionStorage _positionStorage = IPositionStorage(positionStorage);
         uint256 usedGas = gasleft();
         (bytes32[] memory batchPositionKeys, uint256 count) = abi.decode(
             _performData,
@@ -167,15 +221,11 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
         );
 
         for (uint256 i = 0; i < count; i++) {
-            IPositionStorage.TradePosition memory pos = _positionStorage
-                .position(batchPositionKeys[i]);
-            IPool(pos.pool).close(
-                IPositionStorage.CloseTradePositionParams({
-                    positionKey: pos.positionKey,
-                    data0: new bytes(0),
-                    data1: new bytes(0),
-                    closer: address(this)
-                })
+            _close(
+                batchPositionKeys[i],
+                new bytes(0),
+                new bytes(0),
+                address(this)
             );
         }
 

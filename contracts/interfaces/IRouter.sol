@@ -19,6 +19,8 @@ interface IRouter {
     struct CloseTradePositionParams {
         address pool;
         bytes32 positionKey;
+        bytes data0;
+        bytes data1;
         uint256 txDeadline;
     }
     struct RollbackTradePositionParams {

@@ -9,6 +9,7 @@ import "./interfaces/IDEXAggregator.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IFactory.sol";
 import "./interfaces/IPool.sol";
+import "./interfaces/IMetaAggregator.sol";
 import "./interfaces/IRouter.sol";
 import "./base/PeripheryValidation.sol";
 
@@ -17,11 +18,18 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
     address public immutable override factory;
     address public immutable poolDeployer;
     address public immutable positionStorage;
+    address public manager;
+    address public metaAggregator;
 
+    error Forbidden(address sender);
+    error ZeroAddress();
     error InvalidPool(address pool);
     error InsufficientInput();
     error InsufficientOutput();
     error InvalidParameters();
+
+    event SetManager(address manager);
+    event SetMetaAggregator(address manager);
 
     constructor(address _factory, address _WETH) {
         factory = _factory;
@@ -30,8 +38,28 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         positionStorage = IFactory(_factory).positionStorage();
     }
 
+    modifier onlyManager() {
+        if (msg.sender != manager) revert Forbidden(msg.sender);
+        _;
+    }
+
     receive() external payable {
         assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
+    }
+
+    function setManager(address _newManager) external onlyManager {
+        if (_newManager == address(0)) revert ZeroAddress();
+        manager = _newManager;
+
+        emit SetManager(_newManager);
+    }
+
+    function setMetaAggregator(
+        address _newMetaAggregator
+    ) external onlyManager {
+        metaAggregator = _newMetaAggregator;
+
+        emit SetMetaAggregator(_newMetaAggregator);
     }
 
     function preview(
@@ -188,20 +216,37 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         address _tokenIn,
         address _tokenOut,
         uint256 _minAmountOut,
-        bytes calldata /* _data */
+        bytes calldata _data
     ) external override {
-        IFactory _factory = IFactory(factory);
-        IDEXAggregator aggregator = IDEXAggregator(_factory.dexAggregator());
-
         uint256 balance = IERC20(_tokenIn).balanceOf(address(this));
-        TransferHelper.safeTransfer(_tokenIn, address(aggregator), balance);
-        (uint256 amountOut, ) = IDEXAggregator(aggregator).swap(
-            address(0),
-            _tokenIn,
-            _tokenOut,
-            _minAmountOut,
-            address(this)
-        );
+        uint256 amountOut;
+        if (metaAggregator == address(0) || _data.length == 0) {
+            IFactory _factory = IFactory(factory);
+            IDEXAggregator aggregator = IDEXAggregator(
+                _factory.dexAggregator()
+            );
+
+            TransferHelper.safeTransfer(_tokenIn, address(aggregator), balance);
+            (amountOut, ) = aggregator.swap(
+                address(0),
+                _tokenIn,
+                _tokenOut,
+                _minAmountOut,
+                address(this)
+            );
+        } else {
+            IMetaAggregator aggregator = IMetaAggregator(metaAggregator);
+
+            TransferHelper.safeTransfer(_tokenIn, address(aggregator), balance);
+            amountOut = aggregator.swap(
+                _tokenIn,
+                _tokenOut,
+                _minAmountOut,
+                address(this),
+                _data
+            );
+        }
+
         if (amountOut < _minAmountOut) revert InsufficientOutput();
         TransferHelper.safeTransfer(_tokenOut, address(msg.sender), amountOut);
     }
