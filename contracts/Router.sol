@@ -20,6 +20,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
 
     error InvalidPool(address pool);
     error InsufficientInput();
+    error InsufficientOutput();
     error InvalidParameters();
 
     constructor(address _factory, address _WETH) {
@@ -186,7 +187,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
     function closeCallback(
         address _tokenIn,
         address _tokenOut,
-        uint256 _amountOut,
+        uint256 _minAmountOut,
         bytes calldata /* _data */
     ) external override {
         IFactory _factory = IFactory(factory);
@@ -198,40 +199,11 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
             address(0),
             _tokenIn,
             _tokenOut,
-            _amountOut,
+            _minAmountOut,
             address(this)
         );
+        if (amountOut < _minAmountOut) revert InsufficientOutput();
         TransferHelper.safeTransfer(_tokenOut, address(msg.sender), amountOut);
-
-        uint256 dust = IERC20(_tokenOut).balanceOf(address(this));
-        if (dust > 0) {
-            (uint256 dustOut, ) = IDEXAggregator(aggregator).getAmountOut(
-                address(0),
-                _tokenOut,
-                _tokenIn,
-                dust
-            );
-            if (dustOut > 0) {
-                TransferHelper.safeTransfer(
-                    _tokenOut,
-                    address(aggregator),
-                    dust
-                );
-                IDEXAggregator(aggregator).swap(
-                    address(0),
-                    _tokenOut,
-                    _tokenIn,
-                    0,
-                    address(msg.sender)
-                );
-            } else {
-                TransferHelper.safeTransfer(
-                    _tokenOut,
-                    _factory.protocolFeeTo(),
-                    dust
-                );
-            }
-        }
     }
 
     function close(

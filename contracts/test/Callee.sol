@@ -10,6 +10,7 @@ import "../interfaces/IPool.sol";
 
 contract Callee is IMintCallback {
     error WrongPool();
+    error InsufficientOutput();
 
     address public immutable factory;
 
@@ -32,7 +33,7 @@ contract Callee is IMintCallback {
     function closeCallback(
         address _tokenIn,
         address _tokenOut,
-        uint256 _amountOut,
+        uint256 _minAmountOut,
         bytes calldata /* _data */
     ) external {
         IFactory _factory = IFactory(factory);
@@ -40,44 +41,15 @@ contract Callee is IMintCallback {
 
         uint256 balance = IERC20(_tokenIn).balanceOf(address(this));
         TransferHelper.safeTransfer(_tokenIn, address(aggregator), balance);
-        IDEXAggregator(aggregator).swap(
+        (uint256 amountOut, ) = IDEXAggregator(aggregator).swap(
             address(0),
             _tokenIn,
             _tokenOut,
-            _amountOut,
+            _minAmountOut,
             address(this)
         );
-        TransferHelper.safeTransfer(_tokenOut, address(msg.sender), _amountOut);
-
-        uint256 dust = IERC20(_tokenOut).balanceOf(address(this));
-        if (dust > 0) {
-            (uint256 dustOut, ) = IDEXAggregator(aggregator).getAmountOut(
-                address(0),
-                _tokenOut,
-                _tokenIn,
-                dust
-            );
-            if (dustOut > 0) {
-                TransferHelper.safeTransfer(
-                    _tokenOut,
-                    address(aggregator),
-                    dust
-                );
-                IDEXAggregator(aggregator).swap(
-                    address(0),
-                    _tokenOut,
-                    _tokenIn,
-                    0,
-                    address(msg.sender)
-                );
-            } else {
-                TransferHelper.safeTransfer(
-                    _tokenOut,
-                    _factory.protocolFeeTo(),
-                    dust
-                );
-            }
-        }
+        if (amountOut < _minAmountOut) revert InsufficientOutput();
+        TransferHelper.safeTransfer(_tokenOut, address(msg.sender), amountOut);
     }
 
     function mint(

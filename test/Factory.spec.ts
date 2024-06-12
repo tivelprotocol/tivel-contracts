@@ -159,11 +159,11 @@ describe("Factory", async () => {
                 expect(await fix.factory.rollbackFee()).equals(BigNumber.from("10"))
             });
 
-            it("setUpdateStoplossPriceFee", async () => {
-                expect(await fix.factory.updateStoplossPriceFee()).equals(BigNumber.from("0"))
-                await expect(fix.factory.connect(fix.user1).setUpdateStoplossPriceFee(BigNumber.from("10"))).to.be.revertedWith('Forbidden')
-                await fix.factory.setUpdateStoplossPriceFee(BigNumber.from("10"))
-                expect(await fix.factory.updateStoplossPriceFee()).equals(BigNumber.from("10"))
+            it("setUpdateTPnSLFee", async () => {
+                expect(await fix.factory.updateTPnSLFee()).equals(BigNumber.from("0"))
+                await expect(fix.factory.connect(fix.user1).setUpdateTPnSLFee(BigNumber.from("10"))).to.be.revertedWith('Forbidden')
+                await fix.factory.setUpdateTPnSLFee(BigNumber.from("10"))
+                expect(await fix.factory.updateTPnSLFee()).equals(BigNumber.from("10"))
             });
 
             it("setUpdateCollateralAmountFee", async () => {

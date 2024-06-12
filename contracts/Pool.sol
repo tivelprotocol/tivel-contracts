@@ -13,8 +13,6 @@ import "./interfaces/external/IWETH9.sol";
 import "./base/Lockable.sol";
 
 contract Pool is Lockable, IPool {
-    bytes4 private constant SELECTOR =
-        bytes4(keccak256(bytes("transfer(address,uint256)")));
     address public override factory;
     address public override positionStorage;
     address public override withdrawalMonitor;
@@ -158,7 +156,10 @@ contract Pool is Lockable, IPool {
     }
 
     function _availableLiquidity() internal view returns (uint256) {
-        return quoteReserve - quoteInDebt - withdrawingLiquidity;
+        int256 result = int256(quoteReserve) -
+            int256(quoteInDebt) -
+            int256(withdrawingLiquidity);
+        return result < 0 ? 0 : uint256(result);
     }
 
     function availableLiquidity() external view override returns (uint256) {
@@ -315,11 +316,7 @@ contract Pool is Lockable, IPool {
         LiquidityPosition storage pos = liquidityPosition[_request.owner];
         if (_request.liquidity > pos.withdrawingLiquidity)
             revert InsufficientOutput();
-        uint256 _withdrawingLiquidity = withdrawingLiquidity;
-        if (_request.liquidity > _withdrawingLiquidity) {
-            uint256 liq = _availableLiquidity();
-            if (_request.liquidity > _withdrawingLiquidity + liq)
-                revert InsufficientOutput();
+        if (_request.liquidity > withdrawingLiquidity) {
             withdrawingLiquidity = 0;
         } else withdrawingLiquidity -= _request.liquidity;
 
@@ -468,9 +465,8 @@ contract Pool is Lockable, IPool {
 
     function _liquidateBaseToken(
         IPositionStorage.TradePosition memory _pos,
-        uint256 _baseValue,
         bytes calldata _data
-    ) internal {
+    ) internal returns (uint256) {
         uint256 balanceBefore = IERC20(_pos.quoteToken.id).balanceOf(
             address(this)
         );
@@ -482,15 +478,15 @@ contract Pool is Lockable, IPool {
         ICloseCallback(msg.sender).closeCallback(
             _pos.baseToken.id,
             _pos.quoteToken.id,
-            _baseValue,
+            0,
             _data
         );
 
         uint256 balanceAfter = IERC20(_pos.quoteToken.id).balanceOf(
             address(this)
         );
-        if (balanceAfter < balanceBefore + _baseValue)
-            revert InsufficientInput();
+        if (balanceAfter < balanceBefore) revert InsufficientInput();
+        return balanceAfter - balanceBefore;
     }
 
     function _liquidateCollateral(
@@ -541,14 +537,7 @@ contract Pool is Lockable, IPool {
         IPositionStorage.TradePosition memory pos = _positionStorage.position(
             _params.positionKey
         );
-        IDEXAggregator dexAggregator = IDEXAggregator(_factory.dexAggregator());
-        (uint256 baseValue, ) = dexAggregator.getAmountOut(
-            address(0),
-            pos.baseToken.id,
-            pos.quoteToken.id,
-            pos.baseToken.amount
-        );
-        _liquidateBaseToken(pos, baseValue, _params.data0);
+        uint256 baseValue = _liquidateBaseToken(pos, _params.data0);
         uint256 liquidationFee;
         uint256 quoteAmount = pos.quoteToken.amount;
         if (needLiquidate) {
@@ -565,6 +554,9 @@ contract Pool is Lockable, IPool {
                 loss = quoteAmount - baseValue;
                 neededCollateralAmount = loss;
                 if (pos.collateral.id != pos.quoteToken.id) {
+                    IDEXAggregator dexAggregator = IDEXAggregator(
+                        _factory.dexAggregator()
+                    );
                     (neededCollateralAmount, ) = dexAggregator.getAmountIn(
                         address(0),
                         pos.collateral.id,

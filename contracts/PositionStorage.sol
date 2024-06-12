@@ -213,7 +213,8 @@ contract PositionStorage is IPositionStorage {
                 );
                 if (
                     _params.stoplossPrice >= basePrice ||
-                    _params.takeProfitPrice <= basePrice
+                    (_params.takeProfitPrice > 0 &&
+                        _params.takeProfitPrice <= basePrice)
                 ) return pos;
                 baseValue = (_params.baseAmount * basePrice) / pricePrecision;
                 uint256 collateralPrice = priceFeed.getLowestPrice(
