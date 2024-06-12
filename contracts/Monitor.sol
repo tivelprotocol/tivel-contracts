@@ -21,6 +21,7 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
     error Forbidden(address sender);
     error TooHighValue(uint256 value, uint256 max);
     error TooLowValue(uint256 value, uint256 min);
+    error InsufficientOutput();
 
     event SetManager(address manager);
     event SetKeeper(address keeper);
@@ -100,7 +101,7 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
     function closeCallback(
         address _tokenIn,
         address _tokenOut,
-        uint256 _amountOut,
+        uint256 _minAmountOut,
         bytes calldata /* _data */
     ) external override {
         IDEXAggregator dexAggregator = IDEXAggregator(
@@ -109,30 +110,15 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
 
         uint256 balance = IERC20(_tokenIn).balanceOf(address(this));
         TransferHelper.safeTransfer(_tokenIn, address(dexAggregator), balance);
-        dexAggregator.swap(
+        (uint256 amountOut, ) = dexAggregator.swap(
             address(0),
             _tokenIn,
             _tokenOut,
-            _amountOut,
+            _minAmountOut,
             address(this)
         );
-        TransferHelper.safeTransfer(_tokenOut, address(msg.sender), _amountOut);
-
-        uint256 dust = IERC20(_tokenOut).balanceOf(address(this));
-        if (dust > 0) {
-            TransferHelper.safeTransfer(
-                _tokenOut,
-                address(dexAggregator),
-                dust
-            );
-            dexAggregator.swap(
-                address(0),
-                _tokenOut,
-                _tokenIn,
-                0,
-                address(msg.sender)
-            );
-        }
+        if (amountOut < _minAmountOut) revert InsufficientOutput();
+        TransferHelper.safeTransfer(_tokenOut, address(msg.sender), amountOut);
     }
 
     function checkUpkeep(
