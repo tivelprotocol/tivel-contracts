@@ -563,17 +563,18 @@ contract Pool is Lockable, IPool {
                         pos.quoteToken.id,
                         loss
                     );
-                    if (neededCollateralAmount > pos.collateral.amount) {
-                        revert InsufficientCollateral(
-                            pos.collateral.amount,
-                            neededCollateralAmount
-                        );
-                    }
                     remainingCollateralAmount += _liquidateCollateral(
                         pos,
                         neededCollateralAmount,
                         loss,
                         _params.data1
+                    );
+                }
+
+                if (neededCollateralAmount > pos.collateral.amount) {
+                    revert InsufficientCollateral(
+                        pos.collateral.amount,
+                        neededCollateralAmount
                     );
                 }
             }
@@ -823,8 +824,10 @@ contract Pool is Lockable, IPool {
             _params
         );
 
-        _addFee(fee - protocolFee);
+        quoteInDebt += fee;
         accProtocolFee += protocolFee;
+        openInterest += fee;
+        _addFee(fee - protocolFee);
 
         emit UpdateDeadline(
             msg.sender,
