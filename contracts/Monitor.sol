@@ -164,7 +164,7 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
         uint256 positionLength = _positionStorage.positionLength();
         if (startIndex < positionLength) {
             for (uint256 j = startIndex; j < positionLength; j++) {
-                bytes32 positionKey = _positionStorage.positionKeys(j);
+                bytes32 positionKey = _positionStorage.positionKeys(j + 1);
                 if (_positionStorage.canLiquidate(positionKey)) {
                     batchPositionKeys[count] = positionKey;
                     count++;
@@ -251,7 +251,7 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
         uint256 positionLength = _positionStorage.positionLength();
         if (startIndex < positionLength) {
             for (uint256 j = startIndex; j < positionLength; j++) {
-                bytes32 positionKey = _positionStorage.positionKeys(j);
+                bytes32 positionKey = _positionStorage.positionKeys(j + 1);
                 if (_positionStorage.canLiquidate(positionKey)) {
                     batchPositionKeys[count] = positionKey;
                     count++;

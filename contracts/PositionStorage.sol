@@ -584,7 +584,7 @@ contract PositionStorage is IPositionStorage {
             pos.quoteToken.id
         );
 
-        if (_params.takeProfitPrice <= basePrice)
+        if (_params.takeProfitPrice > 0 && _params.takeProfitPrice <= basePrice)
             revert BadTakeProfitPrice(basePrice, _params.takeProfitPrice);
         if (_params.stoplossPrice >= basePrice)
             revert BadStoplossPrice(basePrice, _params.stoplossPrice);
@@ -633,9 +633,11 @@ contract PositionStorage is IPositionStorage {
             uint256 collateralLT = _factory.collateralLT(pos.collateral.id);
             uint256 collateralLiqValue = ((pos.quoteToken.amount - mutb) *
                 collateralLT) / collateralMUT;
-            pos.collateral.liqPrice =
+            collateralLiqPrice =
                 (collateralLiqValue * pricePrecision) /
                 newCollateralAmount;
+            pos.collateral.amount = newCollateralAmount;
+            pos.collateral.liqPrice = collateralLiqPrice;
         }
 
         emit UpdateCollateralAmount(
