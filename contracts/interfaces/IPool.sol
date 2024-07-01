@@ -24,9 +24,9 @@ interface IPool {
 
     function interest() external view returns (uint256);
 
-    function maxOpenInterest() external view returns (uint256);
+    function maxBaseReserve(address) external view returns (uint256);
 
-    function openInterest() external view returns (uint256);
+    function maxCollateralReserve(address) external view returns (uint256);
 
     function quoteReserve() external view returns (uint256);
 
@@ -64,7 +64,9 @@ interface IPool {
 
     function setInterest(uint256) external;
 
-    function setMaxOpenInterest(uint256) external;
+    function setMaxBaseReserve(address _baseToken, uint256 _maxBaseReserve) external;
+
+    function setMaxCollateralReserve(address _collateral, uint256 _maxCollateralReserve) external;
 
     function setBaseTokens(
         address[] memory _baseTokens,

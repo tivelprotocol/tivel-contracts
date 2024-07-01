@@ -20,6 +20,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
     address public immutable positionStorage;
     address public manager;
     address public metaAggregator;
+    uint256 public maxExpiryTime;
 
     error Forbidden(address sender);
     error ZeroAddress();
@@ -27,9 +28,11 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
     error InsufficientInput();
     error InsufficientOutput();
     error InvalidParameters();
+    error ExceedMaxExpiryTime();
 
     event SetManager(address manager);
-    event SetMetaAggregator(address manager);
+    event SetMetaAggregator(address metagregator);
+    event SetMaxExpiryTime(uint256 maxExpiryTime);
 
     constructor(address _factory, address _WETH) {
         manager = msg.sender;
@@ -37,10 +40,17 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         WETH = _WETH;
         poolDeployer = IFactory(_factory).poolDeployer();
         positionStorage = IFactory(_factory).positionStorage();
+        maxExpiryTime = 4 * 7 * 86400; // 4 weeks
     }
 
     modifier onlyManager() {
         if (msg.sender != manager) revert Forbidden(msg.sender);
+        _;
+    }
+
+    modifier checkExpiryTime(uint256 _deadline) {
+        if (_deadline > block.timestamp + maxExpiryTime)
+            revert ExceedMaxExpiryTime();
         _;
     }
 
@@ -61,6 +71,12 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         metaAggregator = _newMetaAggregator;
 
         emit SetMetaAggregator(_newMetaAggregator);
+    }
+
+    function setMaxExpiryTime(uint256 _newMaxExpiryTime) external onlyManager {
+        maxExpiryTime = _newMaxExpiryTime;
+
+        emit SetMaxExpiryTime(_newMaxExpiryTime);
     }
 
     function preview(
@@ -110,6 +126,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         external
         override
         checkDeadline(_params.txDeadline)
+        checkExpiryTime(_params.deadline)
         returns (bytes32 positionKey)
     {
         address pool = PoolAddress.computeAddress(
@@ -139,6 +156,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         payable
         override
         checkDeadline(_params.txDeadline)
+        checkExpiryTime(_params.deadline)
         returns (bytes32 positionKey)
     {
         if (_params.collateral != WETH) revert InvalidParameters();
@@ -168,6 +186,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         payable
         override
         checkDeadline(_params.txDeadline)
+        checkExpiryTime(_params.deadline)
         returns (bytes32 positionKey)
     {
         if (_params.baseToken != WETH) revert InvalidParameters();
@@ -195,6 +214,7 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
         payable
         override
         checkDeadline(_params.txDeadline)
+        checkExpiryTime(_params.deadline)
         returns (bytes32 positionKey)
     {
         address _WETH = WETH; // gas savings
@@ -378,7 +398,12 @@ contract Router is IRouter, ICloseCallback, PeripheryValidation {
 
     function updateDeadline(
         IRouter.UpdateDeadlineParams memory _params
-    ) external override checkDeadline(_params.txDeadline) {
+    )
+        external
+        override
+        checkDeadline(_params.txDeadline)
+        checkExpiryTime(_params.deadline)
+    {
         IFactory _factory = IFactory(factory);
         uint256 index = _factory.poolIndex(_params.pool);
         if (index == 0) revert InvalidPool(_params.pool);

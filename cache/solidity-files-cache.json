@@ -1189,142 +1189,6 @@
         "SyncswapClassicPriceFeedIntegration"
       ]
     },
-    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/integrations/MutePriceFeedIntegration.sol": {
-      "lastModificationDate": 1714616609878,
-      "contentHash": "3e70bfccc5c9e1eb8fb5612bab6dcb41",
-      "sourceName": "contracts/integrations/MutePriceFeedIntegration.sol",
-      "solcConfig": {
-        "version": "0.8.7",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout",
-                "devdoc",
-                "userdoc",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "../interfaces/IPriceFeedIntegration.sol",
-        "../interfaces/IERC20.sol",
-        "../interfaces/external/IMuteRouter.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.4"
-      ],
-      "artifacts": [
-        "MutePriceFeedIntegration"
-      ]
-    },
-    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/interfaces/external/IMuteRouter.sol": {
-      "lastModificationDate": 1714616609905,
-      "contentHash": "f9eb3cc29321fe1436e56651460f336a",
-      "sourceName": "contracts/interfaces/external/IMuteRouter.sol",
-      "solcConfig": {
-        "version": "0.8.7",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout",
-                "devdoc",
-                "userdoc",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.4"
-      ],
-      "artifacts": [
-        "IMuteRouter"
-      ]
-    },
-    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/integrations/MuteDEXIntegration.sol": {
-      "lastModificationDate": 1714616609877,
-      "contentHash": "7826a850ffc428e859bd024889f63f9f",
-      "sourceName": "contracts/integrations/MuteDEXIntegration.sol",
-      "solcConfig": {
-        "version": "0.8.7",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout",
-                "devdoc",
-                "userdoc",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "../libraries/TransferHelper.sol",
-        "../interfaces/IERC20.sol",
-        "../interfaces/IDEXIntegration.sol",
-        "../interfaces/external/IMuteRouter.sol",
-        "../base/Lockable.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.4"
-      ],
-      "artifacts": [
-        "MuteDEXIntegration"
-      ]
-    },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/base/PeripheryPaymentsWithFee.sol": {
       "lastModificationDate": 1714616609857,
       "contentHash": "9759fa02a413c26b6d143e54431270e1",
@@ -2685,8 +2549,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/Router.sol": {
-      "lastModificationDate": 1718184777212,
-      "contentHash": "d25dcbe084e06a291bfc601f2a47c64d",
+      "lastModificationDate": 1719803729836,
+      "contentHash": "409045c18e9e90f2a21a402884a75d3f",
       "sourceName": "contracts/Router.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -2867,8 +2731,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/interfaces/IPool.sol": {
-      "lastModificationDate": 1717164020695,
-      "contentHash": "1d8ad9021aa412efd83d48b1f72976dd",
+      "lastModificationDate": 1719803729728,
+      "contentHash": "a64b8eac5aa82cc6c24ee0efd2758314",
       "sourceName": "contracts/interfaces/IPool.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -2996,7 +2860,7 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/libraries/CallbackValidation.sol": {
-      "lastModificationDate": 1714616609926,
+      "lastModificationDate": 1719803729766,
       "contentHash": "737d2dcf18353aba38dfed65b8157863",
       "sourceName": "contracts/libraries/CallbackValidation.sol",
       "solcConfig": {
@@ -3041,7 +2905,7 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/base/LiquidityManagement.sol": {
-      "lastModificationDate": 1714616609857,
+      "lastModificationDate": 1719803729553,
       "contentHash": "afb1859892a008c305cda84946b1f252",
       "sourceName": "contracts/base/LiquidityManagement.sol",
       "solcConfig": {
@@ -3131,7 +2995,7 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/WithdrawalMonitor.sol": {
-      "lastModificationDate": 1717154287872,
+      "lastModificationDate": 1719803729855,
       "contentHash": "f5aabe64ee9d308d75716ed2d340273c",
       "sourceName": "contracts/WithdrawalMonitor.sol",
       "solcConfig": {
@@ -3310,8 +3174,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/Monitor.sol": {
-      "lastModificationDate": 1718598647598,
-      "contentHash": "0f9f4cb7cf5b5e4db5ad30900f89eac6",
+      "lastModificationDate": 1719803729803,
+      "contentHash": "a42053315ca6455e11980faf1f7df58e",
       "sourceName": "contracts/Monitor.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -3361,8 +3225,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/Pool.sol": {
-      "lastModificationDate": 1718267738683,
-      "contentHash": "689eb5992370e1b064a4282143f90eda",
+      "lastModificationDate": 1719803729813,
+      "contentHash": "f2d0dba6fc1366c1987b42584eb56a01",
       "sourceName": "contracts/Pool.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -3414,7 +3278,7 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/PoolDeployer.sol": {
-      "lastModificationDate": 1714616609949,
+      "lastModificationDate": 1719803729820,
       "contentHash": "0d9193279ea60294a1bbbeb94573b409",
       "sourceName": "contracts/PoolDeployer.sol",
       "solcConfig": {
@@ -3501,8 +3365,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/Factory.sol": {
-      "lastModificationDate": 1717320035335,
-      "contentHash": "f25b5f31c92abbaeacb9c7fd0568e612",
+      "lastModificationDate": 1719803729582,
+      "contentHash": "c1276504adc66f567eb1a0d0bf09aee8",
       "sourceName": "contracts/Factory.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -3681,8 +3545,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/LiquidationMarker.sol": {
-      "lastModificationDate": 1717146881045,
-      "contentHash": "010602d7a2418a35bc28b4e04f1854b0",
+      "lastModificationDate": 1719803729788,
+      "contentHash": "84ab4d3b655502497f23b29c6905c89b",
       "sourceName": "contracts/LiquidationMarker.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -3816,7 +3680,7 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/PoolReader.sol": {
-      "lastModificationDate": 1714616609950,
+      "lastModificationDate": 1719803729824,
       "contentHash": "55f32e6da5bdd93af05487e2f4ff2dd0",
       "sourceName": "contracts/PoolReader.sol",
       "solcConfig": {
@@ -3862,7 +3726,7 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/NonfungiblePositionManager.sol": {
-      "lastModificationDate": 1714616609947,
+      "lastModificationDate": 1719803729808,
       "contentHash": "a1424a29d82bbd58b7e6ac837e89cf2b",
       "sourceName": "contracts/NonfungiblePositionManager.sol",
       "solcConfig": {
@@ -4353,51 +4217,6 @@
       ],
       "artifacts": [
         "MockERC20"
-      ]
-    },
-    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/integrations/GMXPriceFeedIntegration.sol": {
-      "lastModificationDate": 1714616609877,
-      "contentHash": "0335eae3a3bc4f0f2aaf141e8f60bcf0",
-      "sourceName": "contracts/integrations/GMXPriceFeedIntegration.sol",
-      "solcConfig": {
-        "version": "0.8.7",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout",
-                "devdoc",
-                "userdoc",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "../interfaces/IPriceFeedIntegration.sol",
-        "../interfaces/IGMXPriceFeed.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.4"
-      ],
-      "artifacts": [
-        "GMXPriceFeedIntegration"
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/interfaces/IGMXPriceFeed.sol": {
@@ -5466,8 +5285,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/integrations/PythPriceFeedIntegration.sol": {
-      "lastModificationDate": 1717574496853,
-      "contentHash": "bdf527f0cf648cf132bc5a39d470e9fb",
+      "lastModificationDate": 1719803729618,
+      "contentHash": "48eae2f8d8109d3a1ebbe4791410295e",
       "sourceName": "contracts/integrations/PythPriceFeedIntegration.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -5503,8 +5322,7 @@
         "../libraries/PythStructs.sol",
         "../libraries/PythUtils.sol",
         "../interfaces/external/IPyth.sol",
-        "../interfaces/IPriceFeedIntegration.sol",
-        "hardhat/console.sol"
+        "../interfaces/IPriceFeedIntegration.sol"
       ],
       "versionPragmas": [
         ">=0.8.4"
@@ -5685,8 +5503,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/DEXAggregatorV2.sol": {
-      "lastModificationDate": 1717594970744,
-      "contentHash": "93b7d3ad9fdec7824b16dcc6ffcb63e6",
+      "lastModificationDate": 1719803729572,
+      "contentHash": "c03c21f54cc91ca65414856fbfda9da2",
       "sourceName": "contracts/DEXAggregatorV2.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -5733,8 +5551,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/integrations/SyncswapClassicPriceFeedIntegrationV2.sol": {
-      "lastModificationDate": 1717642362559,
-      "contentHash": "76c93e81bd59bbcb05ca4da7d0998d5e",
+      "lastModificationDate": 1719803729618,
+      "contentHash": "9c2dcd81f98c1a2e213efc0cdd5583f6",
       "sourceName": "contracts/integrations/SyncswapClassicPriceFeedIntegrationV2.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -5780,8 +5598,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/integrations/UniswapV2PriceFeedIntegrationV2.sol": {
-      "lastModificationDate": 1717986414259,
-      "contentHash": "e5946cc6a5c9bc9598ea458b8e22e97c",
+      "lastModificationDate": 1719803729612,
+      "contentHash": "78701d30c9c1abfe3cc62de2141517a2",
       "sourceName": "contracts/integrations/UniswapV2PriceFeedIntegrationV2.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -5869,8 +5687,8 @@
       ]
     },
     "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/MetaAggregator.sol": {
-      "lastModificationDate": 1718184763146,
-      "contentHash": "a7484561fd69991f1f2dffe5f6f957fe",
+      "lastModificationDate": 1719803729799,
+      "contentHash": "b45d6460862ecb3d0b63de4d721ee9b3",
       "sourceName": "contracts/MetaAggregator.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -5913,6 +5731,276 @@
       ],
       "artifacts": [
         "MetaAggregator"
+      ]
+    },
+    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/integrations/KoiV2DEXIntegration.sol": {
+      "lastModificationDate": 1719803729611,
+      "contentHash": "15ba5615761a98d0adc389140e7a7532",
+      "sourceName": "contracts/integrations/KoiV2DEXIntegration.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../libraries/TransferHelper.sol",
+        "../interfaces/IERC20.sol",
+        "../interfaces/IDEXIntegration.sol",
+        "../interfaces/external/IKoiV2Factory.sol",
+        "../interfaces/external/IKoiV2Pair.sol",
+        "../interfaces/external/IKoiV2Router.sol",
+        "../base/Lockable.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "KoiV2DEXIntegration"
+      ]
+    },
+    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/interfaces/external/IKoiV2Factory.sol": {
+      "lastModificationDate": 1719803729737,
+      "contentHash": "4cff6d1cd2cc075e3ece6aaff5297d57",
+      "sourceName": "contracts/interfaces/external/IKoiV2Factory.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IKoiV2Factory"
+      ]
+    },
+    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/interfaces/external/IKoiV2Pair.sol": {
+      "lastModificationDate": 1719803729733,
+      "contentHash": "468fa6acc0ac30fe75299eeadd12cdf4",
+      "sourceName": "contracts/interfaces/external/IKoiV2Pair.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IKoiV2Pair"
+      ]
+    },
+    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/interfaces/external/IKoiV2Router.sol": {
+      "lastModificationDate": 1719803729736,
+      "contentHash": "3d77b5d542fbca47ca785f0847ba3384",
+      "sourceName": "contracts/interfaces/external/IKoiV2Router.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IKoiV2Router"
+      ]
+    },
+    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/integrations/KoiV2PriceFeedIntegrationV2.sol": {
+      "lastModificationDate": 1719803729620,
+      "contentHash": "a2f9f21b2dbc7e184ae0035f6048bf45",
+      "sourceName": "contracts/integrations/KoiV2PriceFeedIntegrationV2.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/IPriceFeedIntegration.sol",
+        "../interfaces/IERC20.sol",
+        "../interfaces/external/IKoiV2Factory.sol",
+        "../interfaces/external/IKoiV2Pair.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "KoiV2PriceFeedIntegrationV2"
+      ]
+    },
+    "/Users/phunh.2510/Documents/digital-maxtech/tivel/tivel-contracts/contracts/integrations/KoiV2PriceFeedIntegration.sol": {
+      "lastModificationDate": 1719803729619,
+      "contentHash": "25828f99712d5eff5e57af1023d0b495",
+      "sourceName": "contracts/integrations/KoiV2PriceFeedIntegration.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/IPriceFeedIntegration.sol",
+        "../interfaces/IERC20.sol",
+        "../interfaces/external/IKoiV2Factory.sol",
+        "../interfaces/external/IKoiV2Pair.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "KoiV2PriceFeedIntegration"
       ]
     }
   }

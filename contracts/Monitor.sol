@@ -237,6 +237,30 @@ contract Monitor is AutomationCompatibleInterface, ICloseCallback {
         );
     }
 
+    function performUpkeepWithSwapData(bytes calldata _performData) external {
+        uint256 usedGas = gasleft();
+        (bytes32[] memory batchPositionKeys, bytes[] memory data0s, bytes[] memory data1s, uint256 count) = abi.decode(
+            _performData,
+            (bytes32[], bytes[], bytes[], uint256)
+        );
+
+        for (uint256 i = 0; i < count; i++) {
+            _close(
+                batchPositionKeys[i],
+                data0s[i],
+                data1s[i],
+                address(this)
+            );
+        }
+
+        emit ProcessBatch(
+            count,
+            _performData,
+            usedGas - gasleft(),
+            tx.gasprice
+        );
+    }
+
     // Gelato compatible function
     function checker()
         external

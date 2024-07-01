@@ -15,6 +15,7 @@ contract MetaAggregator is IMetaAggregator, Lockable {
     error ZeroAddress();
     error BadLength();
     error InvalidAdapter(address adapter);
+    error InsufficientOutput();
 
     event SetManager(address manager);
     event SetAdapter(address adapter, bool accept);
@@ -106,7 +107,8 @@ contract MetaAggregator is IMetaAggregator, Lockable {
             }
             require(success, message);
             amountOut = IERC20(_tokenOut).balanceOf(address(this));
-            if (amountOut > 0 && amountOut > _minAmountOut) {
+            if (amountOut < _minAmountOut) revert InsufficientOutput();
+            if (amountOut > 0) {
                 TransferHelper.safeTransfer(_tokenOut, _to, amountOut);
             }
         }

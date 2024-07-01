@@ -307,8 +307,33 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "maxOpenInterest",
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "maxBaseReserve",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "maxCollateralReserve",
       "outputs": [
         {
           "internalType": "uint256",
@@ -411,19 +436,6 @@
         }
       ],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "openInterest",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -560,12 +572,35 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_baseToken",
+          "type": "address"
+        },
+        {
           "internalType": "uint256",
-          "name": "",
+          "name": "_maxBaseReserve",
           "type": "uint256"
         }
       ],
-      "name": "setMaxOpenInterest",
+      "name": "setMaxBaseReserve",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_collateral",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_maxCollateralReserve",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMaxCollateralReserve",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

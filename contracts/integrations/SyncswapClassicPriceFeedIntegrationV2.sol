@@ -10,6 +10,7 @@ contract SyncswapClassicPriceFeedIntegrationV2 is IPriceFeedIntegration {
     address public manager;
     uint256 public constant override PRECISION = 1e30;
     address public immutable factory;
+    address public immutable WETH;
     mapping(address => mapping(address => address)) public bridgeToken;
 
     error Forbidden(address sender);
@@ -22,8 +23,9 @@ contract SyncswapClassicPriceFeedIntegrationV2 is IPriceFeedIntegration {
         address bridgeToken
     );
 
-    constructor(address _factory) {
+    constructor(address _factory, address _WETH) {
         factory = _factory;
+        WETH = _WETH;
         manager = msg.sender;
     }
 
@@ -65,7 +67,8 @@ contract SyncswapClassicPriceFeedIntegrationV2 is IPriceFeedIntegration {
             (uint256 baseReserve, uint256 quoteReserve) = _baseToken == token0
                 ? (reserve0, reserve1)
                 : (reserve1, reserve0);
-            if (baseReserve > 0) price = (_amount * quoteReserve) / baseReserve;
+            if (baseReserve > 0)
+                price = (_amount * PRECISION * quoteReserve) / baseReserve;
         }
     }
 
@@ -78,17 +81,21 @@ contract SyncswapClassicPriceFeedIntegrationV2 is IPriceFeedIntegration {
         }
 
         address bridge = bridgeToken[_baseToken][_quoteToken];
-        if (bridge == address(0)) {
+        address _WETH = WETH;
+        if (_baseToken == _WETH || _quoteToken == _WETH) {
             price = _quote(1, _baseToken, _quoteToken);
         } else {
+            if (bridge == address(0)) {
+                bridge = _WETH;
+            }
             price = _quote(1, _baseToken, bridge);
-            price = _quote(price, bridge, _quoteToken);
+            price = _quote(price, bridge, _quoteToken) / PRECISION;
         }
 
         uint256 baseDecimals = IERC20(_baseToken).decimals();
         uint256 quoteDecimals = IERC20(_quoteToken).decimals();
         uint256 basePrec = 10 ** baseDecimals;
         uint256 quotePrec = 10 ** quoteDecimals;
-        price = (price * PRECISION * basePrec) / quotePrec;
+        price = (price * basePrec) / quotePrec;
     }
 }

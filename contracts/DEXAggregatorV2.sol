@@ -12,7 +12,7 @@ contract DEXAggregatorV2 is Lockable, IDEXAggregator {
     address[] public override dexes;
     string[] public override dexNames;
     mapping(address => uint256) public override dexIndex;
-    mapping(address => mapping(address => address)) bridgeToken;
+    mapping(address => mapping(address => address)) public bridgeToken;
 
     error Forbidden(address sender);
     error ZeroAddress();
@@ -194,6 +194,7 @@ contract DEXAggregatorV2 is Lockable, IDEXAggregator {
         address _tokenOut,
         uint256 _amountIn
     ) external view override returns (uint256 amountOut, address dex) {
+        dex = address(0);
         address[] memory path;
         address bridge = bridgeToken[_tokenIn][_tokenOut];
         if (bridge == address(0)) {
@@ -216,6 +217,7 @@ contract DEXAggregatorV2 is Lockable, IDEXAggregator {
         address _tokenOut,
         uint256 _amountOut
     ) external view override returns (uint256 amountIn, address dex) {
+        dex = address(0);
         address[] memory path;
         address bridge = bridgeToken[_tokenIn][_tokenOut];
         if (bridge == address(0)) {
@@ -242,6 +244,7 @@ contract DEXAggregatorV2 is Lockable, IDEXAggregator {
     {
         if (_path.length < 2) revert BadLength();
         amounts = new uint256[](_path.length);
+        dexes_ = new address[](_path.length - 1);
         amounts[0] = _amountIn;
         for (uint256 i; i < _path.length - 1; i++) {
             (amounts[i + 1], dexes_[i]) = _getAmountOut(
@@ -263,6 +266,7 @@ contract DEXAggregatorV2 is Lockable, IDEXAggregator {
     {
         if (_path.length < 2) revert BadLength();
         amounts = new uint256[](_path.length);
+        dexes_ = new address[](_path.length - 1);
         amounts[amounts.length - 1] = _amountOut;
         for (uint256 i = _path.length - 1; i > 0; i--) {
             (amounts[i - 1], dexes_[i - 1]) = _getAmountIn(
@@ -298,6 +302,7 @@ contract DEXAggregatorV2 is Lockable, IDEXAggregator {
         uint256 _minAmountOut,
         address _to
     ) external override lock returns (uint256 amountOut, address dex) {
+        dex = address(0);
         // receive input token
         uint256 amountIn = IERC20(_tokenIn).balanceOf(address(this));
         if (_tokenIn == _tokenOut) {

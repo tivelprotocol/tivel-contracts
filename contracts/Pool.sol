@@ -19,8 +19,8 @@ contract Pool is Lockable, IPool {
     address public override quoteToken;
     uint256 public override precision;
     uint256 public override interest; // annual // 10000 = 100%
-    uint256 public override maxOpenInterest;
-    uint256 public override openInterest;
+    mapping(address => uint256) public override maxBaseReserve;
+    mapping(address => uint256) public override maxCollateralReserve;
 
     uint256 public override quoteReserve;
     uint256 public override quoteInDebt;
@@ -43,11 +43,15 @@ contract Pool is Lockable, IPool {
     error ZeroValue();
     error UntradeableBaseToken(address token);
     error InvalidParameters();
-    error ExceedMaxOpenInterest();
+    error ExceedMaxReserve();
     error InsufficientCollateral(uint256 amount, uint256 neededAmount);
 
     event SetInterest(uint256 newInterest);
-    event SetMaxOpenInterest(uint256 newMaxOpenInterest);
+    event SetMaxBaseReserve(address baseToken, uint256 nexMaxBaseReserve);
+    event SetMaxCollateralReserve(
+        address collateral,
+        uint256 nexMaxCollateralReserve
+    );
     event SetBaseToken(address baseToken, address quoteToken, bool tradeable);
     event UpdateQuoteReserve(uint256 newQuoteReserve);
     event UpdateQuoteInDebt(uint256 newQuoteInDebt);
@@ -184,12 +188,22 @@ contract Pool is Lockable, IPool {
         emit SetInterest(_interest);
     }
 
-    function setMaxOpenInterest(
-        uint256 _maxOpenInterest
+    function setMaxBaseReserve(
+        address _baseToken,
+        uint256 _maxBaseReserve
     ) external override onlyFactory {
-        maxOpenInterest = _maxOpenInterest;
+        maxBaseReserve[_baseToken] = _maxBaseReserve;
 
-        emit SetMaxOpenInterest(_maxOpenInterest);
+        emit SetMaxBaseReserve(_baseToken, _maxBaseReserve);
+    }
+
+    function setMaxCollateralReserve(
+        address _collateral,
+        uint256 _maxCollateralReserve
+    ) external override onlyFactory {
+        maxCollateralReserve[_collateral] = _maxCollateralReserve;
+
+        emit SetMaxCollateralReserve(_collateral, _maxCollateralReserve);
     }
 
     function setBaseTokens(
@@ -416,8 +430,10 @@ contract Pool is Lockable, IPool {
     ) external override lock returns (bytes32 positionKey) {
         if (!tradeableBaseToken[_params.baseToken])
             revert UntradeableBaseToken(_params.baseToken);
-        if (openInterest + _params.quoteAmount > maxOpenInterest)
-            revert ExceedMaxOpenInterest();
+        if (
+            baseReserve[_params.baseToken] + _params.baseAmount > maxBaseReserve[_params.baseToken]
+            || collateralReserve[_params.collateral] + _params.collateralAmount > maxCollateralReserve[_params.collateral]
+        ) revert ExceedMaxReserve();
 
         address _quoteToken = quoteToken;
         _params.quoteToken = _quoteToken;
@@ -439,7 +455,6 @@ contract Pool is Lockable, IPool {
         accProtocolFee += pos.protocolFee;
         baseReserve[_params.baseToken] += _params.baseAmount;
         collateralReserve[_params.collateral] += _params.collateralAmount;
-        openInterest += pos.quoteToken.amount;
         _addFee(pos.fee - pos.protocolFee);
 
         TransferHelper.safeTransfer(
@@ -594,7 +609,6 @@ contract Pool is Lockable, IPool {
         withdrawingLiquidity += pos.quoteToken.amount;
         baseReserve[pos.baseToken.id] -= pos.baseToken.amount;
         collateralReserve[pos.collateral.id] -= pos.collateral.amount;
-        openInterest -= pos.quoteToken.amount;
 
         if (liquidationFee > 0) {
             address liquidationFeeTo = _factory.liquidationFeeTo();
@@ -648,7 +662,6 @@ contract Pool is Lockable, IPool {
         withdrawingLiquidity += pos.quoteToken.amount;
         baseReserve[pos.baseToken.id] -= pos.baseToken.amount;
         collateralReserve[pos.collateral.id] -= pos.collateral.amount;
-        openInterest -= pos.quoteToken.amount;
 
         TransferHelper.safeTransfer(
             pos.baseToken.id,
@@ -750,7 +763,6 @@ contract Pool is Lockable, IPool {
 
         quoteInDebt -= pos.quoteToken.amount;
         withdrawingLiquidity += pos.quoteToken.amount;
-        openInterest -= pos.quoteToken.amount;
 
         if (_liquidationFee > 0) {
             address liquidationFeeTo = IFactory(factory).liquidationFeeTo();
@@ -826,7 +838,6 @@ contract Pool is Lockable, IPool {
 
         quoteInDebt += fee;
         accProtocolFee += protocolFee;
-        openInterest += fee;
         _addFee(fee - protocolFee);
 
         emit UpdateDeadline(

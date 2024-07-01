@@ -5,7 +5,6 @@ import "../libraries/PythStructs.sol";
 import "../libraries/PythUtils.sol";
 import "../interfaces/external/IPyth.sol";
 import "../interfaces/IPriceFeedIntegration.sol";
-import "hardhat/console.sol";
 
 contract PythPriceFeedIntegration is IPriceFeedIntegration {
     uint256 public constant override PRECISION = 1e18;

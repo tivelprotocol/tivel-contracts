@@ -295,13 +295,24 @@ contract Factory is IFactory {
         IPool(pool).setInterest(_interest);
     }
 
-    function setPoolMaxOpenInterest(
+    function setPoolMaxBaseReserve(
         address _quoteToken,
-        uint256 _maxOpenInterest
+        address _baseToken,
+        uint256 _maxBaseReserve
     ) external onlyManager {
         address pool = poolByQuoteToken[_quoteToken];
         if (pool == address(0)) revert PoolNotExists(_quoteToken);
-        IPool(pool).setMaxOpenInterest(_maxOpenInterest);
+        IPool(pool).setMaxBaseReserve(_baseToken, _maxBaseReserve);
+    }
+
+    function setPoolMaxCollateralReserve(
+        address _quoteToken,
+        address _collateral,
+        uint256 _maxCollateralReserve
+    ) external onlyManager {
+        address pool = poolByQuoteToken[_quoteToken];
+        if (pool == address(0)) revert PoolNotExists(_quoteToken);
+        IPool(pool).setMaxCollateralReserve(_collateral, _maxCollateralReserve);
     }
 
     function setPoolBaseTokens(

@@ -109,7 +109,7 @@ contract LiquidationMarker is AutomationCompatibleInterface {
         uint256 positionLength = positionStorage.positionLength();
         if (startIndex < positionLength) {
             for (uint256 j = startIndex; j < positionLength; j++) {
-                bytes32 positionKey = positionStorage.positionKeys(j);
+                bytes32 positionKey = positionStorage.positionKeys(j + 1);
                 if (positionStorage.canLiquidationMark(positionKey)) {
                     batchPositionKeys[count] = positionKey;
                     count++;
@@ -168,7 +168,7 @@ contract LiquidationMarker is AutomationCompatibleInterface {
         uint256 positionLength = positionStorage.positionLength();
         if (startIndex < positionLength) {
             for (uint256 j = startIndex; j < positionLength; j++) {
-                bytes32 positionKey = positionStorage.positionKeys(j);
+                bytes32 positionKey = positionStorage.positionKeys(j + 1);
                 if (positionStorage.canLiquidationMark(positionKey)) {
                     batchPositionKeys[count] = positionKey;
                     count++;

@@ -11,6 +11,7 @@ contract UniswapV2PriceFeedIntegrationV2 is IPriceFeedIntegration {
     address public manager;
     uint256 public constant override PRECISION = 1e30;
     address public immutable factory;
+    address public immutable WETH;
     mapping(address => mapping(address => address)) public bridgeToken;
 
     error Forbidden(address sender);
@@ -23,8 +24,9 @@ contract UniswapV2PriceFeedIntegrationV2 is IPriceFeedIntegration {
         address bridgeToken
     );
 
-    constructor(address _factory) {
+    constructor(address _factory, address _WETH) {
         factory = _factory;
+        WETH = _WETH;
         manager = msg.sender;
     }
 
@@ -80,11 +82,15 @@ contract UniswapV2PriceFeedIntegrationV2 is IPriceFeedIntegration {
         }
 
         address bridge = bridgeToken[_baseToken][_quoteToken];
-        if (bridge == address(0)) {
+        address _WETH = WETH;
+        if (_baseToken == _WETH || _quoteToken == _WETH) {
             price = _quote(1, _baseToken, _quoteToken);
         } else {
+            if (bridge == address(0)) {
+                bridge = _WETH;
+            }
             price = _quote(1, _baseToken, bridge);
-            price = _quote(price / PRECISION, bridge, _quoteToken);
+            price = _quote(price, bridge, _quoteToken) / PRECISION;
         }
 
         uint256 baseDecimals = IERC20(_baseToken).decimals();
