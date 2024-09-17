@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 import "./interfaces/IUserStorage.sol";
 
-contract UserStorage is IUserStorage { // 0x870B9af87B568B6C9a43a0Dd16788F8c57cF8524
+contract UserStorage is IUserStorage {
     address public manager;
     mapping(address => bool) public operator;
     mapping(address => IUserStorage.User) private userInfo;
@@ -104,7 +104,8 @@ contract UserStorage is IUserStorage { // 0x870B9af87B568B6C9a43a0Dd16788F8c57cF
             user.id = _user;
         }
         if (user.referralCode != bytes32(0)) revert Generated();
-        if (referralCodeToAddress[_referralCode] == address(0)) revert InvalidReferralCode();
+        if (referralCodeToAddress[_referralCode] != address(0))
+            revert InvalidReferralCode();
 
         user.referralCode = _referralCode;
         referralCodeToAddress[_referralCode] = _user;
@@ -123,7 +124,8 @@ contract UserStorage is IUserStorage { // 0x870B9af87B568B6C9a43a0Dd16788F8c57cF
             user.id = _user;
         }
         address referrer = referralCodeToAddress[_referrerCode];
-        if (referrer == address(0)) revert InvalidReferrerCode();
+        if (referrer == address(0) || referrer == _user)
+            revert InvalidReferrerCode();
 
         user.referrerCode = _referrerCode;
 

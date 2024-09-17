@@ -9,7 +9,7 @@ import "./interfaces/INonfungibleTokenPositionDescriptor.sol";
 import "./interfaces/IPool.sol";
 import "./base/LiquidityManagement.sol";
 import "./base/PeripheryImmutableState.sol";
-import "./base/Multicall.sol";
+import "./base/DelegateMulticall.sol";
 import "./base/ERC721Permit.sol";
 import "./base/PeripheryValidation.sol";
 import "./base/SelfPermit.sol";
